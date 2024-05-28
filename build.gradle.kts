@@ -22,6 +22,9 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.foundation)
                 implementation(compose.ui)
+                implementation(libs.decompose)
+                implementation(libs.decompose.extensions.compose)
+                implementation(libs.essenty.lifecycle.coroutines)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.ktor.client.core)
             }

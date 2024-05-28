@@ -1,5 +1,7 @@
 [versions]
 compose = "1.6.10"
+decompose = "3.0.0"
+essenty = "2.0.0"
 junit = "5.10.2"
 kotlin = "2.0.0"
 kotlinx-serialization = "1.6.3"
@@ -7,6 +9,14 @@ ktor = "2.3.11"
 
 
 [libraries]
+# com.arkivanov.decompose - Decompose
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+
+# com.arkivanov.essenty - Essenty
+# https://github.com/arkivanov/Essenty
+essenty-lifecycle-coroutines = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "essenty" }
+
 # io.ktor - Ktor
 # https://github.com/ktorio/ktor
 ktor-client-apache = { module = "io.ktor:ktor-client-apache", version.ref = "ktor" }
