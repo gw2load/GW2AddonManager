@@ -6,6 +6,7 @@ junit = "5.10.2"
 kotlin = "2.0.0"
 kotlinx-serialization = "1.6.3"
 ktor = "2.3.11"
+mockito = "5.12.0"
 
 
 [libraries]
@@ -24,16 +25,20 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 
+# org.jetbrains.kotlinx:kotlinx-serialization-[...] - kotlinx.serialization
+# https://github.com/Kotlin/kotlinx.serialization
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
 # org.junit - JUnit
 # https://github.com/junit-team/junit5
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 
-# org.jetbrains.kotlinx:kotlinx-serialization-[...] - kotlinx.serialization
-# https://github.com/Kotlin/kotlinx.serialization
-kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+# org.mockito - Mockito
+# https://github.com/mockito/mockito
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 
 [plugins]

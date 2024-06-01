@@ -35,6 +35,15 @@ kotlin {
                 runtimeOnly(libs.ktor.client.java)
             }
         }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.junit.jupiter.api)
+                implementation(libs.mockito.core)
+
+                runtimeOnly(libs.junit.jupiter.engine)
+            }
+        }
     }
 }
 
