@@ -2,7 +2,7 @@
 compose = "1.6.10"
 decompose = "3.0.0"
 essenty = "2.0.0"
-junit = "5.10.2"
+junit = "5.10.3"
 kotlin = "2.0.0"
 kotlinx-serialization = "1.6.3"
 ktor = "2.3.12"
