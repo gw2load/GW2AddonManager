@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.plugin.compose)
-    alias(libs.plugins.kotlin.plugin.serialization)
-    alias(libs.plugins.jetbrainsCompose)
+    alias(buildDeps.plugins.kotlin.multiplatform)
+    alias(buildDeps.plugins.kotlin.plugin.compose)
+    alias(buildDeps.plugins.kotlin.plugin.serialization)
+    alias(buildDeps.plugins.jetbrainsCompose)
 }
 
 composeCompiler {
@@ -22,26 +22,26 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.foundation)
                 implementation(compose.ui)
-                implementation(libs.decompose)
-                implementation(libs.decompose.extensions.compose)
-                implementation(libs.essenty.lifecycle.coroutines)
-                implementation(libs.kotlinx.serialization.json)
-                implementation(libs.ktor.client.core)
+                implementation(buildDeps.decompose)
+                implementation(buildDeps.decompose.extensions.compose)
+                implementation(buildDeps.essenty.lifecycle.coroutines)
+                implementation(buildDeps.kotlinx.serialization.json)
+                implementation(buildDeps.ktor.client.core)
             }
         }
 
         jvmMain {
             dependencies {
-                runtimeOnly(libs.ktor.client.java)
+                runtimeOnly(buildDeps.ktor.client.java)
             }
         }
 
         jvmTest {
             dependencies {
-                implementation(libs.junit.jupiter.api)
-                implementation(libs.mockito.core)
+                implementation(buildDeps.junit.jupiter.api)
+                implementation(buildDeps.mockito.core)
 
-                runtimeOnly(libs.junit.jupiter.engine)
+                runtimeOnly(buildDeps.junit.jupiter.engine)
             }
         }
     }

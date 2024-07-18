@@ -10,4 +10,12 @@ plugins {
 
 rootProject.name = "GW2AddonManager.Next"
 
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("buildDeps") {
+            from(files("./gradle/build.versions.toml"))
+        }
+    }
+}
+
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
