@@ -12,7 +12,7 @@ rootProject.name = "GW2AddonManager.Next"
 
 dependencyResolutionManagement {
     versionCatalogs {
-        create("buildDeps") {
+        register("buildDeps") {
             from(files("./gradle/build.versions.toml"))
         }
     }
