@@ -23,11 +23,17 @@ kotlin {
                 implementation(buildDeps.essenty.lifecycle.coroutines)
                 implementation(buildDeps.kotlinx.serialization.json)
                 implementation(buildDeps.ktor.client.core)
+                implementation(buildDeps.ktor.client.logging)
             }
         }
 
         jvmMain {
             dependencies {
+                implementation(buildDeps.slf4j.api)
+                implementation(buildDeps.log4j.core)
+                implementation(buildDeps.log4j.slf4j2.impl)
+                implementation(buildDeps.jackson.databind)
+
                 runtimeOnly(buildDeps.ktor.client.java)
             }
         }

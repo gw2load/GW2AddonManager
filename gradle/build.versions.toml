@@ -2,11 +2,14 @@
 compose = "1.6.11"
 decompose = "3.1.0"
 essenty = "2.1.0"
+jackson = "2.17.2"
 junit = "5.11.0"
 kotlin = "2.0.20"
 kotlinx-serialization = "1.7.1"
 ktor = "2.3.12"
+log4j = "2.23.1"
 mockito = "5.12.0"
+slf4j = "2.0.15"
 
 
 [libraries]
@@ -18,12 +21,22 @@ decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-co
 # https://github.com/arkivanov/Essenty
 essenty-lifecycle-coroutines = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "essenty" }
 
+# com.fasterxml.jackson.core - Jackson
+# https://github.com/FasterXML/jackson
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+
 # io.ktor - Ktor
 # https://github.com/ktorio/ktor
 ktor-client-apache = { module = "io.ktor:ktor-client-apache", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+
+# org.apache.logging.log4j - Log4j
+# https://github.com/apache/logging-log4j2
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
 
 # org.jetbrains.kotlinx:kotlinx-serialization-[...] - kotlinx.serialization
 # https://github.com/Kotlin/kotlinx.serialization
@@ -39,6 +52,10 @@ junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", vers
 # org.mockito - Mockito
 # https://github.com/mockito/mockito
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+
+# org.slf4j - SLF4J
+# https://github.com/qos-ch/slf4j
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 
 [plugins]
