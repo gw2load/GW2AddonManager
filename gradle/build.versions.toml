@@ -5,6 +5,7 @@ essenty = "2.1.0"
 jackson = "2.17.2"
 junit = "5.11.0"
 kotlin = "2.0.20"
+kotlinx-coroutines = "1.8.1"
 kotlinx-serialization = "1.7.1"
 ktor = "2.3.12"
 log4j = "2.23.1"
@@ -37,6 +38,10 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 # https://github.com/apache/logging-log4j2
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
+
+# org.jetbrains.kotlinx:kotlinx-coroutines-[...] - kotlinx.coroutines
+# https://github.com/Kotlin/kotlinx.coroutines
+kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines" }
 
 # org.jetbrains.kotlinx:kotlinx-serialization-[...] - kotlinx.serialization
 # https://github.com/Kotlin/kotlinx.serialization

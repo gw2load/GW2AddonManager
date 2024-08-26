@@ -1,8 +1,30 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 plugins {
     alias(buildDeps.plugins.kotlin.multiplatform)
     alias(buildDeps.plugins.kotlin.plugin.compose)
     alias(buildDeps.plugins.kotlin.plugin.serialization)
     alias(buildDeps.plugins.jetbrainsCompose)
+}
+
+compose {
+    desktop {
+        application {
+            javaHome = javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(22)) }.get().executablePath.asFile.parentFile.parent
+            mainClass = "com.gw2tb.manager.MainKt"
+
+            nativeDistributions {
+                modules("java.net.http")
+
+                targetFormats(TargetFormat.Exe, TargetFormat.Msi)
+
+                windows {
+                    dirChooser = true
+                    menu = true
+                }
+            }
+        }
+    }
 }
 
 kotlin {
@@ -21,6 +43,7 @@ kotlin {
                 implementation(buildDeps.decompose)
                 implementation(buildDeps.decompose.extensions.compose)
                 implementation(buildDeps.essenty.lifecycle.coroutines)
+                implementation(buildDeps.kotlinx.coroutines.slf4j)
                 implementation(buildDeps.kotlinx.serialization.json)
                 implementation(buildDeps.ktor.client.core)
                 implementation(buildDeps.ktor.client.logging)
@@ -50,6 +73,16 @@ kotlin {
 }
 
 tasks {
+    withType<Jar>().configureEach {
+        manifest {
+            attributes(
+                "Implementation-Title" to "com.gw2tb.manager",
+                "Implementation-Vendor" to "com.gw2tb",
+                "Implementation-Version" to project.version
+            )
+        }
+    }
+
     withType<Test>().configureEach {
         useJUnitPlatform()
     }
