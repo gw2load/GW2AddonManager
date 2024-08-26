@@ -5,10 +5,6 @@ plugins {
     alias(buildDeps.plugins.jetbrainsCompose)
 }
 
-composeCompiler {
-    enableStrongSkippingMode = true
-}
-
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(22)
