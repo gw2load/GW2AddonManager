@@ -1,4 +1,4 @@
-package com.gw2tb.manager.model
+package com.gw2tb.manager.model.local
 
 import androidx.compose.runtime.Immutable
 import com.gw2tb.manager.platform.win32.getAddOnInfo
@@ -11,8 +11,7 @@ fun LocalAddOn(path: Path, kind: LocalAddOn.Kind): LocalAddOn? {
         kind = kind,
         path = path,
         name = addOnInfo.name,
-        version = addOnInfo.version,
-        versionString = addOnInfo.versionString
+        version = addOnInfo.version
     )
 }
 
@@ -29,8 +28,7 @@ data class LocalAddOn(
     val kind: Kind,
     val name: String,
     val path: Path,
-    val version: List<Int>,
-    val versionString: String,
+    val version: AddOnVersion,
     val isEnabled: Boolean = !path.fileName.toString().endsWith(".disabled")
 ) {
 

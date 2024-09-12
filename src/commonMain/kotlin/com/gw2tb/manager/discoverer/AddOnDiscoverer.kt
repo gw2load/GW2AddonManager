@@ -1,6 +1,6 @@
 package com.gw2tb.manager.discoverer
 
-import com.gw2tb.manager.model.LocalAddOn
+import com.gw2tb.manager.model.local.LocalAddOn
 import java.nio.file.Path
 
 /**
