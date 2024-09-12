@@ -8,7 +8,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
-rootProject.name = "GW2AddonManager.Next"
+rootProject.name = "GW2AddonManager"
 
 dependencyResolutionManagement {
     versionCatalogs {
