@@ -1,6 +1,6 @@
 package com.gw2tb.manager.repository
 
-import com.gw2tb.manager.model.AddOnListing
+import com.gw2tb.manager.model.catalog.AddOnListing
 import java.nio.channels.ReadableByteChannel
 
 /**

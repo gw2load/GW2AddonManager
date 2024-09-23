@@ -1,0 +1,16 @@
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" name="GW2AddonManager">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT" />
+    <RollingFile name="json-file" fileName="logs/app.log" filePattern="logs/app-%d{MM-dd-yyyy}.log.gz">
+      <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true" includeTimeMillis="true" />
+      <SizeBasedTriggeringPolicy size="10 MB" />
+      <DefaultRolloverStrategy max="10" />
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="DEBUG">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="json-file" level="TRACE" />
+    </Root>
+  </Loggers>
+</Configuration>

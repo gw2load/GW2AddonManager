@@ -2,7 +2,9 @@ package com.gw2tb.manager.repository
 
 import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.gw2tb.manager.model.AddOnListing
+import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.local.AddOnFileVersion
+import com.gw2tb.manager.model.local.AddOnVersion
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -40,7 +42,7 @@ class AddOnRepositoryImpl(
             }
         }.await()
 
-        parsePluginManifest(manifest)
+        parseAddOnManifest(manifest)
             .map {
                 AddOnListing(
                     id = it.`package`.id,
@@ -56,12 +58,15 @@ class AddOnRepositoryImpl(
                     vendorUrl = it.`package`.website,
 
                     downloadUrl = it.release!!.downloadUrl,
-                    versionName = it.release.versionString,
+                    version = AddOnVersion(
+                        fileVersion = it.release.version.let { (a, b, c, d) -> AddOnFileVersion(a.toUShort(), b.toUShort(), c.toUShort(), d.toUShort()) },
+                        versionString = it.release.versionString
+                    ),
                     addOnNames = it.addonNames ?: emptyList(),
 
                     installMode = when (it.installation.mode) {
-                        AddonRepositoryManifest.AddOnEntry.Installation.Mode.ARC -> AddOnListing.InstallMode.Arc
-                        AddonRepositoryManifest.AddOnEntry.Installation.Mode.GW2LOAD -> AddOnListing.InstallMode.Gw2Load
+                        AddOnRepositoryManifest.AddOnEntry.Installation.Mode.ARC -> AddOnListing.InstallMode.Arc
+                        AddOnRepositoryManifest.AddOnEntry.Installation.Mode.GW2LOAD -> AddOnListing.InstallMode.Gw2Load
                     },
                     dependencies = it.`package`.dependencies ?: emptyList()
                 )

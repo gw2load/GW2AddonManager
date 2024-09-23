@@ -1,6 +1,7 @@
 package com.gw2tb.manager.discoverer
 
-import com.gw2tb.manager.model.LocalAddOn
+import com.gw2tb.manager.model.local.LocalAddOn
+import com.gw2tb.manager.platform.win32.getAddOnInfo
 import java.nio.file.Path
 import kotlin.io.path.isRegularFile
 
@@ -24,7 +25,7 @@ class Gw2LoadDiscoverer(
                     kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
                     name = addOnName,
                     path = libraryPath,
-                    version = "0.0.0", // TODO Read version from the library
+                    version = libraryPath.getAddOnInfo()!!.version,
                     isEnabled = true
                 ))
             }
@@ -34,7 +35,7 @@ class Gw2LoadDiscoverer(
                     kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
                     name = addOnName,
                     path = disabledLibraryPath,
-                    version = "0.0.0", // TODO Read version from the library
+                    version = libraryPath.getAddOnInfo()!!.version,
                     isEnabled = false
                 ))
             }

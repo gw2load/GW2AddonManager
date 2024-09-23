@@ -1,18 +1,18 @@
 package com.gw2tb.manager.repository
 
-import com.gw2tb.manager.repository.AddonRepositoryManifest.AddOnEntry
+import com.gw2tb.manager.repository.AddOnRepositoryManifest.AddOnEntry
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
-private val json = Json {
+internal val json = Json {
     ignoreUnknownKeys = true
     useAlternativeNames = false
 }
 
-internal fun parsePluginManifest(str: String): List<AddOnEntry> {
-    return json.decodeFromString<AddonRepositoryManifest>(str)
+internal fun parseAddOnManifest(str: String): List<AddOnEntry> {
+    return json.decodeFromString<AddOnRepositoryManifest>(str)
         .addons
         .filter { it.release != null } // TODO Clarify how to handle these "useless" entries.
         .toList()
@@ -25,7 +25,7 @@ internal fun parsePluginManifest(str: String): List<AddOnEntry> {
  */
 @Serializable
 @JvmInline
-value class AddonRepositoryManifest(val addons: List<AddOnEntry>) {
+value class AddOnRepositoryManifest(val addons: List<AddOnEntry>) {
 
     @Serializable
     data class AddOnEntry(

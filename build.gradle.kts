@@ -37,12 +37,14 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(compose.components.resources)
                 implementation(compose.desktop.currentOs)
                 implementation(compose.foundation)
                 implementation(compose.ui)
                 implementation(buildDeps.decompose)
                 implementation(buildDeps.decompose.extensions.compose)
                 implementation(buildDeps.essenty.lifecycle.coroutines)
+                implementation(buildDeps.filekit.compose)
                 implementation(buildDeps.kotlinx.coroutines.slf4j)
                 implementation(buildDeps.kotlinx.serialization.json)
                 implementation(buildDeps.ktor.client.core)
@@ -52,10 +54,11 @@ kotlin {
 
         jvmMain {
             dependencies {
-                implementation(buildDeps.slf4j.api)
+                implementation(buildDeps.caffeine)
+                implementation(buildDeps.jackson.databind)
                 implementation(buildDeps.log4j.core)
                 implementation(buildDeps.log4j.slf4j2.impl)
-                implementation(buildDeps.jackson.databind)
+                implementation(buildDeps.slf4j.api)
 
                 runtimeOnly(buildDeps.ktor.client.java)
             }

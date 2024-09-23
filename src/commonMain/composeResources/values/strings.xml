@@ -1,0 +1,43 @@
+<resources>
+  <string name="app_name">GW2 Add-On Manager</string>
+  <string name="app_disclaimer">This project is not affiliated with ArenaNet or NCSOFT.</string>
+  <string name="app_logo_alt">Guild Wars 2 - Add-On Manager</string>
+
+  <string name="social_discord_tooltip">Join the Discord</string>
+  <string name="social_github_tooltip">Open on GitHub</string>
+
+  <string name="tab_explore">EXPLORE ADD-ONS</string>
+  <string name="tab_manage">INSTALLED</string>
+  <string name="tab_settings">SETTINGS</string>
+
+  <string name="addon_disable_tooltip">Click to disable</string>
+  <string name="addon_enable_tooltip">Click to enable</string>
+  <string name="addon_install">INSTALL</string>
+  <string name="addon_install_tooltip">Click to install</string>
+  <string name="addon_installed">INSTALLED</string>
+  <string name="addon_installed_tooltip">Already installed</string>
+  <string name="addon_uninstall">UNINSTALL</string>
+  <string name="addon_uninstall_tooltip">Click to Uninstall</string>
+  <string name="addon_update">UPDATE</string>
+  <string name="addon_update_tooltip">Click to update</string>
+
+  <string name="addon_description_unknown">Add-On description unavailable</string>
+
+  <string name="addon_vendor_by">by </string>
+  <string name="addon_vendor_unknown">Vendor information unavailable</string>
+
+  <string name="no_addon_selected">Select an add-on to view details</string>
+
+  <string name="setup_confirm">CONFIRM</string>
+  <string name="setup_select_game_directory_title">Select Guild Wars 2 Directory</string>
+  <string name="setup_welcome">Welcome!\n\nYou are almost set up. Please confirm your Guild Wars 2 installation directory to start.</string>
+
+  <string name="setting_game_directory_label">Game Directory</string>
+  <string name="setting_game_directory_change">Change...</string>
+  <string name="setting_game_directory_change_tooltip">Click to change the game directory</string>
+
+  <string name="game_start">PLAY</string>
+
+  <string name="window_close">Close</string>
+  <string name="window_minimize">Minimize</string>
+</resources>

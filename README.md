@@ -3,6 +3,12 @@
 A tool to improve the experience of using addons and plugins in Guild Wars 2 by
 handling installation, updates, and file management behind the scenes.
 
+> [!IMPORTANT]  
+> This project is not yet ready for general use and still requires manual setup.
+
+In order to use the manager, an up-to-date version of [GW2Load](https://github.com/gw2-addon-loader/GW2Load)
+is required. The manager expects GW2Load to be installed in the game directory.
+
 
 ## License
 

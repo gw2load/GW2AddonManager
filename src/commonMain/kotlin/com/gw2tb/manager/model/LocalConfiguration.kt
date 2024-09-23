@@ -1,5 +1,6 @@
 package com.gw2tb.manager.model
 
+import com.gw2tb.manager.util.serialization.PathSerializer
 import kotlinx.serialization.Serializable
 import java.nio.file.Path
 
@@ -10,7 +11,7 @@ import java.nio.file.Path
  * @param gameDirectories       a list of known or previously selected game directories
  */
 @Serializable
-data class LocalStorage(
-    val selectedGameDirectory: Path,
-    val gameDirectories: List<Path>
+data class LocalConfiguration(
+    val selectedGameDirectory: @Serializable(with = PathSerializer::class) Path? = null,
+    val gameDirectories: List<@Serializable(with = PathSerializer::class) Path>
 )

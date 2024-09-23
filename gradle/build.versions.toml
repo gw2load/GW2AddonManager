@@ -1,7 +1,9 @@
 [versions]
-compose = "1.6.11"
+caffeine = "3.1.8"
+compose = "1.7.0-rc01"
 decompose = "3.1.0"
 essenty = "2.1.0"
+filekit-compose = "0.8.2"
 jackson = "2.17.2"
 junit = "5.11.0"
 kotlin = "2.0.20"
@@ -25,6 +27,14 @@ essenty-lifecycle-coroutines = { module = "com.arkivanov.essenty:lifecycle-corou
 # com.fasterxml.jackson.core - Jackson
 # https://github.com/FasterXML/jackson
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+
+# com.github.ben-manes.caffeine - Caffeine
+# https://github.com/ben-manes/caffeine
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+
+# io.github.vinceglb:filekit-compose - FileKit
+# https://github.com/vinceglb/FileKit
+filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekit-compose" }
 
 # io.ktor - Ktor
 # https://github.com/ktorio/ktor
