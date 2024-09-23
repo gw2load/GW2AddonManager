@@ -11,6 +11,11 @@ plugins {
 rootProject.name = "GW2AddonManager"
 
 dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        google()
+    }
+
     versionCatalogs {
         register("buildDeps") {
             from(files("./gradle/build.versions.toml"))

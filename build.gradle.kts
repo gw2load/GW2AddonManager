@@ -87,8 +87,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-
-repositories {
-    mavenCentral()
-    google()
-}
