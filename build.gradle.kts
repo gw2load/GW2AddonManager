@@ -10,7 +10,7 @@ plugins {
 compose {
     desktop {
         application {
-            javaHome = javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(22)) }.get().executablePath.asFile.parentFile.parent
+            javaHome = javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(23)) }.get().executablePath.asFile.parentFile.parent
             mainClass = "com.gw2tb.manager.MainKt"
 
             jvmArgs("--enable-native-access=ALL-UNNAMED")
@@ -35,7 +35,7 @@ compose {
 
 kotlin {
     jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(22)
+        languageVersion = JavaLanguageVersion.of(23)
     }
 
     jvm()
