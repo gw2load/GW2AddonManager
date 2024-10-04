@@ -14,7 +14,11 @@ compose {
             mainClass = "com.gw2tb.manager.MainKt"
 
             nativeDistributions {
-                modules("java.net.http")
+                modules(
+                    "java.management",
+                    "java.net.http",
+                    "jdk.unsupported"
+                )
 
                 targetFormats(TargetFormat.Exe, TargetFormat.Msi)
 
