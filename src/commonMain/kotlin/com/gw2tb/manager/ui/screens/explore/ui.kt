@@ -107,7 +107,7 @@ fun ExploreAddOnsDetails(
                 installAddOn = { component.install(selectedAddOnListing) },
                 uninstallAddOn = { component.uninstall(localAddOn!!) },
                 updateAddOn = { component.install(selectedAddOnListing) },
-                navigateToVendor = { component.navigateToVendor(selectedAddOnListing) },
+                navigateToVendor = component::navigateToVendor,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(all = 8.dp),

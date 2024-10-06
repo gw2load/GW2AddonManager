@@ -104,7 +104,7 @@ fun ManageAddOnsDetails(
                 installAddOn = { error("Should never be reached") }, // In this screen, add-ons are already installed
                 uninstallAddOn = { component.uninstall(selectedLocalAddOn) },
                 updateAddOn = { component.install(addOnListing!!) },
-                navigateToVendor = { component.navigateToVendor(selectedAddOnListing) },
+                navigateToVendor = component::navigateToVendor,
                 modifier = modifier
                     .fillMaxSize()
                     .padding(all = 8.dp),
