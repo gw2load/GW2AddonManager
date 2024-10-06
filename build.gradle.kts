@@ -1,10 +1,13 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import com.gw2tb.manager.build.GenerateLauncherConfig
+import com.gw2tb.manager.build.JLink
+import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     alias(buildDeps.plugins.kotlin.multiplatform)
     alias(buildDeps.plugins.kotlin.plugin.compose)
     alias(buildDeps.plugins.kotlin.plugin.serialization)
     alias(buildDeps.plugins.jetbrainsCompose)
+    id("dummy")
 }
 
 compose {
@@ -14,21 +17,6 @@ compose {
             mainClass = "com.gw2tb.manager.MainKt"
 
             jvmArgs("--enable-native-access=ALL-UNNAMED")
-
-            nativeDistributions {
-                modules(
-                    "java.management",
-                    "java.net.http",
-                    "jdk.unsupported"
-                )
-
-                targetFormats(TargetFormat.Exe, TargetFormat.Msi)
-
-                windows {
-                    dirChooser = true
-                    menu = true
-                }
-            }
         }
     }
 }
@@ -94,5 +82,64 @@ tasks {
 
     withType<Test>().configureEach {
         useJUnitPlatform()
+    }
+
+    val jlink = register<JLink>("jlink") {
+        val toolchain = project.extensions.getByType<JavaPluginExtension>().toolchain
+        val service = project.extensions.getByType<JavaToolchainService>()
+
+        executable.set(layout.file(service.compilerFor(toolchain).map {
+            it.executablePath.asFile.resolveSibling("jlink${if (Os.isFamily(Os.FAMILY_WINDOWS)) ".exe" else ""}")
+        }))
+
+        destinationDir.set(layout.buildDirectory.dir("jlink"))
+
+        addModules.addAll(
+            "java.desktop",
+            "java.management",
+            "java.net.http",
+            "jdk.unsupported"
+        )
+    }
+
+    val generateLauncherConfig = register<GenerateLauncherConfig>("generateLauncherConfig") {
+        outputFile = layout.buildDirectory.file("tmp/$name/config.toml")
+
+        mainClassName = "com/gw2tb/manager/MainKt"
+        libjvmPath = "./runtime/bin/server/jvm.dll"
+
+        jvmArgs.add("--enable-native-access=ALL-UNNAMED")
+
+        classpathRoot = "./jars"
+        classpath.from(project.tasks["jvmJar"])
+        classpath.from(configurations["jvmRuntimeClasspath"])
+    }
+
+    val copyBundle = register<Copy>("copyBundle") {
+        dependsOn(generateLauncherConfig, jlink)
+
+        destinationDir = layout.buildDirectory.dir("tmp/bundle").get().asFile
+
+        into("jars") {
+            from(project.tasks["jvmJar"])
+            from(configurations["jvmRuntimeClasspath"])
+        }
+
+        into("runtime") {
+            from(jlink.get().destinationDir)
+        }
+
+        into(".") {
+            from(file("launcher/target/release/GW2AddOnManager.exe"))
+            from(generateLauncherConfig.get().outputFile)
+        }
+    }
+
+    register<Zip>("bundle") {
+        dependsOn(copyBundle)
+
+        destinationDirectory = layout.buildDirectory.dir("bundles")
+
+        from(copyBundle.get().destinationDir)
     }
 }

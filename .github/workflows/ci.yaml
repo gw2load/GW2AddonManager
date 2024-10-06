@@ -17,6 +17,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup MSVC Development Environment
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -26,11 +31,30 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build with Gradle
-        run: ./gradlew build packageMsi --info -S --show-version
+      - name: Build Launcher
+        run: |
+          pushd .
+          cd launcher
+          cargo build --release
+          popd
 
-      - name: Upload MSI
+      - name: Build with Gradle
+        run: ./gradlew build bundle --info -S --show-version
+
+      - name: Build Installer
+        run: |
+          pushd .
+          msbuild /p:Configuration=Release /p:Platform=x64 /t:Rebuild
+          popd
+
+      - name: Upload Installer
         uses: actions/upload-artifact@v4
         with:
-          name: msi
-          path: "./build/compose/binaries/main/msi/GW2AddonManager-2.0.0.msi"
+          name: installer
+          path: "./installer/bin/x64/Release/GW2AddonManager.msi"
+
+      - name: Upload Portable Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable
+          path: "./build/bundles/GW2AddonManager-2.0.0.zip" # TODO Figure out how to handle the version

@@ -1,0 +1,29 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <ItemGroup>
+    <HarvestDirectory Include="../build/tmp/bundle/runtime">
+      <ComponentGroupName>HarvestedRuntimeComponents</ComponentGroupName>
+      <DirectoryRefId>RuntimeDirectory</DirectoryRefId>
+      <SuppressRegistry>true</SuppressRegistry>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+    </HarvestDirectory>
+
+    <BindPath Include="../build/tmp/bundle/runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <HarvestDirectory Include="../build/tmp/bundle/jars">
+      <ComponentGroupName>HarvestedJarsComponents</ComponentGroupName>
+      <DirectoryRefId>JarsDirectory</DirectoryRefId>
+      <SuppressRegistry>true</SuppressRegistry>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+    </HarvestDirectory>
+
+    <BindPath Include="../build/tmp/bundle/jars" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Heat" Version="5.*" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.*" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.*" />
+  </ItemGroup>
+</Project>
