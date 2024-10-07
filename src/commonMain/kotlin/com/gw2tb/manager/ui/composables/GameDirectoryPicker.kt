@@ -45,7 +45,7 @@ fun GameDirectoryPicker(
         val baseColor = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F)
 
         BasicTextField(
-            value = selectedGameDirectory.toString(),
+            value = selectedGameDirectory?.toString() ?: "",
             onValueChange = {},
             readOnly = true,
             textStyle = LocalTextStyle.current.copy(
