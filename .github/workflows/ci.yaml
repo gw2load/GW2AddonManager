@@ -45,7 +45,7 @@ jobs:
         run: |
           pushd .
           cd installer
-          msbuild /p:Configuration=Release /p:Platform=x64 /t:Rebuild
+          msbuild -restore /p:Configuration=Release /p:Platform=x64 /t:Rebuild
           popd
 
       - name: Upload Installer
