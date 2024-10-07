@@ -21,25 +21,41 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
+import org.apache.logging.log4j.core.config.Configurator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.slf4j.LoggerFactory
-
-private val log = LoggerFactory.getLogger("Main")
+import java.nio.file.Files
+import java.nio.file.InvalidPathException
+import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 fun main() {
-    log.info("Starting the GW2 Add-On Manager")
+    // 1. Resolve the local configuration path (for PC-specific information and logs)
+    val appdataPath = try {
+        System.getenv("APPDATA")?.let(Path::of)!!
+    } catch (e: InvalidPathException) {
+        throw IllegalStateException("Invalid APPDATA path", e)
+    }
 
+    val localAppDataDirectory = appdataPath.resolve("GW2AddonManager")
+    if (!Files.isDirectory(localAppDataDirectory)) {
+        Files.createDirectories(localAppDataDirectory)
+    }
+
+    // 2. Prepare logging system
+    System.setProperty("logsDirectory", localAppDataDirectory.resolve("logs").absolutePathString())
+    Configurator.initialize(null, "log4j2.xml")
+
+    // 3. Launch application
     val appInfo = readApplicationInfo()
-    log.info("Application version: ${appInfo.version}")
-
-    runApplication(appInfo)
-
-    log.debug("Exiting normally")
+    runApplication(localAppDataDirectory, appInfo)
 }
 
-private fun runApplication(appInfo: AppInfo) {
-    val configurationService = ConfigurationService()
+private fun runApplication(
+    localAppDataDirectory: Path,
+    appInfo: AppInfo
+) {
+    val configurationService = ConfigurationService(localAppDataDirectory)
     val jobService = JobService()
 
     /* Let's play nice and use a single HTTP client with a proper user agent for all our requests. */

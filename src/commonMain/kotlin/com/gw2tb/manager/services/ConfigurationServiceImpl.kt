@@ -15,15 +15,11 @@ import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.*
 
-fun ConfigurationService(): ConfigurationService {
+fun ConfigurationService(
+    localAppDataDirectory: Path
+): ConfigurationService {
     // 1. Resolve the local configuration path (for PC-specific information)
-    val appdataPath = try {
-        System.getenv("APPDATA")?.let(Path::of)!!
-    } catch (e: InvalidPathException) {
-        throw IllegalStateException("Invalid APPDATA path", e)
-    }
-
-    val localConfigurationPath = appdataPath.resolve("GW2AddonManager/config.json")
+    val localConfigurationPath = localAppDataDirectory.resolve("config.json")
 
     // 2. Resolve the tmp directory
     val tmpDirsPath = try {
