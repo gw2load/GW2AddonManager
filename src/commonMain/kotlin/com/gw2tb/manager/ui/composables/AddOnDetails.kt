@@ -99,7 +99,7 @@ fun AddOnDetails(
                     }
 
                     Text(
-                        text = addOnListing?.version?.toString() ?: localAddOn?.version?.toString() ?: "Version unavailable",
+                        text = addOnListing?.download?.version?.toString() ?: localAddOn?.version?.toString() ?: "Version unavailable",
                         modifier = Modifier
                             .alignBy(FirstBaseline),
                         color = Color.Black.copy(ContentAlpha.medium),

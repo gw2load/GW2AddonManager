@@ -207,6 +207,10 @@ private class AddOnServiceImpl(
     }
 
     override suspend fun install(listing: AddOnListing, gameDirectory: Path) {
+        if (listing.download == null) {
+            throw IllegalArgumentException("Listing does not have a download URL")
+        }
+
         log.info("Installing add-on: {}", listing.addOnName)
 
         val addOnListings = addOnListings.last()
@@ -225,15 +229,15 @@ private class AddOnServiceImpl(
             }
 
             val downloadType = when {
-                listing.downloadUrl.endsWith(".zip") -> DownloadType.Archive
-                listing.downloadUrl.endsWith(".dll") -> DownloadType.Dll
-                else -> throw IllegalArgumentException("Unknown download type for URL: ${listing.downloadUrl}")
+                listing.download.downloadUrl.endsWith(".zip") -> DownloadType.Archive
+                listing.download.downloadUrl.endsWith(".dll") -> DownloadType.Dll
+                else -> throw IllegalArgumentException("Unknown download type for URL: ${listing.download.downloadUrl}")
             }
 
             val targetFileName = when (downloadType) {
-                DownloadType.Archive -> Url(listing.downloadUrl).pathSegments.last()
+                DownloadType.Archive -> Url(listing.download.downloadUrl).pathSegments.last()
                 DownloadType.Dll -> when (listing.installMode) {
-                    AddOnListing.InstallMode.Arc -> Url(listing.downloadUrl).pathSegments.last()
+                    AddOnListing.InstallMode.Arc -> Url(listing.download.downloadUrl).pathSegments.last()
                     AddOnListing.InstallMode.Gw2Load -> "gw2addon_${listing.addOnName}.dll"
                 }
             }

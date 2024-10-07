@@ -10,7 +10,7 @@ infix fun AddOnListing.isMatching(localAddOn: LocalAddOn): Boolean =
 
 fun AddOnListing.toUpdateFor(addOn: LocalAddOn): AvailableAddOnUpdate? {
     if (!isMatching(addOn)) return null
-    if (version <= addOn.version) return null
+    if (download != null && download.version <= addOn.version) return null
 
     return when {
         installMode == AddOnListing.InstallMode.Gw2Load && addOn.kind == LocalAddOn.Kind.ADDON_LOADER -> AvailableAddOnUpdate(
@@ -63,13 +63,18 @@ data class AddOnListing(
     val vendorName: String,
     val vendorUrl: String? = null,
 
-    val downloadUrl: String,
-    val version: AddOnVersion,
+    val download: Download?,
     val addOnNames: List<String>,
 
     val installMode: InstallMode,
     val dependencies: List<String>
 ) {
+
+    @Immutable
+    data class Download(
+        val downloadUrl: String,
+        val version: AddOnVersion,
+    )
 
     enum class InstallMode {
         Arc,

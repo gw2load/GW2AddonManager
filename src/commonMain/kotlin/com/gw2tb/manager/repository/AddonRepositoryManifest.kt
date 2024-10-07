@@ -14,7 +14,6 @@ internal val json = Json {
 internal fun parseAddOnManifest(str: String): List<AddOnEntry> {
     return json.decodeFromString<AddOnRepositoryManifest>(str)
         .addons
-        .filter { it.release != null } // TODO Clarify how to handle these "useless" entries.
         .toList()
 }
 
@@ -32,7 +31,7 @@ value class AddOnRepositoryManifest(val addons: List<AddOnEntry>) {
         val `package`: Package,
         val host: JsonObject, // We don't really care about this atm
         val installation: Installation,
-        val release: Release? = null, // TODO Should this really be optional? This does not seem to make sense.
+        val release: Release? = null,
         @SerialName("addon_names")
         val addonNames: List<String>? = null
     ) {

@@ -57,11 +57,15 @@ class AddOnRepositoryImpl(
                     vendorName = it.`package`.developer,
                     vendorUrl = it.`package`.website,
 
-                    downloadUrl = it.release!!.downloadUrl,
-                    version = AddOnVersion(
-                        fileVersion = it.release.version.let { (a, b, c, d) -> AddOnFileVersion(a.toUShort(), b.toUShort(), c.toUShort(), d.toUShort()) },
-                        versionString = it.release.versionString
-                    ),
+                    download = it.release?.let { release ->
+                        AddOnListing.Download(
+                            downloadUrl = release.downloadUrl,
+                            AddOnVersion(
+                                fileVersion = release.version.let { (a, b, c, d) -> AddOnFileVersion(a.toUShort(), b.toUShort(), c.toUShort(), d.toUShort()) },
+                                versionString = release.versionString
+                            )
+                        )
+                    },
                     addOnNames = it.addonNames ?: emptyList(),
 
                     installMode = when (it.installation.mode) {
@@ -75,7 +79,11 @@ class AddOnRepositoryImpl(
     }
 
     override suspend fun download(listing: AddOnListing): ReadableByteChannel {
-        val httpResponse = httpClient.get(Url(listing.downloadUrl))
+        if (listing.download == null) {
+            throw IllegalArgumentException("Listing does not have a download URL")
+        }
+
+        val httpResponse = httpClient.get(Url(listing.download.downloadUrl))
         return Channels.newChannel(httpResponse.bodyAsChannel().toInputStream())
     }
 

@@ -29,7 +29,9 @@ class ExploreComponentImpl(
     private val coroutineScope = coroutineScope(mainContext + SupervisorJob())
 
     override val addOnListings: StateFlow<List<AddOnListing>> =
-        addOnService.addOnListings.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+        addOnService.addOnListings
+            .map { it.filter { listing -> listing.download != null } }
+            .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     override val localAddOns: StateFlow<List<LocalAddOn>> =
         addOnService.localAddOns.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
