@@ -10,17 +10,6 @@ plugins {
     id("dummy")
 }
 
-compose {
-    desktop {
-        application {
-            javaHome = javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(23)) }.get().executablePath.asFile.parentFile.parent
-            mainClass = "com.gw2tb.manager.MainKt"
-
-            jvmArgs("--enable-native-access=ALL-UNNAMED")
-        }
-    }
-}
-
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(23)
