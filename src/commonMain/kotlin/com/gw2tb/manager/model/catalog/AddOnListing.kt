@@ -10,6 +10,7 @@ infix fun AddOnListing.isMatching(localAddOn: LocalAddOn): Boolean =
 
 fun AddOnListing.toUpdateFor(addOn: LocalAddOn): AvailableAddOnUpdate? {
     if (!isMatching(addOn)) return null
+    if (version <= addOn.version) return null
 
     return when {
         installMode == AddOnListing.InstallMode.Gw2Load && addOn.kind == LocalAddOn.Kind.ADDON_LOADER -> AvailableAddOnUpdate(
@@ -17,12 +18,11 @@ fun AddOnListing.toUpdateFor(addOn: LocalAddOn): AvailableAddOnUpdate? {
             localAddOn = addOn,
             urgency = AvailableAddOnUpdate.Urgency.REQUIRED
         )
-        version > addOn.version -> AvailableAddOnUpdate(
+        else -> AvailableAddOnUpdate(
             addOnListing = this,
             localAddOn = addOn,
             urgency = AvailableAddOnUpdate.Urgency.OPTIONAL
         )
-        else -> return null
     }
 }
 
