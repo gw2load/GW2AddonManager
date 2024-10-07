@@ -50,7 +50,8 @@ fun SetupScreen(component: SetupComponent) {
             onClick = component::confirmSetup,
             modifier = Modifier
                 .width(182.dp)
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
+            enabled = selectedGameDirectory != null
         ) {
             Text(
                 text = stringResource(Res.string.setup_confirm),
