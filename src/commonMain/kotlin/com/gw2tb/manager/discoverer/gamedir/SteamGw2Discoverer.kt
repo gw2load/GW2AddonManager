@@ -1,5 +1,6 @@
 package com.gw2tb.manager.discoverer.gamedir
 
+import io.ktor.utils.io.errors.*
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -26,13 +27,23 @@ class SteamGw2Discoverer(
 
     override fun findGameDirectory(): Path? {
         val libraryFoldersVdfPath = steamInstallationPath.resolve("steamapps\\libraryfolders.vdf")
-        val libraryFoldersVdf = libraryFoldersVdfPath.toFile().readText()
 
-        val gameDirectory = REGEX.find(libraryFoldersVdf)?.groupValues?.get(1)?.let(Path::of)?.resolve("steamapps\\common\\Guild Wars 2")
-        return if (gameDirectory != null && Files.isRegularFile(gameDirectory.resolve("Gw2-64.exe"))) {
-            gameDirectory
-        } else {
-            null
+        try {
+            if (!Files.isRegularFile(libraryFoldersVdfPath)) {
+                return null
+            }
+
+            val libraryFoldersVdf = libraryFoldersVdfPath.toFile().readText()
+
+            val gameDirectory = REGEX.find(libraryFoldersVdf)?.groupValues?.get(1)?.let(Path::of)?.resolve("steamapps\\common\\Guild Wars 2")
+            return if (gameDirectory != null && Files.isRegularFile(gameDirectory.resolve("Gw2-64.exe"))) {
+                gameDirectory
+            } else {
+                null
+            }
+        } catch (e: IOException) {
+            e.printStackTrace() // TODO proper logging
+            return null
         }
     }
 
