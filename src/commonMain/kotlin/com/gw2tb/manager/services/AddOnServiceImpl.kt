@@ -92,8 +92,9 @@ private class AddOnServiceImpl(
                             TODO()
                         }
                     }
-                } catch (_: IllegalArgumentException) {
-                    Gw2LoadAddOnDiscoverer(libraryPath = Path.of("D:\\GW2ToolBelt\\GW2Load\\x64\\Debug\\msimg32.dll"))
+                } catch (e: IllegalArgumentException) {
+                    e.printStackTrace()
+                    TODO()
                 }
 
                 prevAddOnDiscoverer?.close()
