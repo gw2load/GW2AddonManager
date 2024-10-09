@@ -37,7 +37,7 @@ fun main() {
         throw IllegalStateException("Invalid APPDATA path", e)
     }
 
-    val localAppDataDirectory = appdataPath.resolve("GW2AddonManager")
+    val localAppDataDirectory = appdataPath.resolve("GW2AddOnManager")
     if (!Files.isDirectory(localAppDataDirectory)) {
         Files.createDirectories(localAppDataDirectory)
     }
@@ -66,7 +66,7 @@ private fun runApplication(
         }
 
         install(UserAgent) {
-            agent = "GW2AddonManager/${appInfo.version}"
+            agent = "GW2AddOnManager/${appInfo.version}"
         }
     }
 

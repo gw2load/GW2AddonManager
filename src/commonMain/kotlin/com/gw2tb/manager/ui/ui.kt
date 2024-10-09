@@ -295,7 +295,7 @@ private fun MainScreenWrapper(component: AddOnManagerComponent) {
                 OutlinedSocialsIconButton(
                     resource = Res.drawable.icon_github,
                     onClickLabel = stringResource(Res.string.social_github_tooltip),
-                    onClick = { component.openLink("https://github.com/GW2ToolBelt/GW2AddonManager") },
+                    onClick = { component.openLink("https://github.com/GW2ToolBelt/GW2AddOnManager") },
                     modifier = Modifier.size(14.dp)
                 )
 

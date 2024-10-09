@@ -1,4 +1,4 @@
-<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" name="GW2AddonManager">
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" name="GW2AddOnManager">
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT" />
     <RollingFile name="json-file" fileName="${sys:logsDirectory}/app.log" filePattern="${sys:logsDirectory}/app-%d{MM-dd-yyyy}.log.gz">

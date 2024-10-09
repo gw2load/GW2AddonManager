@@ -28,7 +28,7 @@ fun ConfigurationService(
         throw IllegalStateException("Invalid java.io.tmpdir path", e)
     }
 
-    val tmpDir = tmpDirsPath.resolve("GW2AddonManager")
+    val tmpDir = tmpDirsPath.resolve("GW2AddOnManager")
     val storedGw2LoadPath = tmpDir.resolve("msimg32.dll")
 
     if (!Files.isDirectory(tmpDir)) {
