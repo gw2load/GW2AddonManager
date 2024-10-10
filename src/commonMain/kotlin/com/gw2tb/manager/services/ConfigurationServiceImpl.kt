@@ -3,6 +3,7 @@ package com.gw2tb.manager.services
 import com.gw2tb.manager.model.LocalConfiguration
 import com.gw2tb.manager.model.TempDirectoryLayout
 import com.gw2tb.manager.util.watchFile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.SerializationException
@@ -62,6 +63,7 @@ private class ConfigurationServiceImpl(
             emit(localConfigurationPath)
             emitAll(localConfigurationPath.watchFile().map { localConfigurationPath })
         }.map(::loadLocalConfiguration)
+            .flowOn(Dispatchers.IO)
             .distinctUntilChanged()
             .conflate()
             .shareIn(scope = GlobalScope, started = SharingStarted.Eagerly, replay = 1)
