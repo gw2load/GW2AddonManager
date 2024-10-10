@@ -3,8 +3,9 @@ package com.gw2tb.manager.services
 import com.gw2tb.manager.model.LocalConfiguration
 import com.gw2tb.manager.model.TempDirectoryLayout
 import com.gw2tb.manager.util.watchFile
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
@@ -14,10 +15,12 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.*
 
 fun ConfigurationService(
-    localAppDataDirectory: Path
+    localAppDataDirectory: Path,
+    mainContext: CoroutineContext
 ): ConfigurationService {
     // 1. Resolve the local configuration path (for PC-specific information)
     val localConfigurationPath = localAppDataDirectory.resolve("config.json")
@@ -41,18 +44,22 @@ fun ConfigurationService(
         tempDirectoryLayout = TempDirectoryLayout(
             directory = tmpDir,
             gw2LoadPath = storedGw2LoadPath
-        )
+        ),
+        mainContext = mainContext
     )
 }
 
 private class ConfigurationServiceImpl(
     private val localConfigurationPath: Path,
-    override val tempDirectoryLayout: TempDirectoryLayout
+    override val tempDirectoryLayout: TempDirectoryLayout,
+    mainContext: CoroutineContext,
 ) : ConfigurationService {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(ConfigurationServiceImpl::class.java)
     }
+
+    private val coroutineScope = CoroutineScope(mainContext + SupervisorJob())
 
     private val json = Json {
         prettyPrint = true
@@ -66,7 +73,7 @@ private class ConfigurationServiceImpl(
             .flowOn(Dispatchers.IO)
             .distinctUntilChanged()
             .conflate()
-            .shareIn(scope = GlobalScope, started = SharingStarted.Eagerly, replay = 1)
+            .shareIn(scope = coroutineScope, started = SharingStarted.Eagerly, replay = 1)
 
     fun loadLocalConfiguration(path: Path): LocalConfiguration? {
         log.info("Loading local configuration from '{}'", path)

@@ -21,6 +21,7 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
 import org.apache.logging.log4j.core.config.Configurator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -55,7 +56,13 @@ private fun runApplication(
     localAppDataDirectory: Path,
     appInfo: AppInfo
 ) {
-    val configurationService = ConfigurationService(localAppDataDirectory)
+    val mainContext = Dispatchers.Default
+
+    val configurationService = ConfigurationService(
+        localAppDataDirectory = localAppDataDirectory,
+        mainContext = mainContext
+    )
+
     val jobService = JobService()
 
     /* Let's play nice and use a single HTTP client with a proper user agent for all our requests. */
