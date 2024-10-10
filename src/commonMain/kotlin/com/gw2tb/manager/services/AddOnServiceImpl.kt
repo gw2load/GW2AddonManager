@@ -10,7 +10,6 @@ import com.gw2tb.manager.model.catalog.isMatching
 import com.gw2tb.manager.model.catalog.toUpdateFor
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.repository.AddOnRepository
-import com.gw2tb.manager.util.serialization.PathSerializer
 import com.gw2tb.manager.util.watchDirectory
 import com.sun.nio.file.ExtendedWatchEventModifier
 import io.ktor.http.*
@@ -20,7 +19,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.channels.FileChannel
@@ -64,7 +62,7 @@ private class AddOnServiceImpl(
                 )
                 .map { selectedGameDirectory }
         }
-        .transformLatest<@Serializable(with = PathSerializer::class) Path, List<AddOnDiscoverer>> { gameDirectory ->
+        .transformLatest { gameDirectory ->
             var prevAddOnDiscoverer: Gw2LoadAddOnDiscoverer? = null
 
             suspend fun scanAndEmitAddOns() {
