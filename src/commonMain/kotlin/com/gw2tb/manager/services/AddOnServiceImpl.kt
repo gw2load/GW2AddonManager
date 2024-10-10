@@ -11,7 +11,8 @@ import com.gw2tb.manager.model.catalog.toUpdateFor
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.repository.AddOnRepository
 import com.gw2tb.manager.util.serialization.PathSerializer
-import com.gw2tb.manager.util.watch
+import com.gw2tb.manager.util.watchDirectory
+import com.sun.nio.file.ExtendedWatchEventModifier
 import io.ktor.http.*
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,14 @@ private class AddOnServiceImpl(
     private val addOnDiscoverers: Flow<List<AddOnDiscoverer>> = configurationService.localConfiguration
         .mapNotNull { it?.selectedGameDirectory }
         .distinctUntilChanged()
+        .flatMapLatest { selectedGameDirectory ->
+            selectedGameDirectory
+                .watchDirectory(
+                    modifiers = arrayOf(ExtendedWatchEventModifier.FILE_TREE),
+                    filter = { path, _ -> path.fileName.toString() == "msimg32.dll" }
+                )
+                .map { selectedGameDirectory }
+        }
         .transformLatest<@Serializable(with = PathSerializer::class) Path, List<AddOnDiscoverer>> { gameDirectory ->
             var prevAddOnDiscoverer: Gw2LoadAddOnDiscoverer? = null
 
@@ -153,7 +162,10 @@ private class AddOnServiceImpl(
                 log.info("Started watching game directory '{}' using discoverers: {}", gameDirectory, discoverers)
 
                 emitAddOns()
-                gameDirectory.watch().collectLatest { emitAddOns() }
+
+                gameDirectory
+                    .watchDirectory(modifiers = arrayOf(ExtendedWatchEventModifier.FILE_TREE))
+                    .collectLatest { emitAddOns() }
             }
         }
         .distinctUntilChanged()

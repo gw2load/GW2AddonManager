@@ -2,7 +2,7 @@ package com.gw2tb.manager.services
 
 import com.gw2tb.manager.model.LocalConfiguration
 import com.gw2tb.manager.model.TempDirectoryLayout
-import com.gw2tb.manager.util.watch
+import com.gw2tb.manager.util.watchFile
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.SerializationException
@@ -60,7 +60,7 @@ private class ConfigurationServiceImpl(
     override val localConfiguration: Flow<LocalConfiguration?> =
         flow {
             emit(localConfigurationPath)
-            emitAll(localConfigurationPath.parent.watch().map { localConfigurationPath })
+            emitAll(localConfigurationPath.watchFile().map { localConfigurationPath })
         }.map(::loadLocalConfiguration)
             .distinctUntilChanged()
             .conflate()

@@ -1,25 +1,59 @@
 package com.gw2tb.manager.util
 
-import com.sun.nio.file.ExtendedWatchEventModifier
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.nio.file.Path
 import java.nio.file.StandardWatchEventKinds.*
 import java.nio.file.WatchEvent
+import java.nio.file.WatchService
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 
-fun Path.watch(): Flow<WatchEvent<*>> {
+fun Path.watchDirectory(
+    events: Array<WatchEvent.Kind<*>> = arrayOf(ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW),
+    vararg modifiers: WatchEvent.Modifier,
+    filter: (Path, WatchEvent<*>?) -> Boolean = { _, _ -> true }
+): Flow<WatchEvent<*>?> {
     val watchService = fileSystem.newWatchService()
-    register(watchService, arrayOf(ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW), ExtendedWatchEventModifier.FILE_TREE)
+
+    return watchDirectory(
+        watchService = watchService,
+        events = events,
+        modifiers = modifiers,
+        filter = filter
+    )
+        .onCompletion { watchService.close() }
+        .flowOn(Dispatchers.IO)
+}
+
+private fun Path.watchDirectory(
+    watchService: WatchService,
+    events: Array<WatchEvent.Kind<*>> = arrayOf(ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW),
+    vararg modifiers: WatchEvent.Modifier,
+    filter: (Path, WatchEvent<*>?) -> Boolean = { _, _ -> true }
+): Flow<WatchEvent<*>?> {
+    require(isDirectory()) { "Path is not a directory: ${this.absolutePathString()}" }
+
+    val registeredKey = register(watchService, events, *modifiers)
 
     return callbackFlow {
         val job = launch {
+            send(InitialWatchEvent)
+
             while (true) {
                 val key = watchService.take()
+                if (key != registeredKey) continue
 
                 for (event in key.pollEvents()) {
-                    trySend(event)
+                    if (!filter(event.context() as Path, event)) {
+                        continue
+                    }
+
+                    send(event)
                 }
 
                 if (!key.reset()) {
@@ -31,8 +65,30 @@ fun Path.watch(): Flow<WatchEvent<*>> {
         awaitClose {
             launch {
                 job.cancelAndJoin()
-                watchService.close()
+                registeredKey.cancel()
             }
         }
     }
+}
+
+fun Path.watchFile(
+    events: Array<WatchEvent.Kind<*>> = arrayOf(ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW)
+): Flow<WatchEvent<*>?> {
+    require(isRegularFile()) { "Path is not a file: ${this.absolutePathString()}" }
+
+    return parent.watchDirectory(
+        events = events,
+        filter = { path, _ -> parent.resolve(path) == this }
+    )
+}
+
+private object InitialWatchEventKind : WatchEvent.Kind<Any> {
+    override fun name(): String = "INITIAL"
+    override fun type(): Class<Any> = Any::class.java
+}
+
+private object InitialWatchEvent : WatchEvent<Any> {
+    override fun context(): Any? = null
+    override fun count(): Int = 1
+    override fun kind(): WatchEvent.Kind<Any> = InitialWatchEventKind
 }
