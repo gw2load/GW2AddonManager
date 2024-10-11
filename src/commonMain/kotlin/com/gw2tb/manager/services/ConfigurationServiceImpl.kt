@@ -82,10 +82,9 @@ private class ConfigurationServiceImpl(
     }
 
     override val localConfiguration: Flow<LocalConfiguration?> =
-        flow {
-            emit(localConfigurationPath)
-            emitAll(localConfigurationPath.watchFile().map { localConfigurationPath })
-        }.map(::loadLocalConfiguration)
+        localConfigurationPath
+            .watchFile()
+            .map { loadLocalConfiguration(localConfigurationPath) }
             .flowOn(Dispatchers.IO)
             .distinctUntilChanged()
             .conflate()
