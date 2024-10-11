@@ -30,9 +30,7 @@ import com.gw2tb.manager.util.watchDirectory
 import com.sun.nio.file.ExtendedWatchEventModifier
 import io.ktor.http.*
 import io.ktor.utils.io.errors.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import org.slf4j.Logger
@@ -43,26 +41,32 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.zip.ZipFile
+import kotlin.coroutines.CoroutineContext
 
 fun AddOnService(
     addOnRepository: AddOnRepository,
     configurationService: ConfigurationService,
-    jobService: JobService
+    jobService: JobService,
+    mainContext: CoroutineContext
 ): AddOnService = AddOnServiceImpl(
     addOnRepository = addOnRepository,
     configurationService = configurationService,
-    jobService = jobService
+    jobService = jobService,
+    mainContext = mainContext
 )
 
 private class AddOnServiceImpl(
     private val addOnRepository: AddOnRepository,
     configurationService: ConfigurationService,
-    private val jobService: JobService
+    private val jobService: JobService,
+    mainContext: CoroutineContext
 ) : AddOnService {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(AddOnServiceImpl::class.java)
     }
+
+    private val coroutineScope = CoroutineScope(mainContext + SupervisorJob())
 
     private val gw2LoadDiscoverer = Gw2LoadDiscoverer()
 
@@ -183,8 +187,8 @@ private class AddOnServiceImpl(
             }
         }
         .distinctUntilChanged()
-        .conflate()
-        .shareIn(GlobalScope, SharingStarted.Eagerly, replay = 1) // TODO Decide on a better scope for sharing
+//        .conflate()
+        .shareIn(scope = coroutineScope, started = SharingStarted.Eagerly, replay = 1)
 
     override val availableUpdates: Flow<List<AvailableAddOnUpdate>> = localAddOns
         .combine(addOnListings) { localAddOns, addOnListings ->

@@ -98,7 +98,8 @@ private fun runApplication(
             httpClient = httpClient
         ),
         configurationService = configurationService,
-        jobService = jobService
+        jobService = jobService,
+        mainContext = mainContext
     )
 
     val notificationService = NotificationService(
