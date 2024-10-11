@@ -1,4 +1,4 @@
-# Guild Wars 2 Add-On Manager
+# Guild Wars 2 Add-on Manager
 
 A tool to improve the experience of using addons and plugins in Guild Wars 2 by
 handling installation, updates, and file management behind the scenes.
@@ -22,10 +22,10 @@ all responsibility. There is no warranty for using this software.
 
 --------------------------------------------------------------------------------
 
-#### Guild Wars 2 Add-On Manager
+#### Guild Wars 2 Add-on Manager
 
 ```
-GW2AddOnManager
+GW2AddonManager
 Copyright (C) 2024 Leon Linhart
 
 This program is free software: you can redistribute it and/or modify it under
