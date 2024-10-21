@@ -1,7 +1,7 @@
 # Guild Wars 2 Add-on Manager
 
-A tool to improve the experience of using addons and plugins in Guild Wars 2 by
-handling installation, updates, and file management behind the scenes.
+The Guild Wars 2 Add-on Manager is a tool that allows you to easily manage and
+update third-party add-ons for Guild Wars 2.
 
 > [!IMPORTANT]  
 > This project is not yet ready for general use and still requires manual setup.
