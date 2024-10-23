@@ -51,6 +51,13 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(kotlin("test-junit5"))
+                implementation(buildDeps.turbine)
+            }
+        }
+
         jvmMain {
             dependencies {
                 implementation(buildDeps.caffeine)
