@@ -16,7 +16,7 @@
  */
 package com.gw2tb.manager.discoverer.gamedir
 
-import io.ktor.utils.io.errors.*
+import kotlinx.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 
