@@ -16,31 +16,38 @@
  */
 package com.gw2tb.manager.repository
 
-import com.gw2tb.manager.repository.AddOnRepositoryManifest.AddOnEntry
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 internal val json = Json {
     ignoreUnknownKeys = true
     useAlternativeNames = false
 }
 
-internal fun parseAddOnManifest(str: String): List<AddOnEntry> {
-    return json.decodeFromString<AddOnRepositoryManifest>(str)
+internal fun parseAddOnManifest(str: String): List<AddOnManifestV1.AddOnEntry> {
+    return json.decodeFromString<AddOnManifestContainer>(str)
+        .let { container ->
+            when (container.version) {
+                1 -> json.decodeFromJsonElement<AddOnManifestV1>(container.data)
+                else -> throw IllegalArgumentException("Unsupported manifest version: ${container.version}")
+            }
+        }
         .addons
         .toList()
 }
 
-/**
- * The manifest of an add-on repository.
- *
- * The manifest is a JSON file that contains the...
- */
 @Serializable
-@JvmInline
-value class AddOnRepositoryManifest(val addons: List<AddOnEntry>) {
+data class AddOnManifestContainer(
+    val version: Int,
+    val data: JsonObject
+)
+
+sealed interface AddOnManifest
+
+@Serializable
+data class AddOnManifestV1(
+    val addons: List<AddOnEntry>
+) : AddOnManifest {
 
     @Serializable
     data class AddOnEntry(

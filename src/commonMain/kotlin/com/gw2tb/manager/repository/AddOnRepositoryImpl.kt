@@ -85,8 +85,8 @@ class AddOnRepositoryImpl(
                     addOnNames = it.addonNames ?: emptyList(),
 
                     installMode = when (it.installation.mode) {
-                        AddOnRepositoryManifest.AddOnEntry.Installation.Mode.ARC -> AddOnListing.InstallMode.Arc
-                        AddOnRepositoryManifest.AddOnEntry.Installation.Mode.GW2LOAD -> AddOnListing.InstallMode.Gw2Load
+                        AddOnManifestV1.AddOnEntry.Installation.Mode.ARC -> AddOnListing.InstallMode.Arc
+                        AddOnManifestV1.AddOnEntry.Installation.Mode.GW2LOAD -> AddOnListing.InstallMode.Gw2Load
                     },
                     dependencies = it.`package`.dependencies ?: emptyList()
                 )
