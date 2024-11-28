@@ -29,10 +29,10 @@ import com.gw2tb.manager.repository.AddOnRepository
 import com.gw2tb.manager.util.watchDirectory
 import com.sun.nio.file.ExtendedWatchEventModifier
 import io.ktor.http.*
-import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.channels.FileChannel
