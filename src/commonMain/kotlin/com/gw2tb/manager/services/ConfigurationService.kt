@@ -25,8 +25,6 @@ import kotlinx.coroutines.flow.Flow
  *
  * The [localConfiguration] provides access to the local (i.e. PC-specific) configuration which contains information
  * such as the path to the game installation directory.
- *
- * @author  Leon Linhart
  */
 interface ConfigurationService {
 
