@@ -15,10 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import com.gw2tb.manager.build.GenerateLauncherConfig
-import com.gw2tb.manager.build.JLink
-import org.apache.tools.ant.taskdefs.condition.Os
+import com.osmerion.gradle.jdk.tools.tasks.JLink
 
 plugins {
+    alias(buildDeps.plugins.gradle.jdkTools)
     alias(buildDeps.plugins.kotlin.multiplatform)
     alias(buildDeps.plugins.kotlin.plugin.compose)
     alias(buildDeps.plugins.kotlin.plugin.serialization)
@@ -110,20 +110,19 @@ tasks {
     }
 
     val jlink = register<JLink>("jlink") {
-        val toolchain = project.extensions.getByType<JavaPluginExtension>().toolchain
-        val service = project.extensions.getByType<JavaToolchainService>()
-
-        executable.set(layout.file(service.compilerFor(toolchain).map {
-            it.executablePath.asFile.resolveSibling("jlink${if (Os.isFamily(Os.FAMILY_WINDOWS)) ".exe" else ""}")
-        }))
-
-        destinationDir.set(layout.buildDirectory.dir("jlink"))
+        destinationDirectory = layout.buildDirectory.dir("jlink")
 
         addModules.addAll(
             "java.desktop",
             "java.management",
             "java.net.http",
             "jdk.unsupported"
+        )
+
+        args.addAll(
+            "--compress", "zip-6",
+            "--disable-plugin", "release-info",
+            "--vm=server"
         )
     }
 
@@ -151,7 +150,7 @@ tasks {
         }
 
         into("runtime") {
-            from(jlink.get().destinationDir)
+            from(jlink.get().destinationDirectory)
         }
 
         into(".") {
