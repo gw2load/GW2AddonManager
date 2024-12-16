@@ -17,42 +17,60 @@
 package com.gw2tb.manager.services
 
 import com.gw2tb.manager.model.Notification
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 
 fun NotificationService(
     addOnService: AddOnService,
-    configurationService: ConfigurationService
+    configurationService: ConfigurationService,
+    updateService: UpdateService
 ): NotificationService = NotificationServiceImpl(
     addOnService = addOnService,
-    configurationService = configurationService
+    configurationService = configurationService,
+    updateService = updateService
 )
 
-class NotificationServiceImpl(
+private class NotificationServiceImpl(
+    addOnService: AddOnService,
     configurationService: ConfigurationService,
-    addOnService: AddOnService
+    updateService: UpdateService
 ) : NotificationService {
 
-    override val notifications = addOnService.availableUpdates
-        .mapNotNull { updates ->
-            if (updates.isEmpty()) return@mapNotNull null
+    override val notifications: Flow<List<Notification>> = flow {
+        emitAll(updateService.availableUpdate
+            .mapNotNull { update ->
+                if (update == null) return@mapNotNull null
 
-            listOf(
-                Notification(
-                    urgency = Notification.Urgency.INFO,
-                    quickFix = {
-                        updates.forEach { update ->
-                            val localConfiguration = configurationService.localConfiguration.first()
-                            val gameDirectory = localConfiguration?.selectedGameDirectory ?: error("Game directory should not be null")
-
-                            addOnService.install(
-                                listing = update.addOnListing,
-                                gameDirectory = gameDirectory
-                            )
-                        }
-                    }
+                listOf(
+                    Notification(
+                        urgency = Notification.Urgency.REQUIRED,
+                        quickFix = { updateService.install(update) }
+                    )
                 )
-            )
-        }
+            }
+        )
+
+        emitAll(addOnService.availableUpdates
+            .mapNotNull { updates ->
+                if (updates.isEmpty()) return@mapNotNull null
+
+                listOf(
+                    Notification(
+                        urgency = Notification.Urgency.INFO,
+                        quickFix = {
+                            updates.forEach { update ->
+                                val localConfiguration = configurationService.localConfiguration.first()
+                                val gameDirectory = localConfiguration?.selectedGameDirectory ?: error("Game directory should not be null")
+
+                                addOnService.install(
+                                    listing = update.addOnListing,
+                                    gameDirectory = gameDirectory
+                                )
+                            }
+                        }
+                    )
+                )
+            }
+        )
+    }
 
 }

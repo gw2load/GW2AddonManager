@@ -29,6 +29,7 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.app_name
 import com.gw2tb.manager.gw2addonmanager.generated.resources.icon
 import com.gw2tb.manager.repository.AddOnRepositoryImpl
+import com.gw2tb.manager.repository.UpdateRepositoryImpl
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.AddOnManager
 import com.gw2tb.manager.ui.composables.LocalApplicationInfo
@@ -102,9 +103,19 @@ private fun runApplication(
         mainContext = mainContext
     )
 
+    val updateService = UpdateService(
+        updateRepository = UpdateRepositoryImpl(
+            httpClient = httpClient
+        ),
+        configurationService = configurationService,
+        jobService = jobService,
+        appInfo = appInfo
+    )
+
     val notificationService = NotificationService(
         addOnService = addOnService,
-        configurationService = configurationService
+        configurationService = configurationService,
+        updateService = updateService
     )
 
     val lifecycle = LifecycleRegistry()

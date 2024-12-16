@@ -49,7 +49,6 @@ fun ConfigurationService(
     }
 
     val tmpDir = tmpDirsPath.resolve("GW2AddOnManager")
-    val storedGw2LoadPath = tmpDir.resolve("msimg32.dll")
 
     if (!Files.isDirectory(tmpDir)) {
         Files.createDirectories(tmpDir)
@@ -59,7 +58,8 @@ fun ConfigurationService(
         localConfigurationPath = localConfigurationPath,
         tempDirectoryLayout = TempDirectoryLayout(
             directory = tmpDir,
-            gw2LoadPath = storedGw2LoadPath
+            gw2LoadPath = tmpDir.resolve("msimg32.dll"),
+            installerPath = tmpDir.resolve("installer.msi")
         ),
         mainContext = mainContext
     )

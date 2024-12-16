@@ -14,19 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model
+package com.gw2tb.manager.services
 
-import java.nio.file.Path
+import com.gw2tb.manager.model.update.ManagerVersion
+import kotlinx.coroutines.flow.Flow
 
-/**
- * The configuration of the temporary directory used by the manager for downloads.
- *
- * @param directory     the root path of the temporary directory
- * @param gw2LoadPath   the path to download GW2Load to
- * @param installerPath the path to download the installer to (e.g. when updating the manager)
- */
-data class TempDirectoryLayout(
-    val directory: Path,
-    val gw2LoadPath: Path,
-    val installerPath: Path
-)
+interface UpdateService {
+
+    val availableUpdate: Flow<ManagerVersion?>
+
+    suspend fun install(update: ManagerVersion)
+
+}

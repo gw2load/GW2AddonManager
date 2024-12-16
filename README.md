@@ -3,11 +3,18 @@
 The Guild Wars 2 Add-on Manager is a tool that allows you to easily manage and
 update third-party add-ons for Guild Wars 2.
 
-> [!IMPORTANT]  
-> This project is not yet ready for general use and still requires manual setup.
 
-In order to use the manager, an up-to-date version of [GW2Load](https://github.com/gw2-addon-loader/GW2Load)
-is required. The manager expects GW2Load to be installed in the game directory.
+## Installation
+
+### Windows
+
+!TODO
+
+### Linux
+
+The manager does not natively support Linux at this time. If you are running the
+manager through an emulation or translation layer, some manual setup for [GW2Load](https://github.com/gw2-addon-loader/GW2Load)
+may be necessary. Please refer to GW2Load's documentation for more information.
 
 
 ## License

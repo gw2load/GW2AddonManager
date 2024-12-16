@@ -14,19 +14,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model
+package com.gw2tb.manager.repository
 
-import java.nio.file.Path
+import com.gw2tb.manager.model.update.ManagerVersion
+import java.nio.channels.ReadableByteChannel
 
-/**
- * The configuration of the temporary directory used by the manager for downloads.
- *
- * @param directory     the root path of the temporary directory
- * @param gw2LoadPath   the path to download GW2Load to
- * @param installerPath the path to download the installer to (e.g. when updating the manager)
- */
-data class TempDirectoryLayout(
-    val directory: Path,
-    val gw2LoadPath: Path,
-    val installerPath: Path
-)
+interface UpdateRepository {
+
+    suspend fun getManagerVersion(): ManagerVersion
+
+    suspend fun download(update: ManagerVersion): ReadableByteChannel
+
+    fun invalidateCache()
+
+}
