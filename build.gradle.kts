@@ -92,6 +92,19 @@ tasks {
         }
     }
 
+    register<JavaExec>("run") {
+        dependsOn("jvmJar")
+
+        workingDir = mkdir(project.layout.projectDirectory.dir("run").asFile)
+
+        javaLauncher = project.javaToolchains.launcherFor(project.java.toolchain)
+
+        classpath(project.tasks["jvmJar"])
+        classpath(configurations["jvmRuntimeClasspath"])
+
+        mainClass =  "com.gw2tb.manager.MainKt"
+    }
+
     withType<Test>().configureEach {
         useJUnitPlatform()
     }
