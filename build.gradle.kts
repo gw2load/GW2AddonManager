@@ -72,10 +72,12 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(project.dependencies.platform(buildDeps.junit.bom))
                 implementation(buildDeps.junit.jupiter.api)
                 implementation(buildDeps.mockito.core)
 
                 runtimeOnly(buildDeps.junit.jupiter.engine)
+                runtimeOnly(buildDeps.junit.platform.launcher)
             }
         }
     }
