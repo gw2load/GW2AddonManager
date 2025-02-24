@@ -104,6 +104,8 @@ tasks {
         classpath(project.tasks["jvmJar"])
         classpath(configurations["jvmRuntimeClasspath"])
 
+        jvmArgs("--enable-native-access=ALL-UNNAMED")
+
         mainClass =  "com.gw2tb.manager.MainKt"
     }
 
