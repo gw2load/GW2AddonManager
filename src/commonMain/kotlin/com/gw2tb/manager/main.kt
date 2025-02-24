@@ -140,8 +140,8 @@ private fun runApplication(
                      * really make sense to load this dynamically. We might however, seek to consolidate these values into a
                      * single configuration.
                      */
-                    width = 1130.dp,
-                    height = 600.dp
+                    width = 1155.dp,
+                    height = 629.dp
                 ),
                 title = stringResource(Res.string.app_name),
                 icon = painterResource(Res.drawable.icon),

@@ -72,7 +72,7 @@ fun WindowScope.AddOnManager(
 
         Column(
             modifier = Modifier
-                .padding(start = 35.dp, top = 43.dp, end = 115.dp, bottom = 0.dp)
+                .padding(start = 46.dp, top = 54.dp, end = 128.dp, bottom = 19.dp)
                 .fillMaxSize()
         ) {
             WindowDraggableArea {
