@@ -14,16 +14,48 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import com.gw2tb.manager.build.GenerateLauncherConfig
 import com.osmerion.gradle.jdk.tools.tasks.JLink
+import com.osmerion.jvm.launcher.gradle.tasks.BuildJvmLauncher
+import com.osmerion.jvm.launcher.gradle.tasks.GenerateLauncherConfig
 
 plugins {
     alias(buildDeps.plugins.gradle.jdkTools)
+    alias(buildDeps.plugins.jetbrainsCompose)
+    alias(buildDeps.plugins.jvmLauncher)
     alias(buildDeps.plugins.kotlin.multiplatform)
     alias(buildDeps.plugins.kotlin.plugin.compose)
     alias(buildDeps.plugins.kotlin.plugin.serialization)
-    alias(buildDeps.plugins.jetbrainsCompose)
     id("dummy")
+}
+
+jvmLauncher {
+    launchers {
+        register("GW2AddonManager") {
+            fileVersion(1, 0, 0, 0)
+            productVersion(1, 0, 0, 0)
+
+            stringFileInfo {
+                companyName = "GW2ToolBelt"
+                fileDescription = "Guild Wars 2 Add-on Manager"
+                fileVersion = "$version"
+                internalName = "GW2AddOnManager"
+                productName = "Guild Wars 2 Add-on Manager"
+                productVersion = "$version"
+            }
+
+            icon = layout.projectDirectory.file("icon.ico")
+
+            mainClassName = "com/gw2tb/manager/MainKt"
+            libjvmPath = "./runtime/bin/server/jvm.dll"
+
+            jvmArgs.add("--enable-native-access=ALL-UNNAMED")
+
+            classpath.add(provider { "./jars/${files(project.tasks["jvmJar"]).single().name}" })
+            classpath.addAll(provider {
+                configurations["jvmRuntimeClasspath"].files.map { "./jars/${it.name}" }
+            })
+        }
+    }
 }
 
 kotlin {
@@ -130,21 +162,11 @@ tasks {
         )
     }
 
-    val generateLauncherConfig = register<GenerateLauncherConfig>("generateLauncherConfig") {
-        outputFile = layout.buildDirectory.file("tmp/$name/config.toml")
-
-        mainClassName = "com/gw2tb/manager/MainKt"
-        libjvmPath = "./runtime/bin/server/jvm.dll"
-
-        jvmArgs.add("--enable-native-access=ALL-UNNAMED")
-
-        classpathRoot = "./jars"
-        classpath.from(project.tasks["jvmJar"])
-        classpath.from(configurations["jvmRuntimeClasspath"])
-    }
+    val compileGW2AddonManagerJvmLauncher by getting(BuildJvmLauncher::class)
+    val generateGW2AddonManagerLauncherConfig by getting(GenerateLauncherConfig::class)
 
     val copyBundle = register<Copy>("copyBundle") {
-        dependsOn(generateLauncherConfig, jlink)
+        dependsOn(compileGW2AddonManagerJvmLauncher, generateGW2AddonManagerLauncherConfig, jlink)
 
         destinationDir = layout.buildDirectory.dir("tmp/bundle").get().asFile
 
@@ -158,8 +180,9 @@ tasks {
         }
 
         into(".") {
-            from(file("launcher/target/release/GW2AddOnManager.exe"))
-            from(generateLauncherConfig.get().outputFile)
+            from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("GW2AddOnManager.exe"))
+            from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("config.toml"))
+            from(generateGW2AddonManagerLauncherConfig.outputFile)
         }
     }
 
