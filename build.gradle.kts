@@ -165,7 +165,7 @@ tasks {
     val compileGW2AddonManagerJvmLauncher by getting(BuildJvmLauncher::class)
     val generateGW2AddonManagerLauncherConfig by getting(GenerateLauncherConfig::class)
 
-    val copyBundle = register<Copy>("copyBundle") {
+    val copyBundle = register<Sync>("copyBundle") {
         dependsOn(compileGW2AddonManagerJvmLauncher, generateGW2AddonManagerLauncherConfig, jlink)
 
         destinationDir = layout.buildDirectory.dir("tmp/bundle").get().asFile
