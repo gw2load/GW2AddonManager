@@ -25,7 +25,6 @@ plugins {
     alias(buildDeps.plugins.kotlin.multiplatform)
     alias(buildDeps.plugins.kotlin.plugin.compose)
     alias(buildDeps.plugins.kotlin.plugin.serialization)
-    id("dummy")
 }
 
 jvmLauncher {
