@@ -44,6 +44,9 @@
 
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_DIRECTORY" />
 
+    <WixVariable Id="WixUIBannerBmp" Value="banner.png" />
+    <WixVariable Id="WixUIDialogBmp" Value="dialog.png" />
+
     <UI>
       <ui:WixUI Id="WixUI_InstallDir" />
     </UI>
