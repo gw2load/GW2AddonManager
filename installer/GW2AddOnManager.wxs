@@ -44,6 +44,8 @@
 
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_DIRECTORY" />
 
+    <WixVariable Id="WixUILicenseRtf" Value="notice.rtf" />
+
     <UI>
       <ui:WixUI Id="WixUI_InstallDir" />
     </UI>
