@@ -7,7 +7,7 @@
   <Package Compressed="yes"
            Language="1033"
            Manufacturer="GW2ToolBelt"
-           Name="Guild Wars 2 Add-On Manager"
+           Name="Guild Wars 2 Add-on Manager"
            UpgradeCode="64deef2a-cf99-4a0c-be41-5faa802a9502"
            Version="3.0.0.0"
   >
@@ -32,13 +32,13 @@
     <DirectoryRef Id="ApplicationProgramsFolder">
       <Component Id="ApplicationShortcut">
         <Shortcut Id="ApplicationStartMenuShortcut"
-                  Name="Guild Wars 2 Add-On Manager"
-                  Description="Launches the Guild Wars 2 Add-On Manager"
+                  Name="Guild Wars 2 Add-on Manager"
+                  Description="Launches the Guild Wars 2 Add-on Manager"
                   Target="[INSTALL_DIRECTORY]GW2AddOnManager.exe"
                   WorkingDirectory="INSTALL_DIRECTORY" />
 
         <RemoveFolder Id="CleanUpShortcut" On="uninstall" />
-        <RegistryValue Root="HKCU" Key="Software\Guild Wars 2 Add-On Manager" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="Software\Guild Wars 2 Add-on Manager" Name="installed" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
