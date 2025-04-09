@@ -44,6 +44,9 @@
 
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_DIRECTORY" />
 
+    <Icon Id="icon.ico" SourceFile="..\icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
     <WixVariable Id="WixUIBannerBmp" Value="banner.png" />
     <WixVariable Id="WixUIDialogBmp" Value="dialog.png" />
 
