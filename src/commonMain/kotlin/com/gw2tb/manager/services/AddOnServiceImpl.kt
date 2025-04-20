@@ -266,9 +266,9 @@ private class AddOnServiceImpl(
             }
 
             val targetFileName = when (downloadType) {
-                DownloadType.Archive -> Url(listing.download.downloadUrl).pathSegments.last()
+                DownloadType.Archive -> Url(listing.download.downloadUrl).segments.last()
                 DownloadType.Dll -> when (listing.installMode) {
-                    AddOnListing.InstallMode.Arc -> Url(listing.download.downloadUrl).pathSegments.last()
+                    AddOnListing.InstallMode.Arc -> Url(listing.download.downloadUrl).segments.last()
                     AddOnListing.InstallMode.Gw2Load -> "gw2addon_${listing.addOnName}.dll"
                 }
             }
