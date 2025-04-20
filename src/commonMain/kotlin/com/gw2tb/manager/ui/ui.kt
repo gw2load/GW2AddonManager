@@ -42,6 +42,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.router.stack.active
 import com.gw2tb.manager.gw2addonmanager.generated.resources.*
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
+import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.ui.composables.*
 import com.gw2tb.manager.ui.screens.explore.ExploreAddOnsDetails
 import com.gw2tb.manager.ui.screens.explore.ExploreAddOnsMaster
@@ -304,14 +305,14 @@ private fun MainScreenWrapper(component: AddOnManagerComponent) {
                 OutlinedSocialsIconButton(
                     resource = Res.drawable.icon_discord,
                     onClickLabel = stringResource(Res.string.social_discord_tooltip),
-                    onClick = { component.openLink("https://discord.gg/zqeHCEg") },
+                    onClick = { component.openLink(BuildConfig.DISCORD_URL) },
                     modifier = Modifier.size(14.dp)
                 )
 
                 OutlinedSocialsIconButton(
                     resource = Res.drawable.icon_github,
                     onClickLabel = stringResource(Res.string.social_github_tooltip),
-                    onClick = { component.openLink("https://github.com/gw2load/GW2AddonManager") },
+                    onClick = { component.openLink(BuildConfig.GITHUB_URL) },
                     modifier = Modifier.size(14.dp)
                 )
 

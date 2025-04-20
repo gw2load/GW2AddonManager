@@ -119,6 +119,8 @@ buildConfig {
     packageName = "com.gw2tb.manager.internal"
 
     buildConfigField("BUILD_VERSION", provider { "${project.version}" })
+    buildConfigField("DISCORD_URL", providers.gradleProperty("com.gw2tb.manager.discord-url"))
+    buildConfigField("GITHUB_URL", providers.gradleProperty("com.gw2tb.manager.github-url"))
     buildConfigField("MANIFEST_URL", providers.gradleProperty("com.gw2tb.manager.manifest-url"))
 }
 
