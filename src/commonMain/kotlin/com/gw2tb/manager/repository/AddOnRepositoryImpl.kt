@@ -18,6 +18,7 @@ package com.gw2tb.manager.repository
 
 import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.local.AddOnFileVersion
 import com.gw2tb.manager.model.local.AddOnVersion
@@ -53,7 +54,7 @@ class AddOnRepositoryImpl(
     override suspend fun getAddOnListings(): List<AddOnListing> = withContext(Dispatchers.IO) {
         val manifest = cache.get("addon-repo/manifest") { _, _ ->
             future {
-                val httpResponse = httpClient.get("https://knoxfighter.github.io/addon-repo/manifest.json")
+                val httpResponse = httpClient.get(BuildConfig.MANIFEST_URL)
                 httpResponse.bodyAsText()
             }
         }.await()

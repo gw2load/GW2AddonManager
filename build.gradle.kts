@@ -19,6 +19,7 @@ import com.osmerion.jvm.launcher.gradle.tasks.BuildJvmLauncher
 import com.osmerion.jvm.launcher.gradle.tasks.GenerateLauncherConfig
 
 plugins {
+    alias(buildDeps.plugins.gradle.buildconfig)
     alias(buildDeps.plugins.gradle.jdkTools)
     alias(buildDeps.plugins.jetbrainsCompose)
     alias(buildDeps.plugins.jvmLauncher)
@@ -112,6 +113,13 @@ kotlin {
             }
         }
     }
+}
+
+buildConfig {
+    packageName = "com.gw2tb.manager.internal"
+
+    buildConfigField("BUILD_VERSION", provider { "${project.version}" })
+    buildConfigField("MANIFEST_URL", providers.gradleProperty("com.gw2tb.manager.manifest-url"))
 }
 
 tasks {
