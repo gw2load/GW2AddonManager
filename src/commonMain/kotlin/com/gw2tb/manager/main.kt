@@ -84,7 +84,7 @@ private fun runApplication(
     /* Let's play nice and use a single HTTP client with a proper user agent for all our requests. */
     val httpClient = HttpClient {
         install(Logging) {
-            level = LogLevel.ALL
+            level = LogLevel.HEADERS
             sanitizeHeader { header -> header == HttpHeaders.Authorization }
         }
 
