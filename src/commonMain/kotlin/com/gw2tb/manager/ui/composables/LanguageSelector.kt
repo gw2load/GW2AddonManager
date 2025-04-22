@@ -35,9 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import java.awt.Cursor
+import java.util.Locale
 
 @Composable
-fun LanguageSelector() {
+fun LanguageSelector(
+    selectLocale: (locale: Locale) -> Unit
+) {
     var isDropdownVisible by remember { mutableStateOf(false) }
 
     Row(
@@ -90,11 +93,41 @@ fun LanguageSelector() {
                         .background(color = Color.White, shape = RectangleShape)
                 ) {
                     CompositionLocalProvider(LocalTextStyle provides LocalTextStyle.current.copy(fontSize = 10.sp)) {
-                        Text("ENGLISH", modifier = Modifier.background(Color.Red))
-                        Text("GERMAN")
+                        Text(
+                            text = "ENGLISH",
+                            modifier = Modifier
+                                .clickable { selectLocale(Locale.ENGLISH) }
+                        )
+                        Text(
+                            text = "GERMAN",
+                            modifier = Modifier
+                                .clickable { selectLocale(Locale.GERMAN) }
+                        )
                     }
                 }
             }
         }
     }
+}
+
+object LocalAppLocaleIso {
+
+    private var default: Locale? = null
+    private val LocalAppLocaleIso = staticCompositionLocalOf { Locale.getDefault() }
+    val current: Locale
+        @Composable get() = LocalAppLocaleIso.current
+
+    @Composable
+    infix fun provides(value: Locale?): ProvidedValue<*> {
+        if (default == null) {
+            default = Locale.getDefault()
+        }
+        val new = when(value) {
+            null -> default!!
+            else -> value
+        }
+        Locale.setDefault(new)
+        return LocalAppLocaleIso.provides(new)
+    }
+
 }

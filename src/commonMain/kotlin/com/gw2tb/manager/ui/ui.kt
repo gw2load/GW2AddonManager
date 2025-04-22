@@ -53,10 +53,12 @@ import com.gw2tb.manager.ui.screens.setup.SetupScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import java.awt.Cursor
+import java.util.Locale
 
 @Composable
 fun WindowScope.AddOnManager(
     component: AddOnManagerComponent,
+    selectLocale: (Locale) -> Unit,
     minimizeWindow: () -> Unit,
     exitApplication: () -> Unit,
 ) {
@@ -90,8 +92,9 @@ fun WindowScope.AddOnManager(
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            // TODO Implement language switching (GH-9)
-//                            LanguageSelector()
+                            LanguageSelector(
+                                selectLocale = selectLocale
+                            )
 
                             // TODO Implement notifications
 //                            val childStack by component.page.subscribeAsState()

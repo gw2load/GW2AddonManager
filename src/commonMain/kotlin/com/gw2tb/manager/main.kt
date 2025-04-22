@@ -19,7 +19,10 @@ package com.gw2tb.manager
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
@@ -31,6 +34,7 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.icon
 import com.gw2tb.manager.repository.AddOnRepositoryImpl
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.AddOnManager
+import com.gw2tb.manager.ui.composables.LocalAppLocaleIso
 import com.gw2tb.manager.ui.composables.LocalApplicationInfo
 import com.gw2tb.manager.ui.impl.AddOnManagerComponentImpl
 import io.ktor.client.*
@@ -44,6 +48,7 @@ import org.jetbrains.compose.resources.stringResource
 import java.nio.file.Files
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
+import java.util.Locale
 import kotlin.io.path.absolutePathString
 
 fun main() {
@@ -149,14 +154,20 @@ private fun runApplication(
                 transparent = true,
                 resizable = false
             ) {
+                var locale by remember { mutableStateOf<Locale?>(null) }
+
                 /*
                  * Due to its Android origins, Compose enables a minimum size for interactive (material) components by
                  * default. Since we are using some material components under the hood for now, we need to disable this
                  * because it's mostly useless padding in a desktop environment.
                  */
-                CompositionLocalProvider(@OptIn(ExperimentalMaterialApi::class) LocalMinimumInteractiveComponentEnforcement provides false) {
+                CompositionLocalProvider(
+                    @OptIn(ExperimentalMaterialApi::class) LocalMinimumInteractiveComponentEnforcement provides false,
+                    LocalAppLocaleIso provides locale
+                ) {
                     AddOnManager(
                         component = component,
+                        selectLocale = { locale = it },
                         minimizeWindow = { window.isMinimized = true },
                         exitApplication = ::exitApplication
                     )
