@@ -27,13 +27,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Launcher
-        run: |
-          pushd .
-          cd launcher
-          cargo build --release
-          popd
-
       - name: Build with Gradle
         run: ./gradlew build bundle --info -S --show-version
 
