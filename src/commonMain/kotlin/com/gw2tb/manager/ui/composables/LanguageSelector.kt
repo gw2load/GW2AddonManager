@@ -20,9 +20,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -31,6 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.node.Ref
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
@@ -46,8 +52,15 @@ fun LanguageSelector(
 ) {
     var isDropdownVisible by remember { mutableStateOf(false) }
 
+    var width by remember { mutableIntStateOf(0) }
+    val coordinates = remember { Ref<LayoutCoordinates>() }
+
     Row(
         modifier = Modifier
+            .onGloballyPositioned {
+                width = it.size.width
+                coordinates.value = it
+            }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -73,7 +86,7 @@ fun LanguageSelector(
                 .padding(4.dp),
         ) {
             Text(
-                text = "EN",
+                text = LocalAppLocaleIso.current.language.uppercase(),
                 color = Color.White,
                 fontSize = 10.sp
             )
@@ -86,7 +99,9 @@ fun LanguageSelector(
                 expanded = isDropdownVisible,
                 onDismissRequest = { isDropdownVisible = false },
                 modifier = Modifier
-                    .background(Color.White, shape = RectangleShape),
+                    .width(width.dp)
+                    .background(Color.White, shape = RectangleShape)
+                    .border(1.dp, color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F)),
                 properties = @OptIn(ExperimentalComposeUiApi::class) PopupProperties(
                     usePlatformInsets = false
                 )
@@ -94,18 +109,34 @@ fun LanguageSelector(
                 Column(
                     modifier = Modifier
                         .background(color = Color.White, shape = RectangleShape)
+                        .fillMaxWidth()
                 ) {
                     CompositionLocalProvider(LocalTextStyle provides LocalTextStyle.current.copy(fontSize = 10.sp)) {
-                        Text(
-                            text = "ENGLISH",
+                        Row(
                             modifier = Modifier
-                                .clickable { selectLocale(Locale.ENGLISH) }
-                        )
-                        Text(
-                            text = "GERMAN",
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectLocale(Locale.ENGLISH)
+                                    isDropdownVisible = false
+                                }
+                                .pointerHoverIcon(icon = PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Text(text = "EN")
+                        }
+
+                        Row(
                             modifier = Modifier
-                                .clickable { selectLocale(Locale.GERMAN) }
-                        )
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectLocale(Locale.GERMAN)
+                                    isDropdownVisible = false
+                                }
+                                .pointerHoverIcon(icon = PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Text(text = "DE")
+                        }
                     }
                 }
             }
