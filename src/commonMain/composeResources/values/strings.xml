@@ -44,6 +44,8 @@
 
   <string name="no_addon_selected">Select an add-on to view details</string>
 
+  <string name="select_language_label">LANGUAGE</string>
+
   <string name="setup_confirm">CONFIRM</string>
   <string name="setup_select_game_directory_title">Select Guild Wars 2 Directory</string>
   <string name="setup_welcome">Welcome!\n\nYou are almost set up. Please confirm your Guild Wars 2 installation directory to start.</string>

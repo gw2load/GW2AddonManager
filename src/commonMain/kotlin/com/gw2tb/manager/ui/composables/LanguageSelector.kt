@@ -34,6 +34,9 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
+import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
+import com.gw2tb.manager.gw2addonmanager.generated.resources.select_language_label
+import org.jetbrains.compose.resources.stringResource
 import java.awt.Cursor
 import java.util.Locale
 
@@ -59,7 +62,7 @@ fun LanguageSelector(
                 .padding(horizontal = 6.dp, vertical = 4.dp),
         ) {
             Text(
-                text = "LANGUAGE",
+                text = stringResource(Res.string.select_language_label),
                 fontSize = 10.sp
             )
         }
