@@ -60,7 +60,7 @@ jvmLauncher {
 
 kotlin {
     jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(24)
     }
 
     jvm()
