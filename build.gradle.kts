@@ -71,6 +71,7 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.desktop.currentOs)
                 implementation(compose.foundation)
+                implementation(compose.materialIconsExtended)
                 implementation(compose.ui)
                 implementation(buildDeps.decompose)
                 implementation(buildDeps.decompose.extensions.compose)
