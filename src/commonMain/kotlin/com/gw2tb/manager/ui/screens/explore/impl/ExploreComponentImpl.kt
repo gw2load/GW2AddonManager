@@ -47,6 +47,7 @@ class ExploreComponentImpl(
     override val addOnListings: StateFlow<List<AddOnListing>> =
         addOnService.addOnListings
             .map { it.filter { listing -> listing.download != null } }
+            .map { it.sortedBy(AddOnListing::addOnName) }
             .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     override val localAddOns: StateFlow<List<LocalAddOn>> =

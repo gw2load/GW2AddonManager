@@ -39,7 +39,6 @@ import androidx.compose.ui.window.WindowScope
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import com.arkivanov.decompose.router.stack.active
 import com.gw2tb.manager.gw2addonmanager.generated.resources.*
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.internal.BuildConfig
@@ -57,7 +56,7 @@ import java.util.Locale
 
 @Composable
 fun WindowScope.AddOnManager(
-    component: AddOnManagerComponent,
+    component: RootComponent,
     selectLocale: (Locale) -> Unit,
     minimizeWindow: () -> Unit,
     exitApplication: () -> Unit,
@@ -154,11 +153,12 @@ fun WindowScope.AddOnManager(
             }
 
             Children(
-                stack = component.page
+                stack = component.page,
+                animation = stackAnimation()
             ) { child ->
-                when (val instance = child.instance) {
-                    is AddOnManagerComponent.Child.Setup -> SetupScreen(instance.component)
-                    else -> MainScreenWrapper(component)
+                when (val activeChild = child.instance) {
+                    is RootComponent.Child.Main -> MainScreenWrapper(activeChild.component)
+                    is RootComponent.Child.Setup -> SetupScreen(activeChild.component)
                 }
             }
         }
@@ -166,19 +166,25 @@ fun WindowScope.AddOnManager(
 }
 
 @Composable
-private fun MainScreenWrapper(component: AddOnManagerComponent) {
+private fun MainScreenWrapper(component: MainComponent) {
     Column {
         Row(
             modifier = Modifier
                 .padding(bottom = 20.dp)
                 .height(IntrinsicSize.Min)
         ) {
+            val child by component.page.subscribeAsState()
+            val nestedChild by when (val instance = child.active.instance) {
+                is MainComponent.Child.MasterDetail -> instance.component.page.subscribeAsState()
+                else -> mutableStateOf(null)
+            }
+
             TextButton(
                 text = stringResource(Res.string.tab_explore),
                 onClick = component::navigateToExploreAddOns,
                 modifier = Modifier
                     .padding(end = 8.dp),
-                enabled = component.page.active.instance !is AddOnManagerComponent.Child.ExploreAddOns
+                enabled = child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.ExploreAddOns
             )
 
             Divider(
@@ -193,7 +199,7 @@ private fun MainScreenWrapper(component: AddOnManagerComponent) {
                 onClick = component::navigateToInstalledAddOns,
                 modifier = Modifier
                     .padding(horizontal = 8.dp),
-                enabled = component.page.active.instance !is AddOnManagerComponent.Child.InstalledAddOns
+                enabled = child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.InstalledAddOns
             )
 
             Divider(
@@ -208,7 +214,7 @@ private fun MainScreenWrapper(component: AddOnManagerComponent) {
                 onClick = component::navigateToSettings,
                 modifier = Modifier
                     .padding(start = 8.dp),
-                enabled = component.page.active.instance !is AddOnManagerComponent.Child.Settings
+                enabled = child.active.instance !is MainComponent.Child.Settings
             )
         }
 
@@ -220,39 +226,13 @@ private fun MainScreenWrapper(component: AddOnManagerComponent) {
                 modifier = Modifier
                     .weight(1F, fill = true)
             ) {
-                // TODO Clean up this mess and make transitions work properly
                 Children(
-                    stack = component.page
+                    stack = component.page,
+                    animation = stackAnimation()
                 ) { child ->
-                    when (child.instance) {
-                        is AddOnManagerComponent.Child.ExploreAddOns, is AddOnManagerComponent.Child.InstalledAddOns -> MainLayout(
-                            masterContent = {
-                                Children(
-                                    stack = component.page,
-                                    animation = stackAnimation()
-                                ) { child ->
-                                    when (val instance = child.instance) {
-                                        is AddOnManagerComponent.Child.ExploreAddOns -> ExploreAddOnsMaster(instance.component)
-                                        is AddOnManagerComponent.Child.InstalledAddOns -> ManageAddOnsMaster(instance.component)
-                                        else -> error("This should not happen")
-                                    }
-                                }
-                            },
-                            detailsContent = {
-                                Children(
-                                    stack = component.page,
-                                    animation = stackAnimation()
-                                ) { child ->
-                                    when (val instance = child.instance) {
-                                        is AddOnManagerComponent.Child.ExploreAddOns -> ExploreAddOnsDetails(instance.component)
-                                        is AddOnManagerComponent.Child.InstalledAddOns -> ManageAddOnsDetails(instance.component)
-                                        else -> error("This should not happen")
-                                    }
-                                }
-                            }
-                        )
-                        is AddOnManagerComponent.Child.Settings -> SettingsScreen((child.instance as AddOnManagerComponent.Child.Settings).component)
-                        is AddOnManagerComponent.Child.Setup -> error("This should not happen")
+                    when (val activeChild = child.instance) {
+                        is MainComponent.Child.MasterDetail -> MainLayout(activeChild.component)
+                        is MainComponent.Child.Settings -> SettingsScreen(activeChild.component)
                     }
                 }
             }
@@ -340,29 +320,47 @@ private fun MainScreenWrapper(component: AddOnManagerComponent) {
 
 @Composable
 private fun MainLayout(
-    modifier: Modifier = Modifier,
-    masterContent: @Composable () -> Unit,
-    detailsContent: @Composable () -> Unit
+    component: MasterDetailComponent,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier
+            .background(Color.White),
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Surface(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(270.dp),
-            elevation = 8.dp,
-            content = masterContent
-        )
+            elevation = 8.dp
+        ) {
+            Children(
+                stack = component.page,
+                animation = stackAnimation()
+            ) { child ->
+                when (val activeChild = child.instance) {
+                    is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOnsMaster(activeChild.component)
+                    is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOnsMaster(activeChild.component)
+                }
+            }
+        }
 
         Surface(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(520.dp),
             color = Color.White,
-            elevation = 8.dp,
-            content = detailsContent
-        )
+            elevation = 8.dp
+        ) {
+            Children(
+                stack = component.page,
+                animation = stackAnimation()
+            ) { child ->
+                when (val activeChild = child.instance) {
+                    is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOnsDetails(activeChild.component)
+                    is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOnsDetails(activeChild.component)
+                }
+            }
+        }
     }
 }

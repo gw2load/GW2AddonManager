@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,41 +14,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.ui.screens.manage
+package com.gw2tb.manager.ui
 
 import androidx.compose.runtime.Immutable
-import com.gw2tb.manager.model.AvailableAddOnUpdate
-import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.local.LocalAddOn
+import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.services.Job
+import com.gw2tb.manager.ui.screens.settings.SettingsComponent
 import kotlinx.coroutines.flow.StateFlow
 
 @Immutable
-interface ManageComponent {
-
-    val installedAddOns: StateFlow<List<InstalledAddOn>>
-
-    val addOnListings: StateFlow<List<AddOnListing>>
-
-    val availableUpdates: StateFlow<List<AvailableAddOnUpdate>>
+interface MainComponent {
 
     val jobs: StateFlow<List<Job>>
 
-    val selectedAddOn: StateFlow<LocalAddOn?>
+    val page: Value<ChildStack<*, Child>>
 
-    fun disable(addOn: LocalAddOn)
+    fun navigateToExploreAddOns()
 
-    fun enable(addOn: LocalAddOn)
+    fun navigateToInstalledAddOns()
 
-    fun setEnabled(addOn: LocalAddOn, enabled: Boolean) =
-        if (enabled) enable(addOn) else disable(addOn)
+    fun navigateToSettings()
 
-    fun install(listing: AddOnListing)
+    fun openLink(url: String)
 
-    fun uninstall(addOn: LocalAddOn)
+    fun play()
 
-    fun selectAddOn(localAddOn: LocalAddOn)
+    sealed class Child {
 
-    fun navigateToVendor(vendor: String)
+        data class MasterDetail(val component: MasterDetailComponent) : Child()
+        data class Settings(val component: SettingsComponent) : Child()
+
+    }
 
 }

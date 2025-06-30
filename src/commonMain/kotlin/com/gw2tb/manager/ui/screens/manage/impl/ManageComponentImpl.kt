@@ -20,11 +20,13 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.catalog.isMatching
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.AddOnService
 import com.gw2tb.manager.services.ConfigurationService
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.services.JobService
+import com.gw2tb.manager.ui.screens.manage.InstalledAddOn
 import com.gw2tb.manager.ui.screens.manage.ManageComponent
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
@@ -47,8 +49,20 @@ class ManageComponentImpl(
     override val addOnListings: StateFlow<List<AddOnListing>> =
         addOnService.addOnListings.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
-    override val localAddOns: StateFlow<List<LocalAddOn>> =
+    private val localAddOns: StateFlow<List<LocalAddOn>> =
         addOnService.localAddOns.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+
+    override val installedAddOns: StateFlow<List<InstalledAddOn>> =
+        localAddOns
+            .combine(addOnListings) { localAddOns, addOnListings ->
+               localAddOns
+                    .map { localAddOn ->
+                        val listing = addOnListings.find { it isMatching localAddOn }
+                        InstalledAddOn(localAddOn, listing)
+                    }
+                    .sortedBy { (localAddOn, addOnListing) -> addOnListing?.addOnName ?: localAddOn.name }
+            }
+            .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     override val jobs: StateFlow<List<Job>> =
         jobService.jobs.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())

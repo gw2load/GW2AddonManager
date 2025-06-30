@@ -36,7 +36,7 @@ import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.AddOnManager
 import com.gw2tb.manager.ui.composables.LocalAppLocaleIso
 import com.gw2tb.manager.ui.composables.LocalApplicationInfo
-import com.gw2tb.manager.ui.impl.AddOnManagerComponentImpl
+import com.gw2tb.manager.ui.impl.RootComponentImpl
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
@@ -123,7 +123,7 @@ private fun runApplication(
          * initialized, causing Decompose's thread checks to fail.
          */
         val component = remember {
-            AddOnManagerComponentImpl(
+            RootComponentImpl(
                 addOnService = addOnService,
                 configurationService = configurationService,
                 jobService = jobService,

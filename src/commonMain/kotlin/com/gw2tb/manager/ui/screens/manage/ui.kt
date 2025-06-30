@@ -41,8 +41,6 @@ fun ManageAddOnsMaster(
     component: ManageComponent,
     modifier: Modifier = Modifier
 ) {
-    val addOnListings by component.addOnListings.collectAsState()
-    val localAddOns by component.localAddOns.collectAsState()
     val availableUpdates by component.availableUpdates.collectAsState()
 
     val jobs by component.jobs.collectAsState()
@@ -50,16 +48,15 @@ fun ManageAddOnsMaster(
     Box(
         modifier = modifier
     ) {
+        val installedAddOns by component.installedAddOns.collectAsState()
         val lazyListState = rememberLazyListState()
 
         LazyColumn(
             state = lazyListState
         ) {
-            items(items = localAddOns) { localAddOn ->
-                val listing = addOnListings.find { it isMatching localAddOn }
-
+            items(items = installedAddOns) { (localAddOn, addOnListing) ->
                 AddOnListItem(
-                    title = listing?.addOnName ?: localAddOn.name,
+                    title = addOnListing?.addOnName ?: localAddOn.name,
                     addOnState = if (localAddOn.isEnabled) AddOnListItemState.ENABLED else AddOnListItemState.DISABLED,
                     selected = false,
                     onClick = { component.selectAddOn(localAddOn) },

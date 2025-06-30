@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -19,55 +19,29 @@ package com.gw2tb.manager.ui.impl
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
-import com.gw2tb.manager.model.LocalConfiguration
-import com.gw2tb.manager.model.Notification
 import com.gw2tb.manager.services.*
-import com.gw2tb.manager.ui.AddOnManagerComponent
-import com.gw2tb.manager.ui.AddOnManagerComponent.Child
+import com.gw2tb.manager.ui.MasterDetailComponent
+import com.gw2tb.manager.ui.MasterDetailComponent.Child
 import com.gw2tb.manager.ui.screens.explore.impl.ExploreComponentImpl
 import com.gw2tb.manager.ui.screens.manage.impl.ManageComponentImpl
-import com.gw2tb.manager.ui.screens.settings.impl.SettingsComponentImpl
-import com.gw2tb.manager.ui.screens.setup.SetupComponent
-import com.gw2tb.manager.ui.screens.setup.impl.SetupComponentImpl
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.awt.Desktop
-import java.net.URI
+import kotlin.coroutines.CoroutineContext
 
-class AddOnManagerComponentImpl(
+class MasterDetailComponentImpl(
     private val addOnService: AddOnService,
-    configurationService: ConfigurationService,
-    jobService: JobService,
-    notificationService: NotificationService,
+    private val configurationService: ConfigurationService,
+    private val jobService: JobService,
+    private val mainContext: CoroutineContext,
+    private val output: (MasterDetailComponent.Output) -> Unit,
     componentContext: ComponentContext
-) : AddOnManagerComponent, ComponentContext by componentContext {
-
-    // TODO Properly scope coroutines
-    private val mainContext = Dispatchers.Default
-    private val coroutineScope = coroutineScope(mainContext + SupervisorJob())
-
-    private val localConfiguration: StateFlow<LocalConfiguration?> =
-        configurationService.localConfiguration.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = null)
-
-    override val jobs: StateFlow<List<Job>> =
-        jobService.jobs.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
-
-    override val notifications: StateFlow<List<Notification>> =
-        notificationService.notifications.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+) : MasterDetailComponent, ComponentContext by componentContext {
 
     private val navigation = StackNavigation<Config>()
 
     override val page: Value<ChildStack<*, Child>> = childStack(
         source = navigation,
         serializer = null,
-        initialConfiguration = localConfiguration.value.let { localConfiguration ->
-            /* If there is no local configuration yet, or if it's invalid, we'll start in the setup screen. */
-            if (localConfiguration == null || !configurationService.isValid(localConfiguration)) Config.Setup else Config.ExploreAddOns()
-        },
+        initialConfiguration = Config.ExploreAddOns(),
         handleBackButton = false,
         childFactory = { config, _ ->
             when (config) {
@@ -87,20 +61,6 @@ class AddOnManagerComponentImpl(
                     mainContext = mainContext,
                     componentContext = componentContext
                 ))
-                is Config.Settings -> Child.Settings(SettingsComponentImpl(
-                    configurationService = configurationService,
-                    mainContext = mainContext,
-                    componentContext = componentContext
-                ))
-                is Config.Setup -> Child.Setup(SetupComponentImpl(
-                    configurationService = configurationService,
-                    output = { output ->
-                        when (output) {
-                            is SetupComponent.Output.ConfirmSetup -> navigation.replaceCurrent(Config.ExploreAddOns())
-                        }
-                    },
-                    componentContext = componentContext
-                ))
             }
         }
     )
@@ -113,12 +73,6 @@ class AddOnManagerComponentImpl(
 
         @Serializable
         data class ManageAddOns(val selectedAddOnName: String?) : Config()
-
-        @Serializable
-        data object Settings : Config()
-
-        @Serializable
-        data object Setup : Config()
 
     }
 
@@ -135,7 +89,7 @@ class AddOnManagerComponentImpl(
             }
         }
 
-        navigation.replaceCurrent(Config.ExploreAddOns(selectedAddOnId = selectedAddOnId))
+        navigation.replaceCurrent(Config.ExploreAddOns(selectedAddOnId))
     }
 
     override fun navigateToInstalledAddOns() {
@@ -150,29 +104,11 @@ class AddOnManagerComponentImpl(
                 null
             }
         }
-
-        navigation.replaceCurrent(Config.ManageAddOns(selectedAddOnName = selectedAddOnId))
+        navigation.replaceCurrent(Config.ManageAddOns(selectedAddOnId))
     }
 
     override fun navigateToSettings() {
-        navigation.replaceCurrent(Config.Settings)
-    }
-
-    override fun onNotificationClick(notification: Notification) {
-        coroutineScope.launch {
-            notification.quickFix?.invoke()
-        }
-    }
-
-    override fun openLink(url: String) {
-        Desktop.getDesktop().browse(URI(url))
-    }
-
-    override fun play() {
-        val localConfiguration = localConfiguration.value ?: error("Local configuration is not available")
-        val gameDirectory = localConfiguration.selectedGameDirectory ?: error("No game directory selected")
-
-        Desktop.getDesktop().open(gameDirectory.resolve("Gw2-64.exe").toFile())
+        output(MasterDetailComponent.Output.NavigateToSettings)
     }
 
 }
