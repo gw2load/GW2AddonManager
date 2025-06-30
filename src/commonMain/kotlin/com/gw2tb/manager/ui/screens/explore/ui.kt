@@ -109,7 +109,6 @@ fun ExploreAddOnsDetails(
                 color = Color.Black.copy(alpha = ContentAlpha.disabled)
             )
         } else {
-            @Suppress("NAME_SHADOWING")
             val selectedAddOnListing = selectedAddOnListing!!
 
             val localAddOn = localAddOns.find { selectedAddOnListing isMatching it }
