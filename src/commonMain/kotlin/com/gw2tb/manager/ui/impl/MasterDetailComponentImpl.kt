@@ -21,10 +21,9 @@ import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.MasterDetailComponent
-import com.gw2tb.manager.ui.MasterDetailComponent.Child
+import com.gw2tb.manager.ui.MasterDetailComponent.*
 import com.gw2tb.manager.ui.screens.explore.impl.ExploreComponentImpl
 import com.gw2tb.manager.ui.screens.manage.impl.ManageComponentImpl
-import kotlinx.serialization.Serializable
 import kotlin.coroutines.CoroutineContext
 
 class MasterDetailComponentImpl(
@@ -32,7 +31,8 @@ class MasterDetailComponentImpl(
     private val configurationService: ConfigurationService,
     private val jobService: JobService,
     private val mainContext: CoroutineContext,
-    private val output: (MasterDetailComponent.Output) -> Unit,
+    private val output: (Output) -> Unit,
+    initialConfiguration: Config,
     componentContext: ComponentContext
 ) : MasterDetailComponent, ComponentContext by componentContext {
 
@@ -41,7 +41,7 @@ class MasterDetailComponentImpl(
     override val page: Value<ChildStack<*, Child>> = childStack(
         source = navigation,
         serializer = null,
-        initialConfiguration = Config.ExploreAddOns(),
+        initialConfiguration = initialConfiguration,
         handleBackButton = false,
         childFactory = { config, _ ->
             when (config) {
@@ -64,17 +64,6 @@ class MasterDetailComponentImpl(
             }
         }
     )
-
-    @Serializable
-    private sealed class Config {
-
-        @Serializable
-        data class ExploreAddOns(val selectedAddOnId: String? = null) : Config()
-
-        @Serializable
-        data class ManageAddOns(val selectedAddOnName: String?) : Config()
-
-    }
 
     override fun navigateToExploreAddOns() {
         val activeChild = page.active.instance
@@ -108,7 +97,7 @@ class MasterDetailComponentImpl(
     }
 
     override fun navigateToSettings() {
-        output(MasterDetailComponent.Output.NavigateToSettings)
+        output(Output.NavigateToSettings)
     }
 
 }

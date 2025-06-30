@@ -64,7 +64,9 @@ class MainComponentImpl(
     override val page: Value<ChildStack<*, Child>> = childStack(
         source = navigation,
         serializer = null,
-        initialConfiguration = Config.MasterDetail,
+        initialConfiguration = Config.MasterDetail(
+            child = MasterDetailComponent.Config.ExploreAddOns()
+        ),
         handleBackButton = false,
         childFactory = { config, componentContext ->
             when (config) {
@@ -78,6 +80,7 @@ class MainComponentImpl(
                             is MasterDetailComponent.Output.NavigateToSettings -> navigateToSettings()
                         }
                     },
+                    initialConfiguration = config.child,
                     componentContext = componentContext
                 ))
                 is Config.Settings -> Child.Settings(SettingsComponentImpl(
@@ -93,7 +96,7 @@ class MainComponentImpl(
     private sealed class Config {
 
         @Serializable
-        data object MasterDetail : Config()
+        data class MasterDetail(val child: MasterDetailComponent.Config) : Config()
 
         @Serializable
         data object Settings : Config()
@@ -107,7 +110,9 @@ class MainComponentImpl(
             return
         }
 
-        navigation.replaceCurrent(Config.MasterDetail) // TODO initialize with explore add-ons
+        navigation.replaceCurrent(Config.MasterDetail(
+            child = MasterDetailComponent.Config.ExploreAddOns()
+        ))
     }
 
     override fun navigateToInstalledAddOns() {
@@ -117,7 +122,9 @@ class MainComponentImpl(
             return
         }
 
-        navigation.replaceCurrent(Config.MasterDetail) // TODO initialize with installed add-ons
+        navigation.replaceCurrent(Config.MasterDetail(
+            child = MasterDetailComponent.Config.ManageAddOns()
+        ))
     }
 
     override fun navigateToSettings() {

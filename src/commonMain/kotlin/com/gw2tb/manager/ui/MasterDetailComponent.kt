@@ -21,6 +21,7 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.ui.screens.explore.ExploreComponent
 import com.gw2tb.manager.ui.screens.manage.ManageComponent
+import kotlinx.serialization.Serializable
 
 @Immutable
 interface MasterDetailComponent {
@@ -32,6 +33,17 @@ interface MasterDetailComponent {
     fun navigateToInstalledAddOns()
 
     fun navigateToSettings()
+
+    @Serializable
+    sealed class Config {
+
+        @Serializable
+        data class ExploreAddOns(val selectedAddOnId: String? = null) : Config()
+
+        @Serializable
+        data class ManageAddOns(val selectedAddOnName: String? = null) : Config()
+
+    }
 
     sealed class Child {
         data class InstalledAddOns(val component: ManageComponent) : Child()
