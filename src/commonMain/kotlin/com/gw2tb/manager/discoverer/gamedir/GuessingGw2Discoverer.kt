@@ -16,8 +16,10 @@
  */
 package com.gw2tb.manager.discoverer.gamedir
 
+import org.apache.logging.log4j.LogManager
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 /**
  * Resolves the Guild Wars 2 game directory by guessing the default installation path.
@@ -28,7 +30,13 @@ class GuessingGw2Discoverer(
     private val gw2ExecutablePath: Path = Path.of("C:\\Program Files\\Guild Wars 2\\Gw2-64.exe")
 ) : Gw2Discoverer {
 
-    override fun findGameDirectory(): Path? =
-        if (Files.isRegularFile(gw2ExecutablePath)) gw2ExecutablePath.parent else null
+    private companion object {
+        private val log = LogManager.getLogger()
+    }
+
+    override fun findGameDirectory(): Path? {
+        log.info("Inspecting default Guild Wars 2 installation path: {}", gw2ExecutablePath.absolutePathString())
+        return if (Files.isRegularFile(gw2ExecutablePath)) gw2ExecutablePath.parent else null
+    }
 
 }
