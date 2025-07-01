@@ -55,6 +55,8 @@ fun LanguageSelector(
     var width by remember { mutableIntStateOf(0) }
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
+    val color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F)
+
     Row(
         modifier = Modifier
             .onGloballyPositioned {
@@ -67,7 +69,7 @@ fun LanguageSelector(
                 onClick = { isDropdownVisible = !isDropdownVisible }
             )
             .pointerHoverIcon(icon = PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)))
-            .border(1.dp, color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F))
+            .border(1.dp, color = color)
     ) {
         Row(
             modifier = Modifier
@@ -76,6 +78,7 @@ fun LanguageSelector(
         ) {
             Text(
                 text = stringResource(Res.string.select_language_label),
+                color = color,
                 fontSize = 10.sp
             )
         }
