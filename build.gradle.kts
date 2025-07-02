@@ -73,6 +73,7 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.materialIconsExtended)
                 implementation(compose.ui)
+                implementation(buildDeps.compose.constraintlayout)
                 implementation(buildDeps.decompose)
                 implementation(buildDeps.decompose.extensions.compose)
                 implementation(buildDeps.essenty.lifecycle.coroutines)
