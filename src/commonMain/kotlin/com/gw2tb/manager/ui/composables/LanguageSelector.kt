@@ -37,6 +37,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
@@ -73,13 +74,14 @@ fun LanguageSelector(
     ) {
         Row(
             modifier = Modifier
-                .background(brush = Brush.verticalGradient(listOf(Color.White, Color(0xFF8ad3d3))))
+                .background(brush = Brush.verticalGradient(listOf(Color.White, lerp(Color.White, Color(0xFF8ad3d3), 0.5F))))
                 .padding(horizontal = 6.dp, vertical = 4.dp),
         ) {
             Text(
                 text = stringResource(Res.string.select_language_label),
                 color = color,
-                fontSize = 10.sp
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
@@ -91,7 +93,8 @@ fun LanguageSelector(
             Text(
                 text = LocalAppLocaleIso.current.language.uppercase(),
                 color = Color.White,
-                fontSize = 10.sp
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
