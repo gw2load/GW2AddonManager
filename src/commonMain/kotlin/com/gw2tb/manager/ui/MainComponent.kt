@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.StateFlow
 @Immutable
 interface MainComponent {
 
+    val areAutoUpdatesEnabled: StateFlow<Boolean>
+
     val jobs: StateFlow<List<Job>>
 
     val page: Value<ChildStack<*, Child>>
@@ -39,6 +41,8 @@ interface MainComponent {
     fun openLink(url: String)
 
     fun play()
+
+    fun setAutoUpdatesEnabled(enabled: Boolean)
 
     sealed class Child {
 

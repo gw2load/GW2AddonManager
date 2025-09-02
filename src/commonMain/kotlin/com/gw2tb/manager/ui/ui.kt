@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.WindowScope
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -239,28 +241,39 @@ private fun MainScreenWrapper(component: MainComponent) {
 
             Spacer(Modifier.height(10.dp))
 
-            Row(
+            ConstraintLayout(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
             ) {
+                val (progress, button, checkbox) = createRefs()
                 val jobs by remember { component.jobs }.collectAsState()
 
                 if (jobs.isEmpty()) {
                     LinearProgressIndicator(
                         progress = 1F,
                         modifier = Modifier
-                            .height(7.dp)
-                            .weight(1F, fill = true),
+                            .constrainAs(progress) {
+                                start.linkTo(parent.start)
+                                end.linkTo(button.start, margin = 12.dp)
+                                centerVerticallyTo(button)
+
+                                width = Dimension.fillToConstraints
+                            }
+                            .height(7.dp),
                         color = Color(0xFF8ad3d3),
                         backgroundColor = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F),
                     )
                 } else {
                     LinearProgressIndicator(
                         modifier = Modifier
-                            .height(7.dp)
-                            .weight(1F, fill = true),
+                            .constrainAs(progress) {
+                                start.linkTo(parent.start)
+                                end.linkTo(button.start, margin = 12.dp)
+                                centerVerticallyTo(button)
+
+                                width = Dimension.fillToConstraints
+                            }
+                            .height(7.dp),
                         color = Color(0xFF8ad3d3),
                         backgroundColor = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F),
                     )
@@ -269,12 +282,42 @@ private fun MainScreenWrapper(component: MainComponent) {
                 EmphasisButton(
                     onClick = component::play,
                     modifier = Modifier
+                        .constrainAs(button) {
+                            end.linkTo(parent.end)
+                            bottom.linkTo(parent.bottom)
+                        }
                         .width(182.dp),
                     enabled = jobs.isEmpty()
                 ) {
                     Text(
                         text = stringResource(Res.string.game_start),
                         fontSize = 24.sp
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .constrainAs(checkbox) {
+                            end.linkTo(progress.end)
+                            bottom.linkTo(progress.top, margin = 4.dp)
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.setting_auto_update_label),
+                        color = lerp(Color(0xFF8ad3d3), Color.White, 0.4F),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    val areAutoUpdatesEnabled by component.areAutoUpdatesEnabled.collectAsState()
+
+                    Checkbox(
+                        checked = areAutoUpdatesEnabled,
+                        onClick = { component.setAutoUpdatesEnabled(!areAutoUpdatesEnabled) },
+                        color = Color(0xFF8ad3d3),
+                        hoverColor = lerp(Color(0xFF8ad3d3), Color.White, 0.4F),
+                        padding = PaddingValues(start = 4.dp, top = 4.dp, end = 0.dp, bottom = 4.dp)
                     )
                 }
             }

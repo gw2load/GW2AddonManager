@@ -56,6 +56,11 @@ class MainComponentImpl(
     private val localConfiguration: StateFlow<LocalConfiguration?> =
         configurationService.localConfiguration.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = null)
 
+    override val areAutoUpdatesEnabled: StateFlow<Boolean> =
+        configurationService.localConfiguration
+            .map { it?.autoUpdate ?: false }
+            .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = false)
+
     override val jobs: StateFlow<List<Job>> =
         jobService.jobs.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
@@ -140,6 +145,14 @@ class MainComponentImpl(
         val gameDirectory = localConfiguration.selectedGameDirectory ?: error("No game directory selected")
 
         Desktop.getDesktop().open(gameDirectory.resolve("Gw2-64.exe").toFile())
+    }
+
+    override fun setAutoUpdatesEnabled(enabled: Boolean) = runBlocking {
+        val localConfiguration = configurationService.localConfiguration.first() ?: error("No local configuration found")
+
+        configurationService.save(localConfiguration.copy(
+            autoUpdate = enabled
+        ))
     }
 
 }
