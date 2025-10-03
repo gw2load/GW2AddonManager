@@ -47,7 +47,8 @@ sealed interface AddOnManifest
 
 @Serializable
 data class AddOnManifestV1(
-    val addons: List<AddOnEntry>
+    val addons: List<AddOnEntry>,
+    val loader: Loader
 ) : AddOnManifest {
 
     @Serializable
@@ -56,6 +57,7 @@ data class AddOnManifestV1(
         val host: JsonObject, // We don't really care about this atm
         val installation: Installation,
         val release: Release? = null,
+        val prerelease: Release? = null,
         @SerialName("addon_names")
         val addonNames: List<String>? = null
     ) {
@@ -71,7 +73,10 @@ data class AddOnManifestV1(
             @SerialName("issue_tracker")
             val issueTracker: String,
             val vcs: String? = null,
-            val dependencies: List<AddOnId>? = null
+            val dependencies: List<AddOnId>? = null,
+            @SerialName("optional_dependencies")
+            val optionalDependencies: List<String>? = null,
+            val conflicts: List<String>? = null
         )
 
         @Serializable
@@ -87,20 +92,24 @@ data class AddOnManifestV1(
             }
 
         }
-
-        @Serializable
-        data class Release(
-            val id: String,
-            val name: String,
-            val version: List<Int>,
-            @SerialName("version_str")
-            val versionString: String,
-            @SerialName("download_url")
-            val downloadUrl: String,
-            @SerialName("asset_index")
-            val assetIndex: Int? = null
-        )
-
     }
 
+    @Serializable
+    data class Release(
+        val id: String,
+        val name: String,
+        val version: List<Int>,
+        @SerialName("version_str")
+        val versionString: String,
+        @SerialName("download_url")
+        val downloadUrl: String,
+        @SerialName("asset_index")
+        val assetIndex: Int? = null
+    )
+
+    @Serializable
+    data class Loader(
+        val release: Release? = null,
+        val prerelease: Release? = null,
+    )
 }
