@@ -16,17 +16,22 @@
  */
 package com.gw2tb.manager.ui
 
-import androidx.compose.runtime.Immutable
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
+import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.model.LocalAddOnReference
+import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent
+import com.gw2tb.manager.ui.screens.details.AddOnDetailsComponent
 import com.gw2tb.manager.ui.screens.explore.ExploreComponent
 import com.gw2tb.manager.ui.screens.manage.ManageComponent
 import kotlinx.serialization.Serializable
 
-@Immutable
 interface MasterDetailComponent {
 
     val page: Value<ChildStack<*, Child>>
+
+    fun navigateToConfirm(plan: ActionPlan)
 
     fun navigateToExploreAddOns()
 
@@ -38,14 +43,33 @@ interface MasterDetailComponent {
     sealed class Config {
 
         @Serializable
-        data class ExploreAddOns(val selectedAddOnId: String? = null) : Config()
+        @ConsistentCopyVisibility
+        data class AddOnDetails private constructor(
+            val addOnId: AddOnId? = null,
+            val ref: LocalAddOnReference? = null
+        ) : Config() {
+
+            constructor(addOnId: AddOnId) : this(addOnId = addOnId, ref = null)
+            constructor(ref: LocalAddOnReference) : this(addOnId = null, ref = ref)
+
+        }
 
         @Serializable
-        data class ManageAddOns(val selectedAddOnName: String? = null) : Config()
+        data class Confirm(
+            val plan: ActionPlan
+        ) : Config()
+
+        @Serializable
+        data object ExploreAddOns : Config()
+
+        @Serializable
+        data object ManageAddOns : Config()
 
     }
 
     sealed class Child {
+        data class AddOnDetails(val component: AddOnDetailsComponent) : Child()
+        data class Confirm(val component: ConfirmComponent) : Child()
         data class InstalledAddOns(val component: ManageComponent) : Child()
         data class ExploreAddOns(val component: ExploreComponent) : Child()
     }

@@ -107,9 +107,16 @@ private fun runApplication(
         mainContext = mainContext
     )
 
-    val notificationService = NotificationService(
+    val inspectionService = InspectionService(
         addOnService = addOnService,
-        configurationService = configurationService
+        mainContext = mainContext
+    )
+
+    val updateService = UpdateService()
+
+    val notificationService = NotificationService(
+        inspectionService = inspectionService,
+        updateService = updateService
     )
 
     val lifecycle = LifecycleRegistry()
@@ -126,6 +133,7 @@ private fun runApplication(
             RootComponentImpl(
                 addOnService = addOnService,
                 configurationService = configurationService,
+                inspectionService = inspectionService,
                 jobService = jobService,
                 notificationService = notificationService,
                 componentContext = DefaultComponentContext(lifecycle)

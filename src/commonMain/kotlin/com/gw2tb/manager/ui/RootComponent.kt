@@ -16,14 +16,12 @@
  */
 package com.gw2tb.manager.ui
 
-import androidx.compose.runtime.Immutable
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
-import com.gw2tb.manager.model.Notification
+import com.gw2tb.manager.model.notifications.Notification
 import com.gw2tb.manager.ui.screens.setup.SetupComponent
 import kotlinx.coroutines.flow.StateFlow
 
-@Immutable
 interface RootComponent {
 
     val notifications: StateFlow<List<Notification>>

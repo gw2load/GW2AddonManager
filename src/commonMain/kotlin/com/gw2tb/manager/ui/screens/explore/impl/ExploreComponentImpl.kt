@@ -18,28 +18,34 @@ package com.gw2tb.manager.ui.screens.explore.impl
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.gw2tb.manager.actions.OperationResult
+import com.gw2tb.manager.model.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.AddOnService
-import com.gw2tb.manager.services.ConfigurationService
+import com.gw2tb.manager.services.InspectionService
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.services.JobService
 import com.gw2tb.manager.ui.screens.explore.ExploreComponent
+import com.gw2tb.manager.ui.screens.explore.ExploreComponent.Output
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.awt.Desktop
-import java.net.URI
+import kotlinx.coroutines.withContext
+import kotlin.collections.map
 import kotlin.coroutines.CoroutineContext
 
 class ExploreComponentImpl(
     private val addOnService: AddOnService,
-    private val configurationService: ConfigurationService,
+    inspectionService: InspectionService,
     jobService: JobService,
-    selectedAddOnId: String? = null,
     mainContext: CoroutineContext,
-    componentContext: ComponentContext
+    componentContext: ComponentContext,
+    private val output: (Output) -> Unit
 ) : ExploreComponent, ComponentContext by componentContext {
 
     private val coroutineScope = coroutineScope(mainContext + SupervisorJob())
@@ -57,49 +63,67 @@ class ExploreComponentImpl(
         jobService.jobs.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     override val availableUpdates: StateFlow<List<AvailableAddOnUpdate>> =
-        addOnService.availableUpdates.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+        inspectionService.inspectionsByType(InspectionAddOnUpdateAvailable)
+            .map { inspection -> inspection.map(InspectionAddOnUpdateAvailable::update) }
+            .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
-    private val _selectedAddOn = MutableStateFlow(value = selectedAddOnId)
-    override val selectedAddOn: StateFlow<AddOnListing?> = addOnListings
-        .combine(_selectedAddOn) { listings, selected -> listings.firstOrNull { it.id == selected } }
-        .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = null)
-
-    override fun disable(addOn: LocalAddOn) {
+    override fun disableAddOn(ref: LocalAddOnReference) {
         coroutineScope.launch {
-            addOnService.disable(addOn)
+            val result = addOnService.disableAddOns(listOf(ref))
+            if (result is OperationResult.RequiresConfirmation) {
+                withContext(Dispatchers.Main) {
+                    output(Output.RequiresConfirmation(result.plan))
+                }
+            }
         }
     }
 
-    override fun enable(addOn: LocalAddOn) {
+    override fun enableAddOn(ref: LocalAddOnReference) {
         coroutineScope.launch {
-            addOnService.enable(addOn)
+            val result = addOnService.enableAddOns(listOf(ref))
+            if (result is OperationResult.RequiresConfirmation) {
+                withContext(Dispatchers.Main) {
+                    output(Output.RequiresConfirmation(result.plan))
+                }
+            }
         }
     }
 
-    override fun install(listing: AddOnListing) {
+    override fun installAddOn(id: AddOnId) {
         coroutineScope.launch {
-            val localConfiguration = configurationService.localConfiguration.first()
-            val gameDirectory = localConfiguration?.selectedGameDirectory ?: error("Game directory should not be null")
-
-            addOnService.install(
-                listing = listing,
-                gameDirectory = gameDirectory
-            )
+            val result = addOnService.installAddOns(listOf(id))
+            if (result is OperationResult.RequiresConfirmation) {
+                withContext(Dispatchers.Main) {
+                    output(Output.RequiresConfirmation(result.plan))
+                }
+            }
         }
     }
 
-    override fun uninstall(addOn: LocalAddOn) {
+    override fun uninstallAddOn(ref: LocalAddOnReference) {
         coroutineScope.launch {
-            addOnService.uninstall(addOn)
+            val result = addOnService.uninstallAddOns(listOf(ref))
+            if (result is OperationResult.RequiresConfirmation) {
+                withContext(Dispatchers.Main) {
+                    output(Output.RequiresConfirmation(result.plan))
+                }
+            }
         }
     }
 
-    override fun selectAddOn(listing: AddOnListing) {
-        _selectedAddOn.value = listing.id
+    override fun updateAddOn(update: AvailableAddOnUpdate) {
+        coroutineScope.launch {
+            val result = addOnService.updateAddOns(listOf(update))
+            if (result is OperationResult.RequiresConfirmation) {
+                withContext(Dispatchers.Main) {
+                    output(Output.RequiresConfirmation(result.plan))
+                }
+            }
+        }
     }
 
-    override fun navigateToVendor(vendor: String) {
-        Desktop.getDesktop().browse(URI(vendor))
+    override fun navigateToAddOnDetails(id: AddOnId) {
+        output(Output.NavigateToDetails(id))
     }
 
 }

@@ -16,23 +16,28 @@
  */
 package com.gw2tb.manager.ui
 
-import androidx.compose.runtime.Immutable
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
+import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.ui.screens.settings.SettingsComponent
 import kotlinx.coroutines.flow.StateFlow
 
-@Immutable
 interface MainComponent {
 
     val areAutoUpdatesEnabled: StateFlow<Boolean>
+
+    val canPlay: StateFlow<Boolean>
 
     val jobs: StateFlow<List<Job>>
 
     val page: Value<ChildStack<*, Child>>
 
+    fun navigateToConfirm(plan: ActionPlan)
+
     fun navigateToExploreAddOns()
+
+    fun navigateToHelp()
 
     fun navigateToInstalledAddOns()
 
@@ -46,6 +51,7 @@ interface MainComponent {
 
     sealed class Child {
 
+        data class Help(val component: SettingsComponent) : Child()
         data class MasterDetail(val component: MasterDetailComponent) : Child()
         data class Settings(val component: SettingsComponent) : Child()
 

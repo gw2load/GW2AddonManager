@@ -22,6 +22,7 @@ import java.lang.foreign.*
 import java.lang.foreign.MemoryLayout.PathElement.groupElement
 import java.lang.foreign.ValueLayout.*
 import java.nio.file.Path
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.io.path.absolutePathString
 
 /**
@@ -43,15 +44,7 @@ class Gw2LoadAddOnDiscoverer(
 
     companion object {
 
-        fun isValid(path: Path): Boolean =
-            Arena.ofConfined().use { arena ->
-                try {
-                    Gw2Load(arena, path)
-                    true
-                } catch (_: UnsatisfiedLinkError) {
-                    false
-                }
-            }
+        private val lock = ReentrantLock()
 
     }
 
@@ -59,6 +52,8 @@ class Gw2LoadAddOnDiscoverer(
     private val gw2Load: Gw2Load
 
     init {
+        lock.lock()
+
         try {
             gw2Load = Gw2Load(libraryArena, libraryPath)
         } catch (e: UnsatisfiedLinkError) {
@@ -69,6 +64,7 @@ class Gw2LoadAddOnDiscoverer(
 
     override fun close() {
         libraryArena.close()
+        lock.unlock()
     }
 
     override fun getAddOns(gameDirectory: Path): List<LocalAddOn> {
@@ -76,11 +72,7 @@ class Gw2LoadAddOnDiscoverer(
 
         return gw2Load.GetAddonsInDirectory(addOnsDirectory, pattern)
             .mapNotNull {
-                val addOnInfo = Path.of(it.path).getAddOnInfo()
-                if (addOnInfo == null) {
-                    println("Failed to get add-on info for ${it.path}")
-                    return@mapNotNull null
-                }
+                val addOnInfo = Path.of(it.path).getAddOnInfo() ?: return@mapNotNull null
 
                 LocalAddOn(
                     kind = LocalAddOn.Kind.GW2_LOAD_ADDON,
@@ -124,8 +116,6 @@ private class Gw2Load(
             try {
                 @Suppress("NAME_SHADOWING") val directory = arena.allocateFrom(directory)
                 @Suppress("NAME_SHADOWING") val pattern = arena.allocateFrom(pattern)
-
-                println("GetAddOnsInDirectory($directory, $pattern): ${Thread.currentThread().name}")
 
                 val pCount = arena.allocate(JAVA_INT, 1)
                 var res = GetAddonsInDirectory.invokeExact(directory, pCount, pattern) as MemorySegment

@@ -16,31 +16,45 @@
  */
 package com.gw2tb.manager.ui.composables
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.ReportProblem
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gw2tb.manager.model.Notification
+import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
+import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_addon_updates_available
+import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_duplicate_installations
+import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_manager_update_available
+import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_missing_addon_dependencies
+import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_more
+import com.gw2tb.manager.model.notifications.Notification
+import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
+import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
+import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
+import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
+import com.gw2tb.manager.model.notifications.Urgency
 import kotlinx.coroutines.flow.StateFlow
+import org.jetbrains.compose.resources.stringResource
+import java.awt.Cursor
 
-// TODO This is not fully done yet
+private const val DISPLAYED_NOTIFICATIONS = 3
 
 @Composable
 fun NotificationBar(
@@ -51,70 +65,122 @@ fun NotificationBar(
     @Suppress("NAME_SHADOWING")
     val notifications by notifications.collectAsState()
 
-    var currentNotification by remember { mutableStateOf(0) }
-    val interactionSource = remember { MutableInteractionSource() }
+    var offset by remember(notifications) { mutableStateOf(0) }
 
-    AnimatedVisibility(
-        visible = notifications.isNotEmpty(),
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Row(
-            modifier,
-            verticalAlignment = Alignment.CenterVertically
+    val notificationsSequence = sequence {
+        while (true) {
+            yieldAll(notifications)
+        }
+    }
+
+    val chipNotifications = when {
+        notifications.size <= DISPLAYED_NOTIFICATIONS -> notifications
+        else -> notificationsSequence.drop(offset).take(DISPLAYED_NOTIFICATIONS).toList()
+    }
+
+    val overflow = notifications.size - DISPLAYED_NOTIFICATIONS
+    val overflowNotifications = when {
+        overflow <= 0 -> emptyList()
+        else -> notificationsSequence.drop(overflow + DISPLAYED_NOTIFICATIONS).take(overflow).toList()
+    }
+
+    /* To avoid animation flicker we force recomposition of the entire component when the locale changes. */
+    key(LocalAppLocaleIso.current) {
+        LazyRow(
+            modifier = modifier
+                .animateContentSize(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            val notification = notifications[currentNotification]
-
-            val baseColor = when (notification.urgency) {
-                Notification.Urgency.INFO -> Color(0xFF8ad3d3)
-                Notification.Urgency.WARNING -> lerp(Color.Yellow, Color.Black, 0.4F)
-                Notification.Urgency.REQUIRED -> Color.Red
+            items(
+                items = chipNotifications,
+                key = {
+                    /* This works because we only ever emit zero or one notification per type. */
+                    it::class
+                }
+            ) { notification ->
+                NotificationChip(
+                    notification = notification,
+                    onClick = { onNotificationClick(notification) },
+                    modifier = Modifier
+                        .animateItem()
+                )
             }
 
-            TextButton(
-                text = {
-                    Text("Add-On updates available. Click to update all.")
-                },
-                onClick = { onNotificationClick(notification) },
-                modifier = Modifier
-                    .alignBy(FirstBaseline),
-                color = lerp(Color.Yellow, Color.Black, 0.55F),
-                idleColor = baseColor,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Previous",
-                        modifier = Modifier.size(14.dp)
-                    )
+            if (overflowNotifications.isNotEmpty()) {
+                item(key = "overflow-indicator") {
+                    OutlinedButton(
+                        onClick = {
+                            offset = (offset + DISPLAYED_NOTIFICATIONS) % notifications.size
+                        }
+                    ) {
+                        Text(stringResource(Res.string.notification_more, overflowNotifications.size))
+                    }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationChip(
+    notification: Notification,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val baseColor = when (notification.urgency) {
+        Urgency.Informational -> Color(0xff2fbd40)
+        Urgency.Critical -> Color(0xffbd2f40)
+    }
+
+    val darkColor = lerp(baseColor, Color.Black, 0.4F)
+
+    Row(
+        modifier = modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
             )
-
-            if (notifications.size > 1) {
+            .pointerHoverIcon(icon = PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)))
+            .border(1.dp, color = lerp(baseColor, Color.Black, 0.4F))
+    ) {
+        Row(
+            modifier = Modifier
+                .background(brush = Brush.verticalGradient(listOf(lerp(baseColor, Color.Black, 0.4F), baseColor)))
+                .padding(horizontal = 6.dp, vertical = 4.dp),
+        ) {
+            CompositionLocalProvider(
+                LocalContentColor provides darkColor,
+                LocalTextStyle provides LocalTextStyle.current.copy(fontSize = 10.sp),
+            ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Previous",
-                    modifier = Modifier
-                        .size(14.dp)
-                        .clickable {
-
-                        }
+                    imageVector = when (notification.urgency) {
+                        Urgency.Informational -> Icons.Outlined.Info
+                        Urgency.Critical -> Icons.Outlined.ReportProblem
+                    },
+                    contentDescription = null,
+                    tint = Color.White
                 )
+            }
+        }
 
+        Row(
+            modifier = Modifier
+                .background(brush = Brush.verticalGradient(listOf(Color.White, lerp(baseColor, Color.White, 0.5F))))
+                .padding(4.dp),
+        ) {
+            CompositionLocalProvider(
+                LocalContentColor provides darkColor,
+                LocalTextStyle provides LocalTextStyle.current.copy(fontSize = 10.sp),
+            ) {
                 Text(
-                    text = "1/3",
-                    modifier = Modifier
-                        .alignBy(FirstBaseline),
-                    fontSize = 10.sp
-                )
-
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Next",
-                    modifier = Modifier
-                        .size(14.dp)
-                        .clickable {
-
-                        }
+                    text = when (notification) {
+                        is NotificationAddOnUpdatesAvailable -> stringResource(Res.string.notification_addon_updates_available)
+                        is NotificationDuplicateInstallation -> stringResource(Res.string.notification_duplicate_installations)
+                        is NotificationManagerUpdateAvailable -> stringResource(Res.string.notification_manager_update_available)
+                        is NotificationMissingAddOnDependencies -> stringResource(Res.string.notification_missing_addon_dependencies)
+                    },
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }

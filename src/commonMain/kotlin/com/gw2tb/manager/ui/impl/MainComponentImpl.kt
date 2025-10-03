@@ -24,20 +24,32 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.model.LocalConfiguration
+import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.model.notifications.Urgency
 import com.gw2tb.manager.services.AddOnService
 import com.gw2tb.manager.services.ConfigurationService
+import com.gw2tb.manager.services.InspectionService
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.services.JobService
+import com.gw2tb.manager.services.NotificationService
 import com.gw2tb.manager.ui.MainComponent
 import com.gw2tb.manager.ui.MainComponent.Child
 import com.gw2tb.manager.ui.MasterDetailComponent
-import com.gw2tb.manager.ui.RootComponent
 import com.gw2tb.manager.ui.screens.settings.impl.SettingsComponentImpl
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import java.awt.Desktop
 import java.net.URI
@@ -46,7 +58,9 @@ import kotlin.coroutines.CoroutineContext
 class MainComponentImpl(
     private val addOnService: AddOnService,
     private val configurationService: ConfigurationService,
+    private val inspectionService: InspectionService,
     private val jobService: JobService,
+    notificationService: NotificationService,
     private val mainContext: CoroutineContext,
     componentContext: ComponentContext
 ) : MainComponent, ComponentContext by componentContext {
@@ -64,20 +78,31 @@ class MainComponentImpl(
     override val jobs: StateFlow<List<Job>> =
         jobService.jobs.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
+    override val canPlay: StateFlow<Boolean> =
+        notificationService.notifications
+            .combine(jobs) { a, b -> a to b }
+            .map { (notifications, jobs) -> notifications.none { it.urgency == Urgency.Critical } && jobs.isEmpty() }
+            .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = false)
+
     private val navigation = StackNavigation<Config>()
 
     override val page: Value<ChildStack<*, Child>> = childStack(
         source = navigation,
         serializer = null,
         initialConfiguration = Config.MasterDetail(
-            child = MasterDetailComponent.Config.ExploreAddOns()
+            child = MasterDetailComponent.Config.ExploreAddOns
         ),
         handleBackButton = false,
         childFactory = { config, componentContext ->
             when (config) {
+                is Config.Help -> Child.Help(SettingsComponentImpl(
+                    configurationService = configurationService,
+                    mainContext = mainContext,
+                    componentContext = componentContext
+                ))
                 is Config.MasterDetail -> Child.MasterDetail(MasterDetailComponentImpl(
                     addOnService = addOnService,
-                    configurationService = configurationService,
+                    inspectionService = inspectionService,
                     jobService = jobService,
                     mainContext = mainContext,
                     output = { output ->
@@ -101,11 +126,26 @@ class MainComponentImpl(
     private sealed class Config {
 
         @Serializable
+        data object Help : Config()
+
+        @Serializable
         data class MasterDetail(val child: MasterDetailComponent.Config) : Config()
 
         @Serializable
         data object Settings : Config()
 
+    }
+
+    override fun navigateToConfirm(plan: ActionPlan) {
+        val activeChild = page.active.instance
+        if (activeChild is Child.MasterDetail) {
+            activeChild.component.navigateToConfirm(plan)
+            return
+        }
+
+        navigation.replaceCurrent(Config.MasterDetail(
+            child = MasterDetailComponent.Config.Confirm(plan)
+        ))
     }
 
     override fun navigateToExploreAddOns() {
@@ -116,8 +156,12 @@ class MainComponentImpl(
         }
 
         navigation.replaceCurrent(Config.MasterDetail(
-            child = MasterDetailComponent.Config.ExploreAddOns()
+            child = MasterDetailComponent.Config.ExploreAddOns
         ))
+    }
+
+    override fun navigateToHelp() {
+        navigation.replaceCurrent(Config.Help)
     }
 
     override fun navigateToInstalledAddOns() {
@@ -128,7 +172,7 @@ class MainComponentImpl(
         }
 
         navigation.replaceCurrent(Config.MasterDetail(
-            child = MasterDetailComponent.Config.ManageAddOns()
+            child = MasterDetailComponent.Config.ManageAddOns
         ))
     }
 
@@ -144,7 +188,17 @@ class MainComponentImpl(
         val localConfiguration = localConfiguration.value ?: error("Local configuration is not available")
         val gameDirectory = localConfiguration.selectedGameDirectory ?: error("No game directory selected")
 
-        Desktop.getDesktop().open(gameDirectory.resolve("Gw2-64.exe").toFile())
+        @OptIn(DelicateCoroutinesApi::class)
+        GlobalScope.launch(Dispatchers.Default) {
+            val inspections = inspectionService.inspectionsByType(InspectionAddOnUpdateAvailable)
+                .first()
+
+            if (localConfiguration.autoUpdate) {
+                addOnService.updateAddOns(inspections.map { it.update })
+            }
+
+            Desktop.getDesktop().open(gameDirectory.resolve("Gw2-64.exe").toFile())
+        }
     }
 
     override fun setAutoUpdatesEnabled(enabled: Boolean) = runBlocking {

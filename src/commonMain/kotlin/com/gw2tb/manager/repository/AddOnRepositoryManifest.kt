@@ -16,6 +16,7 @@
  */
 package com.gw2tb.manager.repository
 
+import com.gw2tb.manager.model.AddOnId
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -61,7 +62,7 @@ data class AddOnManifestV1(
 
         @Serializable
         data class Package(
-            val id: String,
+            val id: AddOnId,
             val name: String,
             val description: String,
             val tooltip: String,
@@ -70,7 +71,7 @@ data class AddOnManifestV1(
             @SerialName("issue_tracker")
             val issueTracker: String,
             val vcs: String? = null,
-            val dependencies: List<String>? = null
+            val dependencies: List<AddOnId>? = null
         )
 
         @Serializable

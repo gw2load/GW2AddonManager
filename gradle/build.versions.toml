@@ -58,6 +58,7 @@ log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", ver
 # org.jetbrains.kotlinx:kotlinx-coroutines-[...] - kotlinx.coroutines
 # https://github.com/Kotlin/kotlinx.coroutines
 kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 
 # org.jetbrains.kotlinx:kotlinx-serialization-[...] - kotlinx.serialization
 # https://github.com/Kotlin/kotlinx.serialization

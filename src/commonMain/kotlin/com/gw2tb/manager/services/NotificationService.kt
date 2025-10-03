@@ -16,7 +16,7 @@
  */
 package com.gw2tb.manager.services
 
-import com.gw2tb.manager.model.Notification
+import com.gw2tb.manager.model.notifications.Notification
 import kotlinx.coroutines.flow.Flow
 
 interface NotificationService {

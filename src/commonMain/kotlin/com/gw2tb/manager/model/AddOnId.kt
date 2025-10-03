@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.ui.screens.manage
+package com.gw2tb.manager.model
 
-import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.local.LocalAddOn
+import kotlinx.serialization.Serializable
 
-data class InstalledAddOn(
-    val localAddOn: LocalAddOn,
-    val listing: AddOnListing?
-)
+@JvmInline
+@Serializable
+value class AddOnId(private val value: String) {
+    override fun toString(): String = value
+}

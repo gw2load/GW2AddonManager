@@ -43,7 +43,6 @@ fun Path.watchDirectory(
         filter = filter
     )
         .onCompletion { watchService.close() }
-        .flowOn(Dispatchers.IO)
 }
 
 private fun Path.watchDirectory(
@@ -57,9 +56,9 @@ private fun Path.watchDirectory(
     val registeredKey = register(watchService, events, *modifiers)
 
     return callbackFlow {
-        val job = launch {
-            send(InitialWatchEvent)
+        send(InitialWatchEvent)
 
+        val job = launch(Dispatchers.IO) {
             while (true) {
                 val key = watchService.take()
                 if (key != registeredKey) continue

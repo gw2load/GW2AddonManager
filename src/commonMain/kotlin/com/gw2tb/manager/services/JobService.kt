@@ -16,8 +16,8 @@
  */
 package com.gw2tb.manager.services
 
-import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.local.LocalAddOn
+import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.model.LocalAddOnReference
 import kotlinx.coroutines.flow.Flow
 
 interface JobService {
@@ -25,14 +25,14 @@ interface JobService {
     val jobs: Flow<List<Job>>
 
     suspend fun <T> runJob(
-        addOnListings: List<AddOnListing> = emptyList(),
-        localAddOns: List<LocalAddOn> = emptyList(),
+        addOnListings: Iterable<AddOnId> = emptyList(),
+        localAddOns: Iterable<LocalAddOnReference> = emptyList(),
         block: suspend () -> T
-    )
+    ): T
 
 }
 
 class Job(
-    val addOnListings: List<AddOnListing>,
-    val localAddOns: List<LocalAddOn>
+    val addOnListings: Iterable<AddOnId>,
+    val localAddOns: Iterable<LocalAddOnReference>
 )

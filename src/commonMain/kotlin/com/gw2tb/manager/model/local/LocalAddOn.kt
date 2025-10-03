@@ -16,7 +16,7 @@
  */
 package com.gw2tb.manager.model.local
 
-import androidx.compose.runtime.Immutable
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.platform.win32.getAddOnInfo
 import java.nio.file.Path
 
@@ -39,7 +39,6 @@ fun LocalAddOn(path: Path, kind: LocalAddOn.Kind): LocalAddOn? {
  * @param path      the path to the add-on binary
  * @param isEnabled whether the add-on is enabled
  */
-@Immutable
 data class LocalAddOn(
     val kind: Kind,
     val name: String,
@@ -47,6 +46,8 @@ data class LocalAddOn(
     val version: AddOnVersion,
     val isEnabled: Boolean = !path.fileName.toString().endsWith(".disabled")
 ) {
+
+    val ref: LocalAddOnReference get() = LocalAddOnReference(path, name)
 
     /** A kind of add-on. */
     enum class Kind {

@@ -16,43 +16,52 @@
  */
 package com.gw2tb.manager.services
 
-import com.gw2tb.manager.model.Notification
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
+import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
+import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
+import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
+import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
+import kotlinx.coroutines.flow.combine
 
 fun NotificationService(
-    addOnService: AddOnService,
-    configurationService: ConfigurationService
+    inspectionService: InspectionService,
+    updateService: UpdateService
 ): NotificationService = NotificationServiceImpl(
-    addOnService = addOnService,
-    configurationService = configurationService
+    inspectionService = inspectionService,
+    updateService = updateService
 )
 
 class NotificationServiceImpl(
-    configurationService: ConfigurationService,
-    addOnService: AddOnService
+    inspectionService: InspectionService,
+    updateService: UpdateService
 ) : NotificationService {
 
-    override val notifications = addOnService.availableUpdates
-        .mapNotNull { updates ->
-            if (updates.isEmpty()) return@mapNotNull null
-
-            listOf(
-                Notification(
-                    urgency = Notification.Urgency.INFO,
-                    quickFix = {
-                        updates.forEach { update ->
-                            val localConfiguration = configurationService.localConfiguration.first()
-                            val gameDirectory = localConfiguration?.selectedGameDirectory ?: error("Game directory should not be null")
-
-                            addOnService.install(
-                                listing = update.addOnListing,
-                                gameDirectory = gameDirectory
-                            )
+    override val notifications =
+        combine(inspectionService.inspections, updateService.availableUpdate) { inspections, availableUpdate ->
+            buildList {
+                for ((inspector, inspections) in inspections) {
+                    when (inspector) {
+                        is InspectionAddOnUpdateAvailable.Companion -> {
+                            val updates = inspections.map { (it as InspectionAddOnUpdateAvailable).update }
+                            if (updates.isNotEmpty()) add(NotificationAddOnUpdatesAvailable(updates))
+                        }
+                        InspectionDuplicateInstallations.Companion -> {
+                            val inspections = inspections.map { it as InspectionDuplicateInstallations }
+                            if (inspections.isNotEmpty()) add(NotificationDuplicateInstallation(inspections))
+                        }
+                        InspectionMissingAddOnDependencies.Companion -> {
+                            val inspections = inspections.map { it as InspectionMissingAddOnDependencies }
+                            if (inspections.isNotEmpty()) add(NotificationMissingAddOnDependencies(inspections))
                         }
                     }
-                )
-            )
+                }
+
+                if (availableUpdate != null) {
+                    add(NotificationManagerUpdateAvailable(availableUpdate))
+                }
+            }
         }
 
 }

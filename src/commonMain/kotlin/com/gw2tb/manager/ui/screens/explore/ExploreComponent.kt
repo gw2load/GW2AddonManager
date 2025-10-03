@@ -16,14 +16,15 @@
  */
 package com.gw2tb.manager.ui.screens.explore
 
-import androidx.compose.runtime.Immutable
+import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.model.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.Job
 import kotlinx.coroutines.flow.StateFlow
 
-@Immutable
 interface ExploreComponent {
 
     val addOnListings: StateFlow<List<AddOnListing>>
@@ -34,21 +35,24 @@ interface ExploreComponent {
 
     val jobs: StateFlow<List<Job>>
 
-    val selectedAddOn: StateFlow<AddOnListing?>
+    fun disableAddOn(ref: LocalAddOnReference)
 
-    fun disable(addOn: LocalAddOn)
+    fun enableAddOn(ref: LocalAddOnReference)
 
-    fun enable(addOn: LocalAddOn)
+    fun setEnabled(ref: LocalAddOnReference, enabled: Boolean) =
+        if (enabled) enableAddOn(ref) else disableAddOn(ref)
 
-    fun setEnabled(addOn: LocalAddOn, enabled: Boolean) =
-        if (enabled) enable(addOn) else disable(addOn)
+    fun installAddOn(id: AddOnId)
 
-    fun install(listing: AddOnListing)
+    fun uninstallAddOn(ref: LocalAddOnReference)
 
-    fun uninstall(addOn: LocalAddOn)
+    fun updateAddOn(update: AvailableAddOnUpdate)
 
-    fun selectAddOn(listing: AddOnListing)
+    fun navigateToAddOnDetails(id: AddOnId)
 
-    fun navigateToVendor(vendor: String)
+    sealed interface Output {
+        data class RequiresConfirmation(val plan: ActionPlan) : Output
+        data class NavigateToDetails(val addOnId: AddOnId) : Output
+    }
 
 }

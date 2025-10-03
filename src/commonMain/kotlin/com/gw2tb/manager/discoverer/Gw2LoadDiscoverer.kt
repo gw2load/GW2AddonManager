@@ -18,6 +18,8 @@ package com.gw2tb.manager.discoverer
 
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.platform.win32.getAddOnInfo
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.isRegularFile
 
@@ -31,12 +33,20 @@ class Gw2LoadDiscoverer(
     private val addOnName: String = "GW2Load"
 ) : AddOnDiscoverer {
 
+    private companion object {
+        val log: Logger = LoggerFactory.getLogger(Gw2LoadDiscoverer::class.java)
+    }
+
     override fun getAddOns(gameDirectory: Path): List<LocalAddOn> {
+        log.info("Searching directory for {} using {}: {}", addOnName, this::class.simpleName, gameDirectory)
+
         val libraryPath = gameDirectory.resolve(libraryName)
         val disabledLibraryPath = gameDirectory.resolve("$libraryName.disabled")
 
         return buildList {
             if (libraryPath.isRegularFile()) {
+                log.info("Found {} at '{}'", addOnName, libraryPath)
+
                 add(LocalAddOn(
                     kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
                     name = addOnName,
@@ -47,6 +57,8 @@ class Gw2LoadDiscoverer(
             }
 
             if (disabledLibraryPath.isRegularFile()) {
+                log.info("Found {} at '{}'", addOnName, libraryPath)
+
                 add(LocalAddOn(
                     kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
                     name = addOnName,

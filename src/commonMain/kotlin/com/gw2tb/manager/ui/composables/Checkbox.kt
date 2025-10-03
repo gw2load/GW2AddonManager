@@ -21,9 +21,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -50,21 +50,19 @@ fun Checkbox(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    color: Color = Color(0xFF8ad3d3)
+    color: Color = Color(0xFF8ad3d3),
+    hoverColor: Color = lerp(color, Color.Black, 0.4F),
+    padding: PaddingValues = PaddingValues(4.dp)
 ) {
     val checkCache = remember { CheckDrawingCache() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
     @Suppress("NAME_SHADOWING")
-    val color = if (isHovered) {
-        color
-    } else {
-        lerp(color, Color.Black, 0.4F)
-    }
+    val color = if (isHovered) hoverColor else color
 
     Box(
         modifier = modifier
-            .clip(CircleShape)
+            .clip(RectangleShape)
             .pointerHoverIcon(icon = PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)))
             .clickable(
                 interactionSource = interactionSource,
@@ -72,9 +70,8 @@ fun Checkbox(
                 role = Role.Checkbox,
                 onClick = onClick
             )
-            .padding(4.dp)
-            .size(20.dp)
-            .padding(3.dp)
+            .padding(padding)
+            .size(12.dp)
             .border(width = 1.dp, color = color)
             .drawBehind {
                 if (checked) {

@@ -100,6 +100,7 @@ kotlin {
                 implementation(buildDeps.log4j.slf4j2.impl)
                 implementation(buildDeps.slf4j.api)
 
+                runtimeOnly(buildDeps.kotlinx.coroutines.swing)
                 runtimeOnly(buildDeps.ktor.client.java)
             }
         }

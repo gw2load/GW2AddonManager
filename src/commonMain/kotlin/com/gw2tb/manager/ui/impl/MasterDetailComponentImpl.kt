@@ -19,16 +19,22 @@ package com.gw2tb.manager.ui.impl
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
+import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.MasterDetailComponent
 import com.gw2tb.manager.ui.MasterDetailComponent.*
+import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent
+import com.gw2tb.manager.ui.screens.confirm.impl.ConfirmComponentImpl
+import com.gw2tb.manager.ui.screens.details.impl.AddOnDetailsComponentImpl
+import com.gw2tb.manager.ui.screens.explore.ExploreComponent
 import com.gw2tb.manager.ui.screens.explore.impl.ExploreComponentImpl
+import com.gw2tb.manager.ui.screens.manage.ManageComponent
 import com.gw2tb.manager.ui.screens.manage.impl.ManageComponentImpl
 import kotlin.coroutines.CoroutineContext
 
 class MasterDetailComponentImpl(
     private val addOnService: AddOnService,
-    private val configurationService: ConfigurationService,
+    private val inspectionService: InspectionService,
     private val jobService: JobService,
     private val mainContext: CoroutineContext,
     private val output: (Output) -> Unit,
@@ -45,55 +51,64 @@ class MasterDetailComponentImpl(
         handleBackButton = false,
         childFactory = { config, _ ->
             when (config) {
-                is Config.ExploreAddOns -> Child.ExploreAddOns(ExploreComponentImpl(
+                is Config.AddOnDetails -> Child.AddOnDetails(AddOnDetailsComponentImpl(
                     addOnService = addOnService,
-                    configurationService = configurationService,
-                    jobService = jobService,
-                    selectedAddOnId = config.selectedAddOnId,
+                    addOnId = config.addOnId,
+                    localAddOnRef = config.ref,
                     mainContext = mainContext,
                     componentContext = componentContext
                 ))
+                is Config.Confirm -> Child.Confirm(ConfirmComponentImpl(
+                    addOnService = addOnService,
+                    plan = config.plan,
+                    mainContext = mainContext,
+                    componentContext = componentContext,
+                    output = { output ->
+                        when (output) {
+                            is ConfirmComponent.Output.Exit -> navigation.pop()
+                        }
+                    }
+                ))
+                is Config.ExploreAddOns -> Child.ExploreAddOns(ExploreComponentImpl(
+                    addOnService = addOnService,
+                    inspectionService = inspectionService,
+                    jobService = jobService,
+                    mainContext = mainContext,
+                    componentContext = componentContext,
+                    output = { output ->
+                        when (output) {
+                            is ExploreComponent.Output.NavigateToDetails -> navigation.pushToFront(Config.AddOnDetails(addOnId = output.addOnId))
+                            is ExploreComponent.Output.RequiresConfirmation -> navigateToConfirm(plan = output.plan)
+                        }
+                    }
+                ))
                 is Config.ManageAddOns -> Child.InstalledAddOns(ManageComponentImpl(
                     addOnService = addOnService,
-                    configurationService = configurationService,
+                    inspectionService = inspectionService,
                     jobService = jobService,
-                    selectedAddOnName = config.selectedAddOnName,
                     mainContext = mainContext,
-                    componentContext = componentContext
+                    componentContext = componentContext,
+                    output = { output ->
+                        when (output) {
+                            is ManageComponent.Output.NavigateToDetails -> navigation.pushToFront(Config.AddOnDetails(ref = output.localAddOn))
+                            is ManageComponent.Output.RequiresConfirmation -> navigateToConfirm(plan = output.plan)
+                        }
+                    }
                 ))
             }
         }
     )
 
+    override fun navigateToConfirm(plan: ActionPlan) {
+        navigation.pushToFront(Config.Confirm(plan))
+    }
+
     override fun navigateToExploreAddOns() {
-        val activeChild = page.active.instance
-        val selectedAddOnId = let {
-            if (activeChild is Child.InstalledAddOns) {
-                val selectedAddOn = activeChild.component.selectedAddOn.value ?: return@let null
-                val addOnListings = activeChild.component.addOnListings.value
-
-                addOnListings.firstOrNull { selectedAddOn.name in it.addOnNames }?.id
-            } else {
-                null
-            }
-        }
-
-        navigation.replaceCurrent(Config.ExploreAddOns(selectedAddOnId))
+        navigation.replaceAll(Config.ExploreAddOns)
     }
 
     override fun navigateToInstalledAddOns() {
-        val activeChild = page.active.instance
-        val selectedAddOnId = let {
-            if (activeChild is Child.ExploreAddOns) {
-                val selectedAddOn = activeChild.component.selectedAddOn.value ?: return@let null
-                val localAddOns = activeChild.component.localAddOns.value
-
-                localAddOns.firstOrNull { it.name in selectedAddOn.addOnNames }?.name
-            } else {
-                null
-            }
-        }
-        navigation.replaceCurrent(Config.ManageAddOns(selectedAddOnId))
+        navigation.replaceAll(Config.ManageAddOns)
     }
 
     override fun navigateToSettings() {

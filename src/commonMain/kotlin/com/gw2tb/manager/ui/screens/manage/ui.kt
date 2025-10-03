@@ -19,25 +19,21 @@ package com.gw2tb.manager.ui.screens.manage
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
-import com.gw2tb.manager.gw2addonmanager.generated.resources.no_addon_selected
-import com.gw2tb.manager.model.catalog.isMatching
-import com.gw2tb.manager.ui.composables.AddOnDetails
 import com.gw2tb.manager.ui.composables.AddOnListItem
 import com.gw2tb.manager.ui.composables.AddOnListItemState
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ManageAddOnsMaster(
+fun ManageAddOns(
     component: ManageComponent,
     modifier: Modifier = Modifier
 ) {
@@ -47,6 +43,7 @@ fun ManageAddOnsMaster(
 
     Box(
         modifier = modifier
+            .background(brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFE6F6F6))))
     ) {
         val installedAddOns by component.installedAddOns.collectAsState()
         val lazyListState = rememberLazyListState()
@@ -54,18 +51,47 @@ fun ManageAddOnsMaster(
         LazyColumn(
             state = lazyListState
         ) {
-            items(items = installedAddOns) { (localAddOn, addOnListing) ->
-                AddOnListItem(
-                    title = addOnListing?.addOnName ?: localAddOn.name,
-                    addOnState = if (localAddOn.isEnabled) AddOnListItemState.ENABLED else AddOnListItemState.DISABLED,
-                    selected = false,
-                    onClick = { component.selectAddOn(localAddOn) },
-                    installAddOn = { error("Should never be reached") }, // In this screen, add-ons are already installed
-                    setAddOnEnabled = { enabled -> component.setEnabled(localAddOn, enabled) },
-                    getJobs = { jobs.filter { localAddOn in it.localAddOns } },
-                    showUpdateIndicator = availableUpdates.any { it.localAddOn == localAddOn },
-                    contentPadding = PaddingValues(start = 8.dp, top = 2.dp, bottom = 2.dp, end = 10.dp)
-                )
+            itemsIndexed(items = installedAddOns) { index, (localAddOn, listing) ->
+                val availableAddOnUpdate = availableUpdates.find { it.addOnId == listing?.id }
+
+                Column(
+                    modifier = Modifier
+                        .let {
+                            if (availableAddOnUpdate != null)
+                                it.background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(Color.Transparent, Color(0xFF9BD99F)),
+                                        startX = 650F
+                                    )
+                                )
+                            else
+                                it
+                        }
+                ) {
+                    AddOnListItem(
+                        title = listing?.addOnName ?: localAddOn.name,
+                        summary = listing?.addOnSummary ?: "",
+                        version = "",
+                        addOnState = if (localAddOn.isEnabled) AddOnListItemState.ENABLED else AddOnListItemState.DISABLED,
+                        onClick = { component.navigateToDetails(localAddOn.ref) },
+                        updateAddOn = {}, // TODO
+                        installAddOn = { error("Should never be reached") }, // In this screen, add-ons are already installed
+                        setAddOnEnabled = { enabled -> component.setEnabled(localAddOn.ref, enabled) },
+                        getJobs = { jobs.filter { localAddOn.ref in it.localAddOns } },
+                        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
+                    )
+
+                    if (index < installedAddOns.lastIndex)
+                        Box(
+                            modifier = modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp)
+                                .height((1f / LocalDensity.current.density).dp)
+                                .background(
+                                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, Color(0xFF8ad3d3), Color.Transparent))
+                                )
+                        ) {}
+                }
             }
         }
 
@@ -83,6 +109,7 @@ fun ManageAddOnsMaster(
     }
 }
 
+/*
 @Composable
 fun ManageAddOnsDetails(
     component: ManageComponent,
@@ -127,3 +154,4 @@ fun ManageAddOnsDetails(
         }
     }
 }
+ */

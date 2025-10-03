@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,20 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model
+package com.gw2tb.manager.model.inspections
 
-import androidx.compose.runtime.Immutable
+import com.gw2tb.manager.model.LocalAddOnReference
 
-@Immutable
-data class Notification(
-    val urgency: Urgency,
-    val quickFix: (suspend () -> Unit)? = null
-) {
+sealed interface Inspection {
 
-    enum class Urgency {
-        INFO,
-        WARNING,
-        REQUIRED
-    }
+    val affectRefs: Iterable<LocalAddOnReference>
 
 }

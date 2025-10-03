@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -16,20 +16,7 @@
  */
 package com.gw2tb.manager.model
 
-import androidx.compose.runtime.Immutable
-import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.local.LocalAddOn
-
-@Immutable
 data class AvailableAddOnUpdate(
-    val addOnListing: AddOnListing,
-    val localAddOn: LocalAddOn,
-    val urgency: Urgency
-) {
-
-    enum class Urgency {
-        OPTIONAL,
-        REQUIRED
-    }
-
-}
+    val addOnId: AddOnId,
+    val localRef: LocalAddOnReference
+)

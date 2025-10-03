@@ -45,10 +45,11 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.*
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.ui.composables.*
-import com.gw2tb.manager.ui.screens.explore.ExploreAddOnsDetails
-import com.gw2tb.manager.ui.screens.explore.ExploreAddOnsMaster
-import com.gw2tb.manager.ui.screens.manage.ManageAddOnsDetails
-import com.gw2tb.manager.ui.screens.manage.ManageAddOnsMaster
+import com.gw2tb.manager.ui.screens.confirm.ConfirmActionPlan
+import com.gw2tb.manager.ui.screens.details.AddOnDetails
+import com.gw2tb.manager.ui.screens.explore.ExploreAddOns
+import com.gw2tb.manager.ui.screens.help.HelpScreen
+import com.gw2tb.manager.ui.screens.manage.ManageAddOns
 import com.gw2tb.manager.ui.screens.settings.SettingsScreen
 import com.gw2tb.manager.ui.screens.setup.SetupScreen
 import org.jetbrains.compose.resources.painterResource
@@ -91,23 +92,24 @@ fun WindowScope.AddOnManager(
                         verticalAlignment = Alignment.Top
                     ) {
                         Row(
+                            modifier = Modifier
+                                .weight(1F, fill = true),
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             LanguageSelector(
                                 selectLocale = selectLocale
                             )
 
-                            // TODO Implement notifications
-//                            val childStack by component.page.subscribeAsState()
-//                            if (childStack.active.instance !is AddOnManagerComponent.Child.Setup) {
-//                                NotificationBar(
-//                                    notifications = component.notifications,
-//                                    onNotificationClick = component::onNotificationClick
-//                                )
-//                            }
+                            val childStack by component.page.subscribeAsState()
+                            if (childStack.active.instance !is RootComponent.Child.Setup) {
+                                NotificationBar(
+                                    notifications = component.notifications,
+                                    onNotificationClick = component::onNotificationClick,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+                            }
                         }
-
-                        Spacer(Modifier.weight(1F, fill = true))
 
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(3.dp)
@@ -182,11 +184,20 @@ private fun MainScreenWrapper(component: MainComponent) {
             }
 
             TextButton(
-                text = stringResource(Res.string.tab_explore),
+                text = {
+                    TextWithFixedWeightWidth(
+                        weight = if (child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.ExploreAddOns) null else FontWeight.Medium,
+                        maxWeight = FontWeight.Medium
+                    ) {
+                        Text(stringResource(Res.string.tab_explore))
+                    }
+                },
                 onClick = component::navigateToExploreAddOns,
                 modifier = Modifier
                     .padding(end = 8.dp),
-                enabled = child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.ExploreAddOns
+                enabled = child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.ExploreAddOns,
+                onClickLabel = stringResource(Res.string.tab_explore),
+                role = Role.Tab
             )
 
             Divider(
@@ -197,11 +208,20 @@ private fun MainScreenWrapper(component: MainComponent) {
             )
 
             TextButton(
-                text = stringResource(Res.string.tab_manage),
+                text = {
+                    TextWithFixedWeightWidth(
+                        weight = if (child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.InstalledAddOns) null else FontWeight.Medium,
+                        maxWeight = FontWeight.Medium
+                    ) {
+                        Text(stringResource(Res.string.tab_manage))
+                    }
+                },
                 onClick = component::navigateToInstalledAddOns,
                 modifier = Modifier
                     .padding(horizontal = 8.dp),
-                enabled = child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.InstalledAddOns
+                enabled = child.active.instance !is MainComponent.Child.MasterDetail || nestedChild!!.active.instance !is MasterDetailComponent.Child.InstalledAddOns,
+                onClickLabel = stringResource(Res.string.tab_manage),
+                role = Role.Tab
             )
 
             Divider(
@@ -212,11 +232,44 @@ private fun MainScreenWrapper(component: MainComponent) {
             )
 
             TextButton(
-                text = stringResource(Res.string.tab_settings),
+                text = {
+                    TextWithFixedWeightWidth(
+                        weight = if (child.active.instance !is MainComponent.Child.Settings) null else FontWeight.Medium,
+                        maxWeight = FontWeight.Medium
+                    ) {
+                        Text(stringResource(Res.string.tab_settings))
+                    }
+                },
                 onClick = component::navigateToSettings,
                 modifier = Modifier
+                    .padding(horizontal = 8.dp),
+                enabled = child.active.instance !is MainComponent.Child.Settings,
+                onClickLabel = stringResource(Res.string.tab_settings),
+                role = Role.Tab
+            )
+
+            Divider(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(1.dp),
+                color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F).copy(alpha = 0.45F)
+            )
+
+            TextButton(
+                text = {
+                    TextWithFixedWeightWidth(
+                        weight = if (child.active.instance !is MainComponent.Child.Help) null else FontWeight.Medium,
+                        maxWeight = FontWeight.Medium
+                    ) {
+                        Text(stringResource(Res.string.tab_help))
+                    }
+                },
+                onClick = component::navigateToHelp,
+                modifier = Modifier
                     .padding(start = 8.dp),
-                enabled = child.active.instance !is MainComponent.Child.Settings
+                enabled = child.active.instance !is MainComponent.Child.Help,
+                onClickLabel = stringResource(Res.string.tab_help),
+                role = Role.Tab
             )
         }
 
@@ -233,6 +286,7 @@ private fun MainScreenWrapper(component: MainComponent) {
                     animation = stackAnimation()
                 ) { child ->
                     when (val activeChild = child.instance) {
+                        is MainComponent.Child.Help -> HelpScreen(activeChild.component)
                         is MainComponent.Child.MasterDetail -> MainLayout(activeChild.component)
                         is MainComponent.Child.Settings -> SettingsScreen(activeChild.component)
                     }
@@ -279,6 +333,8 @@ private fun MainScreenWrapper(component: MainComponent) {
                     )
                 }
 
+                val canPlay by component.canPlay.collectAsState()
+
                 EmphasisButton(
                     onClick = component::play,
                     modifier = Modifier
@@ -287,7 +343,7 @@ private fun MainScreenWrapper(component: MainComponent) {
                             bottom.linkTo(parent.bottom)
                         }
                         .width(182.dp),
-                    enabled = jobs.isEmpty()
+                    enabled = canPlay
                 ) {
                     Text(
                         text = stringResource(Res.string.game_start),
@@ -366,43 +422,19 @@ private fun MainLayout(
     component: MasterDetailComponent,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .background(Color.White),
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
+    Surface(
+        modifier = modifier,
+        elevation = 8.dp
     ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(270.dp),
-            elevation = 8.dp
-        ) {
-            Children(
-                stack = component.page,
-                animation = stackAnimation()
-            ) { child ->
-                when (val activeChild = child.instance) {
-                    is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOnsMaster(activeChild.component)
-                    is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOnsMaster(activeChild.component)
-                }
-            }
-        }
-
-        Surface(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(520.dp),
-            color = Color.White,
-            elevation = 8.dp
-        ) {
-            Children(
-                stack = component.page,
-                animation = stackAnimation()
-            ) { child ->
-                when (val activeChild = child.instance) {
-                    is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOnsDetails(activeChild.component)
-                    is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOnsDetails(activeChild.component)
-                }
+        Children(
+            stack = component.page,
+            animation = stackAnimation()
+        ) { child ->
+            when (val activeChild = child.instance) {
+                is MasterDetailComponent.Child.AddOnDetails -> AddOnDetails(activeChild.component)
+                is MasterDetailComponent.Child.Confirm -> ConfirmActionPlan(activeChild.component)
+                is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOns(activeChild.component)
+                is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOns(activeChild.component)
             }
         }
     }

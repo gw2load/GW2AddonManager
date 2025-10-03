@@ -21,8 +21,11 @@
   <string name="tab_explore">FINDE ADD-ONS</string>
   <string name="tab_manage">INSTALLIERT</string>
   <string name="tab_settings">EINSTELLUNGEN</string>
+  <string name="tab_help">HILFE</string>
 
+  <string name="addon_disable">DEAKTIVIEREN</string>
   <string name="addon_disable_tooltip">Anklicken zum Deaktivieren</string>
+  <string name="addon_enable">AKTIVIEREN</string>
   <string name="addon_enable_tooltip">Anklicken zum Aktivieren</string>
   <string name="addon_install">INSTALLIEREN</string>
   <string name="addon_install_tooltip">Klicken zum installieren</string>
@@ -38,7 +41,23 @@
   <string name="addon_vendor_by">von </string>
   <string name="addon_vendor_unknown">Informationen zum Anbieter nicht verfügbar</string>
 
+  <string name="confirm_heading">Änderungen Anwenden?</string>
+  <string name="confirm_yes">Bestätigen</string>
+  <string name="confirm_no">Abbrechen</string>
+
+  <string name="confirm_action_description_disable">Deaktiviere %1$s</string>
+  <string name="confirm_action_description_enable">Aktiviere %1$s</string>
+  <string name="confirm_action_description_install">Installiere %1$s</string>
+  <string name="confirm_action_description_uninstall">Deinstalliere %1$s</string>
+  <string name="confirm_action_description_update">Aktualisiere %1$s zu %2$s (von %3$s)</string>
+
   <string name="no_addon_selected">Select an add-on to view details</string>
+
+  <string name="notification_addon_updates_available">ADD-ON UPDATES VERFÜGBAR</string>
+  <string name="notification_duplicate_installations">DOPPELTE INSTALLATIONEN</string>
+  <string name="notification_manager_update_available">UPDATE VERFÜGBAR</string>
+  <string name="notification_missing_addon_dependencies">FEHLENDE ADD-ON ABHÄNGIGKEITEN</string>
+  <string name="notification_more">+%1$s weitere</string>
 
   <string name="select_language_label">SPRACHE</string>
 
@@ -49,6 +68,8 @@
   <string name="setting_game_directory_label">Spielverzeichnis</string>
   <string name="setting_game_directory_change">Ändern...</string>
   <string name="setting_game_directory_change_tooltip">Klicke, um das Spielverzeichnis zu ändern</string>
+
+  <string name="setting_auto_update_label">AUTOMATISCH AKTUALISIEREN</string>
 
   <string name="game_start">SPIELEN</string>
 

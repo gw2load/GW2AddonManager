@@ -17,30 +17,16 @@
 package com.gw2tb.manager.model.catalog
 
 import androidx.compose.runtime.Immutable
-import com.gw2tb.manager.model.AvailableAddOnUpdate
+import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
 
 infix fun AddOnListing.isMatching(localAddOn: LocalAddOn): Boolean =
     localAddOn.name in addOnNames
 
-fun AddOnListing.toUpdateFor(addOn: LocalAddOn): AvailableAddOnUpdate? {
-    if (!isMatching(addOn)) return null
-    if (download != null && download.version <= addOn.version) return null
-
-    return when {
-        installMode == AddOnListing.InstallMode.Gw2Load && addOn.kind == LocalAddOn.Kind.ADDON_LOADER -> AvailableAddOnUpdate(
-            addOnListing = this,
-            localAddOn = addOn,
-            urgency = AvailableAddOnUpdate.Urgency.REQUIRED
-        )
-        else -> AvailableAddOnUpdate(
-            addOnListing = this,
-            localAddOn = addOn,
-            urgency = AvailableAddOnUpdate.Urgency.OPTIONAL
-        )
-    }
-}
+infix fun AddOnListing.isMatching(localAddOn: LocalAddOnReference): Boolean =
+    localAddOn.name in addOnNames
 
 /**
  * Represents an add-on listing from an add-on repository.
@@ -67,7 +53,7 @@ fun AddOnListing.toUpdateFor(addOn: LocalAddOn): AvailableAddOnUpdate? {
  */
 @Immutable
 data class AddOnListing(
-    val id: String,
+    val id: AddOnId,
     val addOnName: String,
     val addOnSummary: String,
     val addOnDescription: String,
@@ -83,7 +69,7 @@ data class AddOnListing(
     val addOnNames: List<String>,
 
     val installMode: InstallMode,
-    val dependencies: List<String>
+    val dependencies: List<AddOnId>
 ) {
 
     @Immutable

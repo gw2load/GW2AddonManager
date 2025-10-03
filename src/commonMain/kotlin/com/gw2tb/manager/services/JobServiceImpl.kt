@@ -16,15 +16,13 @@
  */
 package com.gw2tb.manager.services
 
-import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.local.LocalAddOn
+import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.model.LocalAddOnReference
 import io.ktor.util.collections.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 fun JobService(): JobService = JobServiceImpl()
-
-// TODO this is a very basic implementation, we should probably have a more robust one
 
 private class JobServiceImpl : JobService {
 
@@ -38,10 +36,10 @@ private class JobServiceImpl : JobService {
     }
 
     override suspend fun <T> runJob(
-        addOnListings: List<AddOnListing>,
-        localAddOns: List<LocalAddOn>,
+        addOnListings: Iterable<AddOnId>,
+        localAddOns: Iterable<LocalAddOnReference>,
         block: suspend () -> T
-    ) {
+    ): T {
         val job = Job(
             addOnListings = addOnListings,
             localAddOns = localAddOns
@@ -51,7 +49,7 @@ private class JobServiceImpl : JobService {
         emit()
 
         try {
-            block()
+            return block()
         } finally {
             jobList.remove(job)
             emit()

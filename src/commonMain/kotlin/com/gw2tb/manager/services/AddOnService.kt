@@ -16,11 +16,14 @@
  */
 package com.gw2tb.manager.services
 
-import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.actions.OperationResult
+import com.gw2tb.manager.model.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
+import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.local.LocalAddOn
 import kotlinx.coroutines.flow.Flow
-import java.nio.file.Path
 
 interface AddOnService {
 
@@ -28,15 +31,17 @@ interface AddOnService {
 
     val localAddOns: Flow<List<LocalAddOn>>
 
-    val availableUpdates: Flow<List<AvailableAddOnUpdate>>
+    suspend fun execute(plan: ActionPlan): OperationResult
 
-    suspend fun disable(addOn: LocalAddOn)
+    suspend fun disableAddOns(refs: Iterable<LocalAddOnReference>): OperationResult
 
-    suspend fun enable(addOn: LocalAddOn)
+    suspend fun enableAddOns(refs: Iterable<LocalAddOnReference>): OperationResult
 
-    suspend fun install(listing: AddOnListing, gameDirectory: Path)
+    suspend fun installAddOns(ids: Iterable<AddOnId>): OperationResult
 
-    suspend fun uninstall(addOn: LocalAddOn)
+    suspend fun uninstallAddOns(refs: Iterable<LocalAddOnReference>): OperationResult
+
+    suspend fun updateAddOns(updates: Iterable<AvailableAddOnUpdate>): OperationResult
 
     suspend fun refreshListings()
 

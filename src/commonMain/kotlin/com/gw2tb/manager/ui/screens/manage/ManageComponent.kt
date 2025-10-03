@@ -16,14 +16,14 @@
  */
 package com.gw2tb.manager.ui.screens.manage
 
-import androidx.compose.runtime.Immutable
+import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.model.AvailableAddOnUpdate
+import com.gw2tb.manager.model.InstalledAddOn
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.Job
 import kotlinx.coroutines.flow.StateFlow
 
-@Immutable
 interface ManageComponent {
 
     val installedAddOns: StateFlow<List<InstalledAddOn>>
@@ -34,21 +34,22 @@ interface ManageComponent {
 
     val jobs: StateFlow<List<Job>>
 
-    val selectedAddOn: StateFlow<LocalAddOn?>
+    fun disableAddOn(ref: LocalAddOnReference)
 
-    fun disable(addOn: LocalAddOn)
+    fun enableAddOn(ref: LocalAddOnReference)
 
-    fun enable(addOn: LocalAddOn)
+    fun setEnabled(ref: LocalAddOnReference, enabled: Boolean) =
+        if (enabled) enableAddOn(ref) else disableAddOn(ref)
 
-    fun setEnabled(addOn: LocalAddOn, enabled: Boolean) =
-        if (enabled) enable(addOn) else disable(addOn)
+    fun uninstallAddOn(ref: LocalAddOnReference)
 
-    fun install(listing: AddOnListing)
+    fun updateAddOn(update: AvailableAddOnUpdate)
 
-    fun uninstall(addOn: LocalAddOn)
+    fun navigateToDetails(ref: LocalAddOnReference)
 
-    fun selectAddOn(localAddOn: LocalAddOn)
-
-    fun navigateToVendor(vendor: String)
+    sealed interface Output {
+        data class RequiresConfirmation(val plan: ActionPlan) : Output
+        data class NavigateToDetails(val localAddOn: LocalAddOnReference) : Output
+    }
 
 }

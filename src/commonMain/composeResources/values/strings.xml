@@ -25,8 +25,11 @@
   <string name="tab_explore">EXPLORE ADD-ONS</string>
   <string name="tab_manage">INSTALLED</string>
   <string name="tab_settings">SETTINGS</string>
+  <string name="tab_help">HELP</string>
 
+  <string name="addon_disable">DISABLE</string>
   <string name="addon_disable_tooltip">Click to disable</string>
+  <string name="addon_enable">ENABLE</string>
   <string name="addon_enable_tooltip">Click to enable</string>
   <string name="addon_install">INSTALL</string>
   <string name="addon_install_tooltip">Click to install</string>
@@ -42,7 +45,23 @@
   <string name="addon_vendor_by">by </string>
   <string name="addon_vendor_unknown">Vendor information unavailable</string>
 
+  <string name="confirm_heading">Apply Changes?</string>
+  <string name="confirm_yes">Confirm</string>
+  <string name="confirm_no">Cancel</string>
+
+  <string name="confirm_action_description_disable">Disabling %1$s</string>
+  <string name="confirm_action_description_enable">Enabling %1$s</string>
+  <string name="confirm_action_description_install">Installing %1$s</string>
+  <string name="confirm_action_description_uninstall">Uninstalling %1$s</string>
+  <string name="confirm_action_description_update">Updating %1$s to %2$s (from %3$s)</string>
+
   <string name="no_addon_selected">Select an add-on to view details</string>
+
+  <string name="notification_addon_updates_available">ADD-ON UPDATES AVAILABLE</string>
+  <string name="notification_duplicate_installations">DUPLICATE INSTALLATIONS</string>
+  <string name="notification_manager_update_available">UPDATE AVAILABLE</string>
+  <string name="notification_missing_addon_dependencies">MISSING ADD-ON DEPENDENCIES</string>
+  <string name="notification_more">+%1$s more</string>
 
   <string name="select_language_label">LANGUAGE</string>
 
@@ -53,6 +72,8 @@
   <string name="setting_game_directory_label">Game Directory</string>
   <string name="setting_game_directory_change">Change...</string>
   <string name="setting_game_directory_change_tooltip">Click to change the game directory</string>
+
+  <string name="setting_auto_update_label">AUTO-UPDATE</string>
 
   <string name="game_start">PLAY</string>
 

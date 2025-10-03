@@ -20,8 +20,14 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.gw2tb.manager.actions.ActionInstallAddOn
+import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.actions.ActionUpdateAddOn
+import com.gw2tb.manager.main
 import com.gw2tb.manager.model.LocalConfiguration
-import com.gw2tb.manager.model.Notification
+import com.gw2tb.manager.model.notifications.Notification
+import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
+import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.RootComponent
 import com.gw2tb.manager.ui.RootComponent.Child
@@ -31,11 +37,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
 class RootComponentImpl(
     private val addOnService: AddOnService,
     configurationService: ConfigurationService,
+    inspectionService: InspectionService,
     jobService: JobService,
     notificationService: NotificationService,
     componentContext: ComponentContext
@@ -66,7 +74,9 @@ class RootComponentImpl(
                 is Config.Main -> Child.Main(MainComponentImpl(
                     addOnService = addOnService,
                     configurationService = configurationService,
+                    inspectionService = inspectionService,
                     jobService = jobService,
+                    notificationService = notificationService,
                     mainContext = mainContext,
                     componentContext = componentContext
                 ))
@@ -99,8 +109,29 @@ class RootComponentImpl(
     }
 
     override fun onNotificationClick(notification: Notification) {
-        coroutineScope.launch {
-            notification.quickFix?.invoke()
+        val mainComponent = when (val child = page.active.instance) {
+            is Child.Main -> child.component
+            else -> error("Cannot handle notification outside of main screen")
+        }
+
+        when (notification) {
+            is NotificationAddOnUpdatesAvailable -> {
+                val plan = ActionPlan(
+                    actions = notification.updates.map { ActionUpdateAddOn(it.localRef, it.addOnId) }.toSet(),
+                    effects = emptySet()
+                )
+
+                mainComponent.navigateToConfirm(plan)
+            }
+            is NotificationMissingAddOnDependencies -> {
+                val plan = ActionPlan(
+                    actions = notification.inspections.flatMap { it.missingDependencies.map(::ActionInstallAddOn) }.toSet(),
+                    effects = emptySet()
+                )
+
+                mainComponent.navigateToConfirm(plan)
+            }
+            else -> TODO()
         }
     }
 
