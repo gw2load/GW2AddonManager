@@ -50,9 +50,16 @@ jvmLauncher {
 
             jvmArgs.add("--enable-native-access=ALL-UNNAMED")
 
-            classpath.add(provider { "./jars/${files(project.tasks["jvmJar"]).single().name}" })
+            classpath.add(provider { "./app.jar" })
             classpath.addAll(provider {
-                configurations["jvmRuntimeClasspath"].files.map { "./jars/${it.name}" }
+                val runtimeClasspath = project.configurations.getByName("jvmRuntimeClasspath")
+
+                runtimeClasspath.resolvedConfiguration
+                    .resolvedArtifacts
+                    .map { artifact ->
+                        val group = artifact.moduleVersion.id.group.replace('.', '/')
+                        "./libs/$group/${artifact.file.name}"
+                    }
             })
         }
     }
@@ -182,13 +189,23 @@ tasks {
 
         destinationDir = layout.buildDirectory.dir("tmp/bundle").get().asFile
 
-        into("jars") {
-            from(project.tasks["jvmJar"])
-            from(configurations["jvmRuntimeClasspath"])
+        val runtimeClasspath = project.configurations.getByName("jvmRuntimeClasspath")
+
+        runtimeClasspath.resolvedConfiguration
+            .resolvedArtifacts
+            .forEach { artifact ->
+                from(artifact.file) {
+                    val group = artifact.moduleVersion.id.group.replace('.', '/')
+                    into("libs/$group")
+                }
+            }
+
+        from(jlink.flatMap(JLink::destinationDirectory)) {
+            into("runtime")
         }
 
-        into("runtime") {
-            from(jlink.get().destinationDirectory)
+        from(this@tasks.named("jvmJar")) {
+            rename("(.*)", "app.jar")
         }
 
         into(".") {
