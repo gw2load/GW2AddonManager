@@ -51,7 +51,7 @@
     <WixVariable Id="WixUIDialogBmp" Value="dialog.png" />
 
     <UI>
-      <ui:WixUI Id="WixUI_InstallDir" />
+      <ui:WixUI Id="WixUI_InstallDir_Custom" />
     </UI>
 
     <StandardDirectory Id="ProgramFiles64Folder">
