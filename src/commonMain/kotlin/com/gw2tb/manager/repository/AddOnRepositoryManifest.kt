@@ -75,8 +75,8 @@ data class AddOnManifestV1(
             val vcs: String? = null,
             val dependencies: List<AddOnId>? = null,
             @SerialName("optional_dependencies")
-            val optionalDependencies: List<String>? = null,
-            val conflicts: List<String>? = null
+            val optionalDependencies: List<AddOnId>? = null,
+            val conflicts: List<AddOnId>? = null
         )
 
         @Serializable
