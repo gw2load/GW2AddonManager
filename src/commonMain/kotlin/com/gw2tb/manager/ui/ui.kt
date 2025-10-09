@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -410,7 +411,8 @@ private fun MainScreenWrapper(component: MainComponent) {
                     text = LocalApplicationInfo.current.version,
                     color = Color(0xFF8ad3d3).copy(alpha = 0.6F),
                     fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.End
                 )
             }
         }
