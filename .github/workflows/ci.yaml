@@ -38,13 +38,13 @@ jobs:
           popd
 
       - name: Upload Installer
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: installer
           path: "./installer/bin/x64/Release/GW2AddOnManager.msi"
 
       - name: Upload Portable Bundle
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: portable
           path: "./build/bundles/GW2AddOnManager-2.0.0.zip" # TODO Figure out how to handle the version
