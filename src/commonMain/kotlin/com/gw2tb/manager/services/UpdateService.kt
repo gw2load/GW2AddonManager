@@ -16,10 +16,21 @@
  */
 package com.gw2tb.manager.services
 
+import com.gw2tb.manager.model.ManagerVersion
 import kotlinx.coroutines.flow.Flow
 
+/** The update service is responsible for updates to the manager itself. */
 interface UpdateService {
 
-    val availableUpdate: Flow<String?>
+    /**
+     * The latest available version of the manager that is newer than the current one, or `null`.
+     *
+     * To avoid excessive network requests, the result may be cached for an unspecified amount of time. If fresh results
+     * are required, call [refresh] explicitly.
+     */
+    val availableUpdate: Flow<ManagerVersion?>
+
+    /** Forces a refresh of the [availableUpdate]. */
+    suspend fun refresh()
 
 }

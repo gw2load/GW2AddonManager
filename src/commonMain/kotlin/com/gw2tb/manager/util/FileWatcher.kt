@@ -21,38 +21,21 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.nio.file.ClosedWatchServiceException
 import java.nio.file.Path
 import java.nio.file.StandardWatchEventKinds.*
 import java.nio.file.WatchEvent
-import java.nio.file.WatchService
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
-import kotlin.io.path.isRegularFile
 
 fun Path.watchDirectory(
     events: Array<WatchEvent.Kind<*>> = arrayOf(ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW),
     vararg modifiers: WatchEvent.Modifier,
     filter: (Path, WatchEvent<*>?) -> Boolean = { _, _ -> true }
 ): Flow<WatchEvent<*>?> {
-    val watchService = fileSystem.newWatchService()
-
-    return watchDirectory(
-        watchService = watchService,
-        events = events,
-        modifiers = modifiers,
-        filter = filter
-    )
-        .onCompletion { watchService.close() }
-}
-
-private fun Path.watchDirectory(
-    watchService: WatchService,
-    events: Array<WatchEvent.Kind<*>> = arrayOf(ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW),
-    vararg modifiers: WatchEvent.Modifier,
-    filter: (Path, WatchEvent<*>?) -> Boolean = { _, _ -> true }
-): Flow<WatchEvent<*>?> {
     require(isDirectory()) { "Path is not a directory: ${this.absolutePathString()}" }
 
+    val watchService = fileSystem.newWatchService()
     val registeredKey = register(watchService, events, *modifiers)
 
     return callbackFlow {
@@ -60,7 +43,12 @@ private fun Path.watchDirectory(
 
         val job = launch(Dispatchers.IO) {
             while (true) {
-                val key = watchService.take()
+                val key = try {
+                    watchService.take()
+                } catch (_: ClosedWatchServiceException) {
+                    break
+                }
+
                 if (key != registeredKey) continue
 
                 for (event in key.pollEvents()) {
@@ -78,6 +66,8 @@ private fun Path.watchDirectory(
         }
 
         awaitClose {
+            watchService.close()
+
             launch {
                 job.cancelAndJoin()
                 registeredKey.cancel()
@@ -89,8 +79,6 @@ private fun Path.watchDirectory(
 fun Path.watchFile(
     events: Array<WatchEvent.Kind<*>> = arrayOf(ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW)
 ): Flow<WatchEvent<*>?> {
-    require(isRegularFile()) { "Path is not a file: ${this.absolutePathString()}" }
-
     return parent.watchDirectory(
         events = events,
         filter = { path, _ -> parent.resolve(path) == this }

@@ -19,7 +19,6 @@ package com.gw2tb.manager.ui.screens.manage.impl
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.gw2tb.manager.actions.OperationResult
-import com.gw2tb.manager.model.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing

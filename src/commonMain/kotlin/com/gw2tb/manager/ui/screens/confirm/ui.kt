@@ -58,6 +58,7 @@ import com.gw2tb.manager.actions.ActionEnableAddOn
 import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionUninstallAddOn
 import com.gw2tb.manager.actions.ActionUpdateAddOn
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_disable
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_enable
@@ -67,7 +68,6 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_desc
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_heading
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_no
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_yes
-import com.gw2tb.manager.model.AddOnId
 import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing

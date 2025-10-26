@@ -22,6 +22,7 @@ import com.gw2tb.manager.AppInfo
 
 val LocalApplicationInfo: ProvidableCompositionLocal<AppInfo> = staticCompositionLocalOf {
     AppInfo(
-        version = "Unknown"
+        version = "Unknown",
+        applicationDir = null
     )
 }

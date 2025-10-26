@@ -16,6 +16,8 @@
  */
 package com.gw2tb.manager.model
 
+import com.gw2tb.manager.addon_manifest.AddOnId
+
 data class AvailableAddOnUpdate(
     val addOnId: AddOnId,
     val localRef: LocalAddOnReference

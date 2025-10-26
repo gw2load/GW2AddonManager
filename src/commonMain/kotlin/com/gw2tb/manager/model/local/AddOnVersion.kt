@@ -16,11 +16,10 @@
  */
 package com.gw2tb.manager.model.local
 
-import androidx.compose.runtime.Immutable
+import com.gw2tb.manager.util.fileinfo.FileVersion
 
-@Immutable
 data class AddOnVersion(
-    val fileVersion: AddOnFileVersion,
+    val fileVersion: FileVersion,
     private val versionString: String = fileVersion.toString()
 ) : Comparable<AddOnVersion> {
 

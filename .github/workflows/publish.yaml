@@ -1,0 +1,148 @@
+name: Publish
+on:
+  - workflow_dispatch
+permissions:
+  contents: write
+
+concurrency:
+  group: "publish"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup MSVC Development Environment
+        uses: TheMrMilchmann/setup-msvc-dev@79dac248aac9d0059f86eae9d8b5bfab4e95e97c # v4.0.0
+        with:
+          arch: x64
+
+      - name: Setup Java
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          distribution: "temurin"
+          java-version-file: .github/workflows/.java-version
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+
+      - name: Extract Version
+        id: get_version
+        shell: bash
+        run: |
+          BASE_VERSION=$(grep '^version=' gradle.properties | cut -d '=' -f 2)
+
+          SEMVER_VERSION="${BASE_VERSION}"
+          echo "version=SEMVER_VERSION" >> $GITHUB_OUTPUT
+
+          MS_VERSION="${BASE_VERSION}.65535"
+          echo "msversion=MS_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build with Gradle
+        run: ./gradlew build bundle --info -S --show-version -Pversion="${{ steps.get_version.outputs.version }}"
+
+      - name: Build Installer
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+          MS_VERSION: ${{ steps.get_version.outputs.msversion }}
+        run: |
+          pushd .
+          cd installer
+          msbuild -restore /p:Configuration=Release /p:Platform=x64 /p:MS_VERSION=${MS_VERSION} /t:Rebuild
+          mv "./bin/x64/Release/GW2AddOnManager.msi" "./installer/bin/x64/Release/GW2AddOnManager-${VERSION}.msi"
+          popd
+
+      - name: Create VCS Tag
+        id: vcs_tag
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          TAG_NAME="v${VERSION}"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Processing tag: $TAG_NAME"
+
+          if git rev-parse -q --verify "refs/tags/$TAG_NAME" >/dev/null; then
+            echo "✅ Local tag '$TAG_NAME' already exists. Skipping 'git tag' creation."
+          else
+            echo "🏷️ Creating new local tag '$TAG_NAME'."
+            git tag "$TAG_NAME"
+            git push origin "$TAG_NAME"
+          fi
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: installer
+          path: "./installer/bin/x64/Release/GW2AddOnManager-${{ steps.get_version.outputs.version }}.msi"
+
+      - name: Upload Portable Bundle
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: portable
+          path: "./build/bundles/GW2AddOnManager-${{ steps.get_version.outputs.version }}.zip"
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
+        with:
+          body_path: ${{ github.workspace }}/docs/changelog/${{ steps.get_version.outputs.version }}.md
+          draft: true
+          files: |
+            "./installer/bin/x64/Release/GW2AddOnManager-${{ steps.get_version.outputs.version }}.msi"
+            "./build/bundles/GW2AddOnManager-${{ steps.get_version.outputs.version }}.zip"
+          overwrite_files: true
+          preserve_order: true
+          tag_name: ${{ steps.vcs_tag.outputs.tag_name }}
+
+      - name: Extract GitHub Release Information
+        id: extract_info
+        shell: bash
+        env:
+          RELEASE_ASSETS_JSON: ${{ steps.create_release.outputs.assets }}
+        run: |
+          INSTALLER_URL=$(echo "$RELEASE_ASSETS_JSON" | jq -r '.[].browser_download_url | select(test("GW2AddOnManager-.*\\.msi"))')
+          PORTABLE_URL=$(echo "$RELEASE_ASSETS_JSON" | jq -r '.[].browser_download_url | select(test("GW2AddOnManager-.*\\.zip"))')
+
+          echo "installer_url=$INSTALLER_URL" >> $GITHUB_OUTPUT
+          echo "portable_url=$PORTABLE_URL" >> $GITHUB_OUTPUT
+
+      - name: Pull Manifest
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: gh-pages
+          path: ./run/site
+
+      - name: Update Manifest
+        shell: bash
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+          MS_VERSION: ${{ steps.get_version.outputs.msversion }}
+          INSTALLER_URL: ${{ steps.extract_info.outputs.installer_url }}
+          PORTABLE_URL: ${{ steps.extract_info.outputs.portable_url }}
+        run: |
+          ./gradlew updateManifest \
+            -manifest-dir=./run/site/manifests \
+            -installer-url=${INSTALLER_URL} \
+            -portable-url=${PORTABLE_URL}
+
+      - name: Push Manifest
+        shell: bash
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          cd ./run/site
+          
+          # Configure Git user for the commit
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add ./manifests
+          git commit -m "Updated manifests for version ${VERSION}"
+          git push
+
+      - name: Publish Release
+        run: gh release edit ${{ steps.vcs_tag.outputs.tag_name }} --draft=false

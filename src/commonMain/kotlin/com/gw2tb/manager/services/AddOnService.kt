@@ -18,7 +18,7 @@ package com.gw2tb.manager.services
 
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.OperationResult
-import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.LocalAddOnReference
@@ -43,6 +43,6 @@ interface AddOnService {
 
     suspend fun updateAddOns(updates: Iterable<AvailableAddOnUpdate>): OperationResult
 
-    suspend fun refreshListings()
+    suspend fun refresh()
 
 }

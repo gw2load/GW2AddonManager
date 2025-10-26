@@ -8,8 +8,8 @@
            Language="1033"
            Manufacturer="GW2ToolBelt"
            Name="Guild Wars 2 Add-on Manager"
-           UpgradeCode="64deef2a-cf99-4a0c-be41-5faa802a9502"
-           Version="3.0.0.0"
+           UpgradeCode="7fecdc03-0d92-4710-9911-3483fe19e1eb"
+           Version="$(var.MS_VERSION)"
   >
     <MediaTemplate EmbedCab="yes" />
 
@@ -26,6 +26,7 @@
       <Component Id="Main" Bitness="always64">
         <File Id="LauncherExe" KeyPath="yes" Source="../build/tmp/bundle/GW2AddOnManager.exe" />
         <File Id="LauncherConfig" Source="../build/tmp/bundle/config.toml" />
+        <File Id="InstalledMarker" Source=".installed" />
       </Component>
     </DirectoryRef>
 

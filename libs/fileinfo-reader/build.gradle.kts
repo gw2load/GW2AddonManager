@@ -14,12 +14,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.plugin.serialization)
+    `maven-publish`
+}
 
-import kotlinx.serialization.Serializable
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 
-@JvmInline
-@Serializable
-value class AddOnId(private val value: String) {
-    override fun toString(): String = value
+    jvm()
+
+    sourceSets {
+        jvmMain {
+            dependencies {
+                implementation(buildDeps.slf4j.api)
+            }
+        }
+    }
 }

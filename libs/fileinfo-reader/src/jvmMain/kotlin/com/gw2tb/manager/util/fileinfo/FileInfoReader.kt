@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,26 +14,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.platform.win32
+package com.gw2tb.manager.util.fileinfo
 
-import com.gw2tb.manager.model.local.AddOnFileVersion
-import com.gw2tb.manager.model.local.AddOnVersion
 import org.slf4j.LoggerFactory
-import java.lang.foreign.*
+import java.lang.foreign.Arena
+import java.lang.foreign.FunctionDescriptor
+import java.lang.foreign.Linker
+import java.lang.foreign.MemoryLayout
 import java.lang.foreign.MemoryLayout.PathElement.groupElement
-import java.lang.foreign.ValueLayout.*
+import java.lang.foreign.MemorySegment
+import java.lang.foreign.SymbolLookup
+import java.lang.foreign.ValueLayout.ADDRESS
+import java.lang.foreign.ValueLayout.JAVA_BOOLEAN
+import java.lang.foreign.ValueLayout.JAVA_INT
+import java.lang.foreign.ValueLayout.JAVA_SHORT
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.use
 
-private val log = LoggerFactory.getLogger(Version::class.java)
+private object FileInfoReader
 
-@Suppress("NOTHING_TO_INLINE", "FunctionName")
-private inline fun HIWORD(v: UInt): UInt = (v shr 16) and 0xFFFFu
-@Suppress("NOTHING_TO_INLINE", "FunctionName")
-private inline fun LOWORD(v: UInt): UInt = v and 0xFFFFu
+private val log = LoggerFactory.getLogger(FileInfoReader::class.java)
 
-fun Path.getAddOnInfo(): AddOnInfo? {
+fun Path.readAddOnFileInfo(): AddOnFileInfo? {
     fun UInt.ifZero(other: () -> UInt): UInt = if (this == 0u) other() else this
 
     Arena.ofConfined().use { arena ->
@@ -63,12 +67,12 @@ fun Path.getAddOnInfo(): AddOnInfo? {
 
         val fileInfo = Version.FixedFileInfo.reinterpret(fileInfoBuffer)
 
-        val majorVersion = HIWORD(fileInfo.fileVersionMS.ifZero(fileInfo::productVersionMS)).toUShort()
-        val minorVersion = LOWORD(fileInfo.fileVersionMS.ifZero(fileInfo::productVersionMS)).toUShort()
-        val patchVersion = HIWORD(fileInfo.fileVersionLS.ifZero(fileInfo::productVersionLS)).toUShort()
-        val fixVersion = LOWORD(fileInfo.fileVersionLS.ifZero(fileInfo::productVersionLS)).toUShort()
+        val majorVersion = HIWORD(fileInfo.fileVersionMS.ifZero(fileInfo::productVersionMS))
+        val minorVersion = LOWORD(fileInfo.fileVersionMS.ifZero(fileInfo::productVersionMS))
+        val patchVersion = HIWORD(fileInfo.fileVersionLS.ifZero(fileInfo::productVersionLS))
+        val fixVersion = LOWORD(fileInfo.fileVersionLS.ifZero(fileInfo::productVersionLS))
 
-        val addOnVersion = AddOnFileVersion(majorVersion, minorVersion, patchVersion, fixVersion)
+        val addOnVersion = FileVersion(majorVersion, minorVersion, patchVersion, fixVersion)
 
         val pTranslateSize = arena.allocate(JAVA_INT)
         val pTranslate = arena.allocate(ADDRESS)
@@ -110,17 +114,13 @@ fun Path.getAddOnInfo(): AddOnInfo? {
             }
         }
 
-        return AddOnInfo(
+        return AddOnFileInfo(
             name = addOnName,
-            version = AddOnVersion(fileVersion = addOnVersion, versionString = addOnVersionString)
+            version = addOnVersion,
+            versionString = addOnVersionString
         )
     }
 }
-
-data class AddOnInfo(
-    val name: String,
-    val version: AddOnVersion
-)
 
 private object Version {
 

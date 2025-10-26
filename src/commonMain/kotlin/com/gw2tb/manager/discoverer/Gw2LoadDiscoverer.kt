@@ -16,8 +16,9 @@
  */
 package com.gw2tb.manager.discoverer
 
+import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
-import com.gw2tb.manager.platform.win32.getAddOnInfo
+import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -51,7 +52,7 @@ class Gw2LoadDiscoverer(
                     kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
                     name = addOnName,
                     path = libraryPath,
-                    version = libraryPath.getAddOnInfo()!!.version,
+                    version = libraryPath.readAddOnFileInfo()!!.let { AddOnVersion(it.version, it.versionString) },
                     isEnabled = true
                 ))
             }
@@ -63,7 +64,7 @@ class Gw2LoadDiscoverer(
                     kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
                     name = addOnName,
                     path = disabledLibraryPath,
-                    version = libraryPath.getAddOnInfo()!!.version,
+                    version = libraryPath.readAddOnFileInfo()!!.let { AddOnVersion(it.version, it.versionString) },
                     isEnabled = false
                 ))
             }

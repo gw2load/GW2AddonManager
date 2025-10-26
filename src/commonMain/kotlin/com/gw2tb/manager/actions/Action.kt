@@ -16,7 +16,7 @@
  */
 package com.gw2tb.manager.actions
 
-import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.LocalAddOnReference
 
 /** An action is an atomic operation that performs a change involving a single add-on. */

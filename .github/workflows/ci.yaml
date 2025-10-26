@@ -4,7 +4,6 @@ on:
   - push
   - workflow_dispatch
 
-
 jobs:
   build:
     name: Build
@@ -27,24 +26,42 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
 
+      - name: Extract Version
+        id: get_version
+        shell: bash
+        run: |
+          BASE_VERSION=$(grep '^version=' gradle.properties | cut -d '=' -f 2)
+
+          SEMVER_VERSION="${BASE_VERSION}-dev.${{ github.run_number }}"
+          echo "version=SEMVER_VERSION" >> $GITHUB_OUTPUT
+
+          MS_VERSION="${BASE_VERSION}.${{ github.run_number }}"
+          echo "msversion=MS_VERSION" >> $GITHUB_OUTPUT
+
       - name: Build with Gradle
-        run: ./gradlew build bundle --info -S --show-version
+        env:
+          MS_VERSION: ${{ steps.get_version.outputs.msversion }}
+        run: ./gradlew build bundle --info -S --show-version -Pversion="${{ steps.get_version.outputs.version }}"
 
       - name: Build Installer
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+          MS_VERSION: ${{ steps.get_version.outputs.msversion }}
         run: |
           pushd .
           cd installer
-          msbuild -restore /p:Configuration=Release /p:Platform=x64 /t:Rebuild
+          msbuild -restore /p:Configuration=Release /p:Platform=x64 /p:MS_VERSION=${MS_VERSION} /t:Rebuild
+          mv "./bin/x64/Release/GW2AddOnManager.msi" "./installer/bin/x64/Release/GW2AddOnManager-${VERSION}.msi"
           popd
 
       - name: Upload Installer
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: installer
-          path: "./installer/bin/x64/Release/GW2AddOnManager.msi"
+          path: "./installer/bin/x64/Release/GW2AddOnManager-${{ steps.get_version.outputs.version }}.msi"
 
       - name: Upload Portable Bundle
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: portable
-          path: "./build/bundles/GW2AddOnManager-2.0.0.zip" # TODO Figure out how to handle the version
+          path: "./build/bundles/GW2AddOnManager-${{ steps.get_version.outputs.version }}.zip"

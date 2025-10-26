@@ -5,17 +5,6 @@ update third-party add-ons for Guild Wars 2.
 
 <img src="docs/media/main.png">
 
-> [!IMPORTANT]  
-> This project is not yet ready for general use and still requires manual setup.
-
-In order to use the manager, an up-to-date version of [GW2Load](https://github.com/gw2-addon-loader/GW2Load)
-is required. The manager expects GW2Load to be installed in the game directory.
-
-
-## Building from source
-
-Refer to the development documentation for information on how to build the
-project from source.
 
 ## License
 
@@ -61,4 +50,4 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 As taken from [Guild Wars 2 Content Terms of Use](https://www.guildwars2.com/en/legal/guild-wars-2-content-terms-of-use/)
 on 2024-01-23 00:57 CET.
 
-For further information please refer to [LICENSE](LICENSE).
+For further information please refer to the [license](LICENSE).

@@ -17,7 +17,7 @@
 package com.gw2tb.manager.ui.screens.confirm
 
 import com.gw2tb.manager.actions.ActionPlan
-import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing

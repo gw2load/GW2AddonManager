@@ -16,7 +16,6 @@
  */
 package com.gw2tb.manager.model.inspections
 
-import com.gw2tb.manager.model.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.isMatching

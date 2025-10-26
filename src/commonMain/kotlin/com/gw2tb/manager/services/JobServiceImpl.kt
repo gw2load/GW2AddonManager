@@ -16,7 +16,7 @@
  */
 package com.gw2tb.manager.services
 
-import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.LocalAddOnReference
 import io.ktor.util.collections.*
 import kotlinx.coroutines.channels.BufferOverflow

@@ -39,7 +39,7 @@ class NotificationServiceImpl(
 ) : NotificationService {
 
     override val notifications =
-        combine(inspectionService.inspections, updateService.availableUpdate) { inspections, availableUpdate ->
+        combine(inspectionService.inspections, updateService.availableUpdate) { inspections, availableManagerUpdate ->
             buildList {
                 for ((inspector, inspections) in inspections) {
                     when (inspector) {
@@ -58,8 +58,8 @@ class NotificationServiceImpl(
                     }
                 }
 
-                if (availableUpdate != null) {
-                    add(NotificationManagerUpdateAvailable(availableUpdate))
+                if (availableManagerUpdate != null) {
+                    add(NotificationManagerUpdateAvailable(availableManagerUpdate))
                 }
             }
         }

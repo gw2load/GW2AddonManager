@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,27 +14,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.repository
+package com.gw2tb.manager.addon_manifest
 
-import com.gw2tb.manager.model.AddOnId
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 
 internal val json = Json {
     ignoreUnknownKeys = true
     useAlternativeNames = false
 }
 
-internal fun parseAddOnManifest(str: String): List<AddOnManifestV1.AddOnEntry> {
-    return json.decodeFromString<AddOnManifestContainer>(str)
-        .let { container ->
-            when (container.version) {
-                1 -> json.decodeFromJsonElement<AddOnManifestV1>(container.data)
-                else -> throw IllegalArgumentException("Unsupported manifest version: ${container.version}")
-            }
-        }
-        .addons
-        .toList()
+fun parseAddOnManifest(source: String): AddOnManifest {
+    val container = json.decodeFromString<AddOnManifestContainer>(source)
+
+    return when (container.version) {
+        1 -> json.decodeFromJsonElement<AddOnManifestV1>(container.data)
+        else -> throw IllegalArgumentException("Unsupported manifest version: ${container.version}")
+    }
 }
 
 @Serializable
@@ -109,7 +108,7 @@ data class AddOnManifestV1(
 
     @Serializable
     data class Loader(
-        val release: Release? = null,
+        val release: Release? = null, // TODO This should not be nullable
         val prerelease: Release? = null,
     )
 }

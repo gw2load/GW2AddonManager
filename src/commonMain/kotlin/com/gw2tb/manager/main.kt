@@ -22,8 +22,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import com.arkivanov.decompose.DefaultComponentContext
@@ -31,17 +34,21 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.app_name
 import com.gw2tb.manager.gw2addonmanager.generated.resources.icon
+import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.repository.AddOnRepositoryImpl
+import com.gw2tb.manager.repository.ManagerVersionRepositoryImpl
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.AddOnManager
 import com.gw2tb.manager.ui.composables.LocalAppLocaleIso
 import com.gw2tb.manager.ui.composables.LocalApplicationInfo
 import com.gw2tb.manager.ui.impl.RootComponentImpl
+import com.gw2tb.manager.util.use
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.apache.logging.log4j.core.config.Configurator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -52,6 +59,8 @@ import java.util.Locale
 import kotlin.io.path.absolutePathString
 
 fun main() {
+    val applicationDir = System.getProperty("manager.dir")?.let(Path::of)
+
     // 1. Resolve the local configuration path (for PC-specific information and logs)
     val appdataPath = try {
         System.getenv("APPDATA")?.let(Path::of)!!
@@ -69,7 +78,7 @@ fun main() {
     Configurator.initialize(null, "log4j2.xml")
 
     // 3. Launch application
-    val appInfo = readApplicationInfo()
+    val appInfo = AppInfo(version = BuildConfig.BUILD_VERSION, applicationDir = applicationDir)
     runApplication(localAppDataDirectory, appInfo)
 }
 
@@ -98,89 +107,121 @@ private fun runApplication(
         }
     }
 
-    val addOnService = AddOnService(
-        addOnRepository = AddOnRepositoryImpl(
-            httpClient = httpClient
-        ),
-        configurationService = configurationService,
-        jobService = jobService,
-        mainContext = mainContext
-    )
-
-    val inspectionService = InspectionService(
-        addOnService = addOnService,
-        mainContext = mainContext
-    )
-
-    val updateService = UpdateService()
-
-    val notificationService = NotificationService(
-        inspectionService = inspectionService,
-        updateService = updateService
-    )
-
-    val lifecycle = LifecycleRegistry()
-
-    application {
-        /*
-         * We use a remember block to ensure that the component is not recreated on every recomposition. This is not
-         * strictly necessary here but neat for correctness in case the application block is ever recomposed.
-         *
-         * Ideally, we would lift this out of the application block but at that point the AWT event loop is not yet
-         * initialized, causing Decompose's thread checks to fail.
-         */
-        val component = remember {
-            RootComponentImpl(
-                addOnService = addOnService,
+    try {
+        use(
+            AddOnRepositoryImpl(httpClient = httpClient),
+            ManagerVersionRepositoryImpl(httpClient = httpClient, appInfo = appInfo)
+        ) { listingRepository, managerVersionRepository ->
+            val loaderService = LoaderService(
+                addOnRepository = listingRepository,
                 configurationService = configurationService,
-                inspectionService = inspectionService,
-                jobService = jobService,
-                notificationService = notificationService,
-                componentContext = DefaultComponentContext(lifecycle)
+                appInfo = appInfo,
+                mainContext = mainContext
             )
-        }
 
-        CompositionLocalProvider(LocalApplicationInfo provides appInfo) {
-            Window(
-                onCloseRequest = ::exitApplication,
-                state = rememberWindowState(
-                    placement = WindowPlacement.Floating,
-                    position = WindowPosition.Aligned(Alignment.Center),
-                    /*
-                     * We always set a fixed size for the window to ensure that the UI is displayed correctly on top of the
-                     * background image. For now, this is hardcoded to the size of the background image. There are some more
-                     * paddings related to background image sprinkled throughout the root layout anyway, so it does not
-                     * really make sense to load this dynamically. We might however, seek to consolidate these values into a
-                     * single configuration.
-                     */
-                    width = 1155.dp,
-                    height = 629.dp
-                ),
-                title = stringResource(Res.string.app_name),
-                icon = painterResource(Res.drawable.icon),
-                undecorated = true,
-                transparent = true,
-                resizable = false
-            ) {
-                var locale by remember { mutableStateOf<Locale?>(null) }
+            val addOnService = AddOnService(
+                addOnRepository = listingRepository,
+                configurationService = configurationService,
+                jobService = jobService,
+                loaderService = loaderService,
+                mainContext = mainContext
+            )
+
+            val inspectionService = InspectionService(
+                addOnService = addOnService,
+                mainContext = mainContext
+            )
+
+            val updateService = UpdateService(
+                versionRepository = managerVersionRepository
+            )
+
+            val notificationService = NotificationService(
+                inspectionService = inspectionService,
+                updateService = updateService
+            )
+
+            val lifecycle = LifecycleRegistry()
+
+            application {
+                val coroutineScope = rememberCoroutineScope()
 
                 /*
-                 * Due to its Android origins, Compose enables a minimum size for interactive (material) components by
-                 * default. Since we are using some material components under the hood for now, we need to disable this
-                 * because it's mostly useless padding in a desktop environment.
+                 * We use a remember block to ensure that the component is not recreated on every recomposition. This is not
+                 * strictly necessary here but neat for correctness in case the application block is ever recomposed.
+                 *
+                 * Ideally, we would lift this out of the application block but at that point the AWT event loop is not yet
+                 * initialized, causing Decompose's thread checks to fail.
                  */
-                CompositionLocalProvider(
-                    @OptIn(ExperimentalMaterialApi::class) LocalMinimumInteractiveComponentEnforcement provides false,
-                    LocalAppLocaleIso provides locale
-                ) {
-                    AddOnManager(
-                        component = component,
-                        selectLocale = { locale = it },
-                        minimizeWindow = { window.isMinimized = true },
-                        exitApplication = ::exitApplication
+                val component = remember {
+                    RootComponentImpl(
+                        addOnService = addOnService,
+                        configurationService = configurationService,
+                        inspectionService = inspectionService,
+                        jobService = jobService,
+                        notificationService = notificationService,
+                        componentContext = DefaultComponentContext(lifecycle)
                     )
+                }
+
+                CompositionLocalProvider(LocalApplicationInfo provides appInfo) {
+                    Window(
+                        onCloseRequest = ::exitApplication,
+                        onKeyEvent = { event ->
+                            when {
+                                event.key == Key.F5 -> {
+                                    coroutineScope.launch {
+                                        addOnService.refresh()
+                                        updateService.refresh()
+                                    }
+
+                                    true
+                                }
+                                else -> false
+                            }
+                        },
+                        state = rememberWindowState(
+                            placement = WindowPlacement.Floating,
+                            position = WindowPosition.Aligned(Alignment.Center),
+                            /*
+                             * We always set a fixed size for the window to ensure that the UI is displayed correctly on top of the
+                             * background image. For now, this is hardcoded to the size of the background image. There are some more
+                             * paddings related to background image sprinkled throughout the root layout anyway, so it does not
+                             * really make sense to load this dynamically. We might however, seek to consolidate these values into a
+                             * single configuration.
+                             */
+                            width = 1155.dp,
+                            height = 629.dp
+                        ),
+                        title = stringResource(Res.string.app_name),
+                        icon = painterResource(Res.drawable.icon),
+                        undecorated = true,
+                        transparent = true,
+                        resizable = false
+                    ) {
+                        var locale by remember { mutableStateOf<Locale?>(null) }
+
+                        /*
+                         * Due to its Android origins, Compose enables a minimum size for interactive (material) components by
+                         * default. Since we are using some material components under the hood for now, we need to disable this
+                         * because it's mostly useless padding in a desktop environment.
+                         */
+                        CompositionLocalProvider(
+                            @OptIn(ExperimentalMaterialApi::class) LocalMinimumInteractiveComponentEnforcement provides false,
+                            LocalAppLocaleIso provides locale
+                        ) {
+                            AddOnManager(
+                                component = component,
+                                selectLocale = { locale = it },
+                                minimizeWindow = { window.isMinimized = true },
+                                exitApplication = ::exitApplication
+                            )
+                        }
+                    }
                 }
             }
         }
+     } finally {
+        httpClient.close()
     }
 }

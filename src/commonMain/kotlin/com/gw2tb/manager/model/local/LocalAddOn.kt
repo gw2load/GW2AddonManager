@@ -17,17 +17,17 @@
 package com.gw2tb.manager.model.local
 
 import com.gw2tb.manager.model.LocalAddOnReference
-import com.gw2tb.manager.platform.win32.getAddOnInfo
+import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
 import java.nio.file.Path
 
 fun LocalAddOn(path: Path, kind: LocalAddOn.Kind): LocalAddOn? {
-    val addOnInfo = path.getAddOnInfo() ?: return null
+    val addOnFileInfo = path.readAddOnFileInfo() ?: return null
 
     return LocalAddOn(
         kind = kind,
         path = path,
-        name = addOnInfo.name,
-        version = addOnInfo.version
+        name = addOnFileInfo.name,
+        version = AddOnVersion(fileVersion = addOnFileInfo.version, versionString = addOnFileInfo.versionString)
     )
 }
 

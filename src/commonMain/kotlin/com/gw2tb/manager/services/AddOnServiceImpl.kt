@@ -24,23 +24,21 @@ import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.ActionUninstallAddOn
 import com.gw2tb.manager.actions.ActionUpdateAddOn
 import com.gw2tb.manager.actions.OperationResult
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.discoverer.AddOnDiscoverer
 import com.gw2tb.manager.discoverer.Gw2LoadAddOnDiscoverer
-import com.gw2tb.manager.discoverer.Gw2LoadDiscoverer
 import com.gw2tb.manager.discoverer.LegacyAddOnDiscoverer
 import com.gw2tb.manager.model.*
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.isMatching
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.repository.AddOnRepository
-import com.gw2tb.manager.util.serialization.PathSerializer
 import com.gw2tb.manager.util.watchDirectory
 import com.sun.nio.file.ExtendedWatchEventModifier
 import io.ktor.http.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.io.IOException
-import kotlinx.serialization.Serializable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.channels.FileChannel
@@ -58,11 +56,13 @@ fun AddOnService(
     addOnRepository: AddOnRepository,
     configurationService: ConfigurationService,
     jobService: JobService,
+    loaderService: LoaderService,
     mainContext: CoroutineContext
 ): AddOnService = AddOnServiceImpl(
     addOnRepository = addOnRepository,
     configurationService = configurationService,
     jobService = jobService,
+    loaderService = loaderService,
     mainContext = mainContext
 )
 
@@ -70,6 +70,7 @@ private class AddOnServiceImpl(
     private val addOnRepository: AddOnRepository,
     private val configurationService: ConfigurationService,
     private val jobService: JobService,
+    private val loaderService: LoaderService,
     mainContext: CoroutineContext
 ) : AddOnService {
 
@@ -79,96 +80,27 @@ private class AddOnServiceImpl(
 
     private val coroutineScope = CoroutineScope(mainContext + SupervisorJob())
 
-    private val gw2LoadDiscoverer = Gw2LoadDiscoverer()
+    private val addOnDiscoverers: Flow<List<AddOnDiscoverer>> = loaderService.loader
+        .map { loader ->
+            buildList {
+                /*
+                 * We don't want to show GW2Load itself in the list of add-ons at this time, but we could easily
+                 * change that by uncommenting the following line.
+                 * (The reason for this is that the loader is unnecessary cognitive load that regular users should
+                 * not have to deal with. So, we hide it as good as possible.)
+                 */
+//                add(loader.gw2LoadDiscoverer)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val addOnDiscoverers: Flow<List<AddOnDiscoverer>> = configurationService.localConfiguration
-        .mapNotNull { it?.selectedGameDirectory }
-        .flatMapLatest { selectedGameDirectory ->
-            selectedGameDirectory
-                .watchDirectory(
-                    modifiers = arrayOf(ExtendedWatchEventModifier.FILE_TREE),
-                    filter = { path, _ -> path.fileName.toString() == "msimg32.dll" }
-                )
-                .map { selectedGameDirectory }
-                .catch { e ->
-                    log.error("Failed to watch game directory for GW2Load", e)
-                    emit(selectedGameDirectory)
-                }
-        }
-        .catch { e -> log.error("Failed to watch game directory for GW2Load", e) }
-        .transformLatest<@Serializable(with = PathSerializer::class) Path, List<AddOnDiscoverer>> { gameDirectory ->
-            var prevAddOnDiscoverer: Gw2LoadAddOnDiscoverer? = null
+                /* Add the GW2Load-based discoverer. */
+                add(Gw2LoadAddOnDiscoverer(loader))
 
-            suspend fun scanAndEmitAddOns() {
-                val gw2LoadInstances = gw2LoadDiscoverer.getAddOns(gameDirectory)
-
-                val addOnDiscover: Gw2LoadAddOnDiscoverer? = try {
-                    when (gw2LoadInstances.size) {
-                        0 -> {
-//                            /*
-//                             * When we cannot find any GW2Load instance in the game directory, we have to fall back to
-//                             */
-//                            val storedGw2LoadPath = configurationService.tempDirectoryLayout.gw2LoadPath
-//                            if (Files.isRegularFile(storedGw2LoadPath) && Gw2LoadAddOnDiscoverer.isValid(
-//                                    storedGw2LoadPath
-//                                )
-//                            ) {
-//                                withContext(Dispatchers.IO) {
-//                                    Files.copy(storedGw2LoadPath, gameDirectory.resolve("msimg32.dll"))
-//                                }
-//                            } else {
-//                                // TODO Download the latest GW2Load version
-//                            }
-
-//                            throw IllegalArgumentException("No GW2Load instance found")
-                            null
-                        }
-
-                        1 -> {
-                            log.debug("Found a single instance of GW2Load")
-                            Gw2LoadAddOnDiscoverer(libraryPath = gw2LoadInstances.first().path)
-                        }
-
-                        else -> {
-                            log.warn("Found multiple instances of GW2Load, using the first one")
-                            TODO()
-                        }
-                    }
-                } catch (e: IllegalArgumentException) {
-                    e.printStackTrace()
-                    TODO()
-                }
-
-                prevAddOnDiscoverer?.close()
-                prevAddOnDiscoverer = addOnDiscover
-
-                log.debug("Emitting add-on discoverers: {}", addOnDiscover)
-                emit(buildList {
-                    /*
-                     * We don't want to show GW2Load itself in the list of add-ons at this time, but we could easily
-                     * change that by uncommenting the following line.
-                     * (The reason for this is that the loader is unnecessary cognitive load that regular users should
-                     * not have to deal with. So, we hide it as good as possible.)
-                     */
-//                    add(gw2LoadDiscoverer)
-
-                    /*
-                     * We always want to show the legacy add-on discoverer because it's required to provide clean
-                     * migration paths.
-                     */
-                    add(LegacyAddOnDiscoverer())
-                    if (addOnDiscover != null) add(addOnDiscover)
-                })
+                /*
+                 * We always want to show the legacy add-on discoverer because it's required to provide clean
+                 * migration paths.
+                 */
+                add(LegacyAddOnDiscoverer())
             }
-
-            scanAndEmitAddOns()
         }
-        .catch {
-            log.error("Failed to scan game directory for add-on discoverers", it)
-            emit(emptyList())
-        }
-        .conflate()
 
     private val _addOnListings = MutableStateFlow(emptyList<AddOnListing>())
 
@@ -187,7 +119,7 @@ private class AddOnServiceImpl(
                 .watchDirectory(modifiers = arrayOf(ExtendedWatchEventModifier.FILE_TREE))
                 /*
                  * Some actions such as deleting a directory or replacing a file may cause more than one event to be
-                 * sent. We debounce those events over 10 ms to ensure we don't scan for add-ons to often.
+                 * sent. We debounce those events over 10 ms to ensure we don't scan for add-ons too often.
                  */
                 .debounce(10.milliseconds)
                 .map {
@@ -299,7 +231,7 @@ private class AddOnServiceImpl(
 
             try {
                 FileChannel.open(downloadTargetPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE).use { outputChannel ->
-                    addOnRepository.download(listing).use { inputChannel ->
+                    addOnRepository.download(listing.download).use { inputChannel ->
                         outputChannel.transferFrom(inputChannel, 0, Long.MAX_VALUE)
                     }
                 }
@@ -516,6 +448,8 @@ private class AddOnServiceImpl(
                 }
             }
 
+            loaderService.verifyLoader()
+
             OperationResult.Success
         }
     }
@@ -565,7 +499,7 @@ private class AddOnServiceImpl(
         return execute(plan)
     }
 
-    override suspend fun refreshListings() {
+    override suspend fun refresh() {
         addOnRepository.invalidateCache()
 
         val addOnListings = addOnRepository.getAddOnListings()

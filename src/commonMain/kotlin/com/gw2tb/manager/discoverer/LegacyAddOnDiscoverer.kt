@@ -16,8 +16,9 @@
  */
 package com.gw2tb.manager.discoverer
 
+import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
-import com.gw2tb.manager.platform.win32.getAddOnInfo
+import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
@@ -34,16 +35,16 @@ class LegacyAddOnDiscoverer : AddOnDiscoverer {
             addAll(
                 (arcDpsDir.listDirectoryEntries("*.dll") + arcDpsDir.listDirectoryEntries(glob = "*.dll.disabled"))
                     .mapNotNull { path ->
-                        val addOnInfo = path.getAddOnInfo()
-                        if (addOnInfo == null) {
+                        val addOnFileInfo = path.readAddOnFileInfo()
+                        if (addOnFileInfo == null) {
                             return@mapNotNull null
                         }
 
                         LocalAddOn(
                             kind = LocalAddOn.Kind.ADDON_LOADER,
                             path = path,
-                            name = addOnInfo.name,
-                            version = addOnInfo.version
+                            name = addOnFileInfo.name,
+                            version = AddOnVersion(fileVersion = addOnFileInfo.version, versionString = addOnFileInfo.versionString)
                         )
                     }
             )
@@ -56,16 +57,16 @@ class LegacyAddOnDiscoverer : AddOnDiscoverer {
                     it.listDirectoryEntries("gw2addon_*.dll") + it.listDirectoryEntries("gw2addon_*.dll.disabled")
                 }
                 .mapNotNull { path ->
-                    val addOnInfo = path.getAddOnInfo()
-                    if (addOnInfo == null) {
+                    val addOnFileInfo = path.readAddOnFileInfo()
+                    if (addOnFileInfo == null) {
                         return@mapNotNull null
                     }
 
                     LocalAddOn(
                         kind = LocalAddOn.Kind.ADDON_LOADER,
                         path = path,
-                        name = addOnInfo.name,
-                        version = addOnInfo.version
+                        name = addOnFileInfo.name,
+                        version = AddOnVersion(fileVersion = addOnFileInfo.version, versionString = addOnFileInfo.versionString)
                     )
                 }
         )

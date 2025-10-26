@@ -18,6 +18,8 @@ pluginManagement {
     plugins {
         id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     }
+
+    includeBuild("./deploy-logic")
 }
 
 plugins {
@@ -42,3 +44,8 @@ dependencyResolutionManagement {
 }
 
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+includeBuild("./libs/addon-manifest-lib")
+includeBuild("./libs/fileinfo-reader")
+includeBuild("./libs/manager-manifest-lib")

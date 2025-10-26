@@ -16,8 +16,7 @@
  */
 package com.gw2tb.manager.model.catalog
 
-import androidx.compose.runtime.Immutable
-import com.gw2tb.manager.model.AddOnId
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
@@ -43,15 +42,13 @@ infix fun AddOnListing.isMatching(localAddOn: LocalAddOnReference): Boolean =
  * @param vendorName        the name of the add-on's vendor
  * @param vendorUrl         the URL to the add-on vendor's homepage
  *
- * @param downloadUrl       the URL to download the add-on from
- * @param version           the add-on's latest version
+ * @param download          the URL to download the add-on from
  * @param addOnNames        a list of all names for the add-on that have been observed in `VERSIONINFO`. This
  *                          information can be used to match local add-ons with add-on listings.
  *
  * @param installMode       the mode in which the add-on should be installed
  * @param dependencies      a list of add-on names that this add-on depends on
  */
-@Immutable
 data class AddOnListing(
     val id: AddOnId,
     val addOnName: String,
@@ -71,12 +68,6 @@ data class AddOnListing(
     val installMode: InstallMode,
     val dependencies: List<AddOnId>
 ) {
-
-    @Immutable
-    data class Download(
-        val downloadUrl: String,
-        val version: AddOnVersion,
-    )
 
     enum class InstallMode {
         Arc,
