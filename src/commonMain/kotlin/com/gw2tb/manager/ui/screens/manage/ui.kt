@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.gw2tb.manager.ui.composables.AddOnList
 import com.gw2tb.manager.ui.composables.AddOnListItem
 import com.gw2tb.manager.ui.composables.AddOnListItemState
+import com.gw2tb.manager.ui.theme.ManagerColors
 
 @Composable
 fun ManageAddOns(
@@ -41,7 +42,7 @@ fun ManageAddOns(
         items = installedAddOns,
         onClick = { item -> component.navigateToDetails(item.localAddOn.ref) },
         modifier = modifier
-            .background(brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFE6F6F6)))),
+            .background(brush = Brush.verticalGradient(listOf(Color.White, ManagerColors.BackgroundTint))),
         itemModifier = { item ->
             val availableAddOnUpdate = availableUpdates.find { it.addOnId == item.listing?.id }
 
@@ -50,7 +51,7 @@ fun ManageAddOns(
                     if (availableAddOnUpdate != null)
                         it.background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, Color(0xFF9BD99F)),
+                                colors = listOf(Color.Transparent, ManagerColors.PositiveHint),
                                 startX = 650F
                             )
                         )

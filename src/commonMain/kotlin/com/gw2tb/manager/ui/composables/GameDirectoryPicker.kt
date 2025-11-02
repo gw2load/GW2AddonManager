@@ -36,6 +36,7 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.setting_game_directory_change
 import com.gw2tb.manager.gw2addonmanager.generated.resources.setting_game_directory_label
 import com.gw2tb.manager.gw2addonmanager.generated.resources.setup_select_game_directory_title
+import com.gw2tb.manager.ui.theme.ManagerColors
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 import org.jetbrains.compose.resources.stringResource
 import java.nio.file.Path
@@ -58,7 +59,7 @@ fun GameDirectoryPicker(
         val interactionSource = remember { MutableInteractionSource() }
         val isFocused by interactionSource.collectIsFocusedAsState()
 
-        val baseColor = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F)
+        val baseColor = lerp(ManagerColors.Primary, Color.Black, 0.4F)
 
         BasicTextField(
             value = selectedGameDirectory?.toString() ?: "",

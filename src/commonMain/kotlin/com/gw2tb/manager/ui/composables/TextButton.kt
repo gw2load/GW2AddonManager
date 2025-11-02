@@ -35,6 +35,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.skiko.Cursor
 
 @Composable
@@ -42,7 +43,7 @@ fun TextButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    color: Color = Color(0xFF8ad3d3),
+    color: Color = ManagerColors.Primary,
     leadingIcon: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
     onClickLabel: String? = null,
@@ -71,7 +72,7 @@ fun TextButton(
     text: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    color: Color = Color(0xFF8ad3d3),
+    color: Color = ManagerColors.Primary,
     idleColor: Color = lerp(color, Color.Black, 0.4F),
     leadingIcon: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,

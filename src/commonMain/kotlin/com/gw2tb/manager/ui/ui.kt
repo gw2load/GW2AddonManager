@@ -52,6 +52,7 @@ import com.gw2tb.manager.ui.screens.explore.ExploreAddOns
 import com.gw2tb.manager.ui.screens.manage.ManageAddOns
 import com.gw2tb.manager.ui.screens.settings.SettingsScreen
 import com.gw2tb.manager.ui.screens.setup.SetupScreen
+import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import java.awt.Cursor
@@ -119,7 +120,7 @@ fun WindowScope.AddOnManager(
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(16.dp)
-                                    .background(color = Color(0xFF8ad3d3))
+                                    .background(color = ManagerColors.Primary)
                                     .border(width = Dp.Hairline, color = Color.Black.copy(alpha = 0.2F))
                                     .clickable(
                                         onClickLabel = stringResource(Res.string.window_minimize),
@@ -134,7 +135,7 @@ fun WindowScope.AddOnManager(
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(16.dp)
-                                    .background(color = Color(0xFF8ad3d3))
+                                    .background(color = ManagerColors.Primary)
                                     .border(width = Dp.Hairline, color = Color.Black.copy(alpha = 0.2F))
                                     .clickable(
                                         onClickLabel = stringResource(Res.string.window_close),
@@ -204,7 +205,7 @@ private fun MainScreenWrapper(component: MainComponent) {
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(1.dp),
-                color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F).copy(alpha = 0.45F)
+                color = lerp(ManagerColors.Primary, Color.Black, 0.4F).copy(alpha = 0.45F)
             )
 
             TextButton(
@@ -228,7 +229,7 @@ private fun MainScreenWrapper(component: MainComponent) {
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(1.dp),
-                color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F).copy(alpha = 0.45F)
+                color = lerp(ManagerColors.Primary, Color.Black, 0.4F).copy(alpha = 0.45F)
             )
 
             TextButton(
@@ -252,7 +253,7 @@ private fun MainScreenWrapper(component: MainComponent) {
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(1.dp),
-                color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F).copy(alpha = 0.45F)
+                color = lerp(ManagerColors.Primary, Color.Black, 0.4F).copy(alpha = 0.45F)
             )
 
             TextButton(
@@ -313,8 +314,8 @@ private fun MainScreenWrapper(component: MainComponent) {
                                 width = Dimension.fillToConstraints
                             }
                             .height(7.dp),
-                        color = Color(0xFF8ad3d3),
-                        backgroundColor = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F),
+                        color = ManagerColors.Primary,
+                        backgroundColor = lerp(ManagerColors.Primary, Color.Black, 0.4F),
                     )
                 } else {
                     LinearProgressIndicator(
@@ -327,8 +328,8 @@ private fun MainScreenWrapper(component: MainComponent) {
                                 width = Dimension.fillToConstraints
                             }
                             .height(7.dp),
-                        color = Color(0xFF8ad3d3),
-                        backgroundColor = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F),
+                        color = ManagerColors.Primary,
+                        backgroundColor = lerp(ManagerColors.Primary, Color.Black, 0.4F),
                     )
                 }
 
@@ -360,7 +361,7 @@ private fun MainScreenWrapper(component: MainComponent) {
                 ) {
                     Text(
                         text = stringResource(Res.string.setting_auto_update_label),
-                        color = lerp(Color(0xFF8ad3d3), Color.White, 0.4F),
+                        color = lerp(ManagerColors.Primary, Color.White, 0.4F),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -370,8 +371,8 @@ private fun MainScreenWrapper(component: MainComponent) {
                     Checkbox(
                         checked = areAutoUpdatesEnabled,
                         onClick = { component.setAutoUpdatesEnabled(!areAutoUpdatesEnabled) },
-                        color = Color(0xFF8ad3d3),
-                        hoverColor = lerp(Color(0xFF8ad3d3), Color.White, 0.4F),
+                        color = ManagerColors.Primary,
+                        hoverColor = lerp(ManagerColors.Primary, Color.White, 0.4F),
                         padding = PaddingValues(start = 4.dp, top = 4.dp, end = 0.dp, bottom = 4.dp)
                     )
                 }
@@ -399,7 +400,7 @@ private fun MainScreenWrapper(component: MainComponent) {
 
                 Text(
                     text = stringResource(Res.string.app_disclaimer),
-                    color = Color(0xFF8ad3d3).copy(alpha = 0.6F),
+                    color = ManagerColors.Primary.copy(alpha = 0.6F),
                     fontSize = 10.sp
                 )
 
@@ -407,7 +408,7 @@ private fun MainScreenWrapper(component: MainComponent) {
 
                 Text(
                     text = LocalApplicationInfo.current.version,
-                    color = Color(0xFF8ad3d3).copy(alpha = 0.6F),
+                    color = ManagerColors.Primary.copy(alpha = 0.6F),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.End

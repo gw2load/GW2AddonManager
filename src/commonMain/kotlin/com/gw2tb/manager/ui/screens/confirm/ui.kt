@@ -71,6 +71,7 @@ import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.ui.composables.OutlinedButton
+import com.gw2tb.manager.ui.theme.ManagerColors
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.stringResource
 
@@ -82,7 +83,7 @@ fun ConfirmActionPlan(component: ConfirmComponent) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFE6F6F6))))
+            .background(brush = Brush.verticalGradient(listOf(Color.White, ManagerColors.BackgroundTint)))
             .padding(PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp))
     ) {
         Text(
@@ -99,7 +100,7 @@ fun ConfirmActionPlan(component: ConfirmComponent) {
                 .padding(horizontal = 10.dp)
                 .height((1f / LocalDensity.current.density).dp)
                 .background(
-                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, Color(0xFF8ad3d3), Color.Transparent))
+                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, ManagerColors.Primary, Color.Transparent))
                 )
         ) {}
 
@@ -155,7 +156,7 @@ fun ConfirmActionPlan(component: ConfirmComponent) {
                 .padding(horizontal = 10.dp)
                 .height((1f / LocalDensity.current.density).dp)
                 .background(
-                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, Color(0xFF8ad3d3), Color.Transparent))
+                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, ManagerColors.Primary, Color.Transparent))
                 )
         ) {}
 
@@ -173,7 +174,7 @@ fun ConfirmActionPlan(component: ConfirmComponent) {
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1F),
-                    baseColor = Color(0xFF2FBD40),
+                    baseColor = ManagerColors.PositiveHighlight,
                     onClick = component::confirm,
                     icon = {
                         Icon(
@@ -191,7 +192,7 @@ fun ConfirmActionPlan(component: ConfirmComponent) {
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1F),
-                    baseColor = Color(0xFFBD2F40),
+                    baseColor = ManagerColors.NegativeHighlight,
                     onClick = component::cancel,
                     icon = {
                         Icon(

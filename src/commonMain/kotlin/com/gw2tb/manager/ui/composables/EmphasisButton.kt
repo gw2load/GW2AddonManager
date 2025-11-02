@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.button
+import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Cursor
 
@@ -78,7 +79,7 @@ fun EmphasisButton(
             contentScale = ContentScale.FillBounds,
             colorFilter = when {
                 !enabled -> ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0F) })
-                isHovered -> ColorFilter.tint(Color(0xFF8ad3d3).copy(alpha = 0.4F), BlendMode.Hardlight)
+                isHovered -> ColorFilter.tint(ManagerColors.Primary.copy(alpha = 0.4F), BlendMode.Hardlight)
                 else -> null
             }
         )

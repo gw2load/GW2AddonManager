@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.gw2tb.manager.ui.theme.ManagerColors
 
 @Composable
 fun <E> AddOnList(
@@ -73,7 +74,7 @@ fun <E> AddOnList(
                                 .padding(horizontal = 10.dp)
                                 .height((1f / LocalDensity.current.density).dp)
                                 .background(
-                                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, Color(0xFF8ad3d3), Color.Transparent))
+                                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, ManagerColors.Primary, Color.Transparent))
                                 )
                         ) {}
                     }

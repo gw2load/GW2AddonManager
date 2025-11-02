@@ -40,13 +40,14 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gw2tb.manager.ui.theme.ManagerColors
 import java.awt.Cursor
 
 @Composable
 fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    baseColor: Color = Color(0xFF8AD3D3),
+    baseColor: Color = ManagerColors.Primary,
     icon: @Composable (() -> Unit)? = null,
     text: @Composable () -> Unit
 ) {

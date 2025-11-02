@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.gw2tb.manager.ui.theme.ManagerColors
 import java.awt.Cursor
 
 /*
@@ -50,7 +51,7 @@ fun Checkbox(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    color: Color = Color(0xFF8ad3d3),
+    color: Color = ManagerColors.Primary,
     hoverColor: Color = lerp(color, Color.Black, 0.4F),
     padding: PaddingValues = PaddingValues(4.dp)
 ) {

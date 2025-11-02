@@ -34,6 +34,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Cursor
@@ -48,9 +49,9 @@ import java.awt.Cursor
 //    val isHovered by interactionSource.collectIsHoveredAsState()
 //
 //    val color = if (isHovered) {
-//        lerp(Color(0xFF8ad3d3), Color.White, 0.6F)
+//        lerp(ManagerColors.Primary, Color.White, 0.6F)
 //    } else {
-//        Color(0xFF8ad3d3)
+//        ManagerColors.Primary
 //    }
 //
 //    Icon(
@@ -82,9 +83,9 @@ fun OutlinedSocialsIconButton(
     val isHovered by interactionSource.collectIsHoveredAsState()
 
     val color = if (isHovered) {
-        lerp(Color(0xFF8ad3d3), Color.White, 0.6F)
+        lerp(ManagerColors.Primary, Color.White, 0.6F)
     } else {
-        Color(0xFF8ad3d3)
+        ManagerColors.Primary
     }
 
     Icon(

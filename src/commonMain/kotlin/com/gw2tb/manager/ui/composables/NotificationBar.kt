@@ -50,6 +50,7 @@ import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
 import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
 import com.gw2tb.manager.model.notifications.Urgency
+import com.gw2tb.manager.ui.theme.ManagerColors
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.stringResource
 import java.awt.Cursor
@@ -128,8 +129,8 @@ private fun NotificationChip(
     modifier: Modifier = Modifier
 ) {
     val baseColor = when (notification.urgency) {
-        Urgency.Informational -> Color(0xff2fbd40)
-        Urgency.Critical -> Color(0xffbd2f40)
+        Urgency.Informational -> ManagerColors.PositiveHighlight
+        Urgency.Critical -> ManagerColors.NegativeHighlight
     }
 
     val darkColor = lerp(baseColor, Color.Black, 0.4F)

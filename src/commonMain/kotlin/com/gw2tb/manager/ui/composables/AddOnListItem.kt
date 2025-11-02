@@ -43,6 +43,7 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_install
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_update
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.services.Job
+import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -96,7 +97,7 @@ fun AddOnListItem(
 
             Text(
                 text = summary,
-                color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F),
+                color = lerp(ManagerColors.Primary, Color.Black, 0.4F),
                 fontSize = 12.sp,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
@@ -124,7 +125,7 @@ fun AddOnListItem(
                         contentDescription = null,
                         modifier = Modifier
                             .size(16.dp),
-                        tint = Color(0xff2fbd40)
+                        tint = ManagerColors.PositiveHighlight
                     )
                 }
 

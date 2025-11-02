@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.select_language_label
+import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.compose.resources.stringResource
 import java.awt.Cursor
 import java.util.Locale
@@ -56,7 +57,7 @@ fun LanguageSelector(
     var width by remember { mutableIntStateOf(0) }
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
-    val color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F)
+    val color = lerp(ManagerColors.Primary, Color.Black, 0.4F)
 
     Row(
         modifier = Modifier
@@ -74,7 +75,7 @@ fun LanguageSelector(
     ) {
         Row(
             modifier = Modifier
-                .background(brush = Brush.verticalGradient(listOf(Color.White, lerp(Color.White, Color(0xFF8ad3d3), 0.5F))))
+                .background(brush = Brush.verticalGradient(listOf(Color.White, lerp(Color.White, ManagerColors.Primary, 0.5F))))
                 .padding(horizontal = 6.dp, vertical = 4.dp),
         ) {
             Text(
@@ -87,7 +88,7 @@ fun LanguageSelector(
 
         Row(
             modifier = Modifier
-                .background(brush = Brush.verticalGradient(listOf(lerp(Color(0xFF8ad3d3), Color.Black, 0.4F), Color(0xFF8ad3d3))))
+                .background(brush = Brush.verticalGradient(listOf(lerp(ManagerColors.Primary, Color.Black, 0.4F), ManagerColors.Primary)))
                 .padding(4.dp),
         ) {
             Text(
@@ -107,7 +108,7 @@ fun LanguageSelector(
                 modifier = Modifier
                     .width(width.dp)
                     .background(Color.White, shape = RectangleShape)
-                    .border(1.dp, color = lerp(Color(0xFF8ad3d3), Color.Black, 0.4F)),
+                    .border(1.dp, color = lerp(ManagerColors.Primary, Color.Black, 0.4F)),
                 properties = @OptIn(ExperimentalComposeUiApi::class) PopupProperties(
                     usePlatformInsets = false
                 )
