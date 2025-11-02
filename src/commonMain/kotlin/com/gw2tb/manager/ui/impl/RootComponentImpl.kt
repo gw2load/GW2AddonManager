@@ -23,10 +23,11 @@ import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.ActionUpdateAddOn
-import com.gw2tb.manager.main
 import com.gw2tb.manager.model.LocalConfiguration
 import com.gw2tb.manager.model.notifications.Notification
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
+import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
+import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.RootComponent
@@ -36,8 +37,6 @@ import com.gw2tb.manager.ui.screens.setup.impl.SetupComponentImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
 class RootComponentImpl(
@@ -123,6 +122,13 @@ class RootComponentImpl(
 
                 mainComponent.navigateToConfirm(plan)
             }
+            is NotificationDuplicateInstallation -> {
+                TODO()
+            }
+            is NotificationManagerUpdateAvailable -> {
+                // TODO Implement automatic updates for the manager
+                mainComponent.openLink(notification.version.downloadUrl)
+            }
             is NotificationMissingAddOnDependencies -> {
                 val plan = ActionPlan(
                     actions = notification.inspections.flatMap { it.missingDependencies.map(::ActionInstallAddOn) }.toSet(),
@@ -131,7 +137,6 @@ class RootComponentImpl(
 
                 mainComponent.navigateToConfirm(plan)
             }
-            else -> TODO()
         }
     }
 
