@@ -51,7 +51,6 @@ interface MainComponent {
 
     sealed class Child {
 
-        data class Help(val component: SettingsComponent) : Child()
         data class MasterDetail(val component: MasterDetailComponent) : Child()
         data class Settings(val component: SettingsComponent) : Child()
 

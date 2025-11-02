@@ -25,6 +25,7 @@ import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.model.LocalConfiguration
 import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.notifications.Urgency
@@ -95,11 +96,6 @@ class MainComponentImpl(
         handleBackButton = false,
         childFactory = { config, componentContext ->
             when (config) {
-                is Config.Help -> Child.Help(SettingsComponentImpl(
-                    configurationService = configurationService,
-                    mainContext = mainContext,
-                    componentContext = componentContext
-                ))
                 is Config.MasterDetail -> Child.MasterDetail(MasterDetailComponentImpl(
                     addOnService = addOnService,
                     inspectionService = inspectionService,
@@ -124,9 +120,6 @@ class MainComponentImpl(
 
     @Serializable
     private sealed class Config {
-
-        @Serializable
-        data object Help : Config()
 
         @Serializable
         data class MasterDetail(val child: MasterDetailComponent.Config) : Config()
@@ -161,7 +154,7 @@ class MainComponentImpl(
     }
 
     override fun navigateToHelp() {
-        navigation.replaceCurrent(Config.Help)
+        openLink(BuildConfig.HELP_URL)
     }
 
     override fun navigateToInstalledAddOns() {

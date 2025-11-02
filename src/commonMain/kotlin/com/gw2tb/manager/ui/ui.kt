@@ -49,7 +49,6 @@ import com.gw2tb.manager.ui.composables.*
 import com.gw2tb.manager.ui.screens.confirm.ConfirmActionPlan
 import com.gw2tb.manager.ui.screens.details.AddOnDetails
 import com.gw2tb.manager.ui.screens.explore.ExploreAddOns
-import com.gw2tb.manager.ui.screens.help.HelpScreen
 import com.gw2tb.manager.ui.screens.manage.ManageAddOns
 import com.gw2tb.manager.ui.screens.settings.SettingsScreen
 import com.gw2tb.manager.ui.screens.setup.SetupScreen
@@ -259,7 +258,7 @@ private fun MainScreenWrapper(component: MainComponent) {
             TextButton(
                 text = {
                     TextWithFixedWeightWidth(
-                        weight = if (child.active.instance !is MainComponent.Child.Help) null else FontWeight.Medium,
+                        weight = null,
                         maxWeight = FontWeight.Medium
                     ) {
                         Text(stringResource(Res.string.tab_help))
@@ -268,7 +267,7 @@ private fun MainScreenWrapper(component: MainComponent) {
                 onClick = component::navigateToHelp,
                 modifier = Modifier
                     .padding(start = 8.dp),
-                enabled = child.active.instance !is MainComponent.Child.Help,
+                enabled = true,
                 onClickLabel = stringResource(Res.string.tab_help),
                 role = Role.Tab
             )
@@ -287,7 +286,6 @@ private fun MainScreenWrapper(component: MainComponent) {
                     animation = stackAnimation()
                 ) { child ->
                     when (val activeChild = child.instance) {
-                        is MainComponent.Child.Help -> HelpScreen(activeChild.component)
                         is MainComponent.Child.MasterDetail -> MainLayout(activeChild.component)
                         is MainComponent.Child.Settings -> SettingsScreen(activeChild.component)
                     }

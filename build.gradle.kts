@@ -155,6 +155,7 @@ buildConfig {
     buildConfigField("BUILD_VERSION", provider { "${project.version}" })
     buildConfigField("DISCORD_URL", providers.gradleProperty("com.gw2tb.manager.discord-url"))
     buildConfigField("GITHUB_URL", providers.gradleProperty("com.gw2tb.manager.github-url"))
+    buildConfigField("HELP_URL", providers.gradleProperty("com.gw2tb.manager.help-url"))
     buildConfigField("ADDON_MANIFEST_URL", providers.gradleProperty("com.gw2tb.manager.addon-manifest-url"))
     buildConfigField("MANAGER_MANIFEST_BASE_URL", providers.gradleProperty("com.gw2tb.manager.manager-manifest-base-url"))
 }
