@@ -71,13 +71,14 @@ fun ManageAddOns(
                     AddOnListItem(
                         title = listing?.addOnName ?: localAddOn.name,
                         summary = listing?.addOnSummary ?: "",
-                        version = "",
+                        version = localAddOn.version.toString(),
                         addOnState = if (localAddOn.isEnabled) AddOnListItemState.ENABLED else AddOnListItemState.DISABLED,
                         onClick = { component.navigateToDetails(localAddOn.ref) },
-                        updateAddOn = {}, // TODO
+                        updateAddOn = { component.updateAddOn(availableAddOnUpdate!!) },
                         installAddOn = { error("Should never be reached") }, // In this screen, add-ons are already installed
                         setAddOnEnabled = { enabled -> component.setEnabled(localAddOn.ref, enabled) },
                         getJobs = { jobs.filter { localAddOn.ref in it.localAddOns } },
+                        availableAddOnUpdate = availableAddOnUpdate,
                         contentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
                     )
 
@@ -95,12 +96,11 @@ fun ManageAddOns(
             }
         }
 
-        // TODO There is a weird interaction here where the scrollbar picks up hover focus although it is not visible
         VerticalScrollbar(
+            adapter = rememberScrollbarAdapter(lazyListState),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 2.dp),
-            adapter = rememberScrollbarAdapter(lazyListState),
             style = LocalScrollbarStyle.current.copy(
                 thickness = 6.dp,
                 shape = RectangleShape
@@ -108,50 +108,3 @@ fun ManageAddOns(
         )
     }
 }
-
-/*
-@Composable
-fun ManageAddOnsDetails(
-    component: ManageComponent,
-    modifier: Modifier = Modifier
-) {
-    val addOnListings by component.addOnListings.collectAsState()
-    val selectedLocalAddOn by component.selectedAddOn.collectAsState()
-    val availableUpdates by component.availableUpdates.collectAsState()
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        if (selectedLocalAddOn == null) {
-            Text(
-                text = stringResource(Res.string.no_addon_selected),
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.Black.copy(alpha = ContentAlpha.disabled)
-            )
-        } else {
-            @Suppress("NAME_SHADOWING")
-            val selectedLocalAddOn = selectedLocalAddOn!!
-
-            val addOnListing = addOnListings.find { it isMatching selectedLocalAddOn }
-            val availableAddOnUpdate = availableUpdates.find { it.localAddOn == selectedLocalAddOn }
-
-            val jobs by component.jobs.collectAsState()
-
-            AddOnDetails(
-                addOnListing = addOnListing,
-                localAddOn = selectedLocalAddOn,
-                installAddOn = { error("Should never be reached") }, // In this screen, add-ons are already installed
-                uninstallAddOn = { component.uninstall(selectedLocalAddOn) },
-                updateAddOn = { component.install(addOnListing!!) },
-                navigateToVendor = component::navigateToVendor,
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(all = 8.dp),
-                availableAddOnUpdate = availableAddOnUpdate,
-                getJobs = { jobs.filter { selectedLocalAddOn in it.localAddOns } }
-            )
-        }
-    }
-}
- */
