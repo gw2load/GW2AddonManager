@@ -19,7 +19,6 @@ package com.gw2tb.manager.ui.composables
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -52,20 +51,15 @@ fun AddOnListItem(
     summary: String,
     version: String,
     addOnState: AddOnListItemState,
-    onClick: () -> Unit,
     updateAddOn: () -> Unit,
     installAddOn: () -> Unit,
     setAddOnEnabled: (enabled: Boolean) -> Unit,
     getJobs: () -> List<Job>,
     modifier: Modifier = Modifier,
-    availableAddOnUpdate: AvailableAddOnUpdate? = null,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    availableAddOnUpdate: AvailableAddOnUpdate? = null
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(contentPadding),
+        modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(

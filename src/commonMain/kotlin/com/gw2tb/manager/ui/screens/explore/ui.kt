@@ -18,18 +18,13 @@ package com.gw2tb.manager.ui.screens.explore
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.gw2tb.manager.model.catalog.isMatching
+import com.gw2tb.manager.ui.composables.AddOnList
 import com.gw2tb.manager.ui.composables.AddOnListItem
 import com.gw2tb.manager.ui.composables.AddOnListItemState
 
@@ -44,74 +39,46 @@ fun ExploreAddOns(
 
     val jobs by component.jobs.collectAsState()
 
-    Box(
+    AddOnList(
+        items = addOnListings,
+        onClick = { item -> component.navigateToAddOnDetails(item.id) },
         modifier = modifier
-            .background(brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFE6F6F6))))
-    ) {
-        val lazyListState = rememberLazyListState()
+            .background(brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFE6F6F6)))),
+        itemModifier = { item ->
+            val availableAddOnUpdate = availableUpdates.find { it.addOnId == item.id }
 
-        LazyColumn(
-            state = lazyListState
-        ) {
-            itemsIndexed(items = addOnListings) { index, listing ->
-                val localAddOn = localAddOns.find { listing isMatching it }
-                val availableAddOnUpdate = availableUpdates.find { it.addOnId == listing.id }
-
-                Column(
-                    modifier = Modifier
-                        .let {
-                            if (availableAddOnUpdate != null)
-                                it.background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(Color.Transparent, Color(0xFF9BD99F)),
-                                        startX = 650F
-                                    )
-                                )
-                            else
-                                it
-                        }
-                ) {
-                    AddOnListItem(
-                        title = listing.addOnName,
-                        summary = listing.addOnSummary,
-                        version = listing.download!!.version.toString(),
-                        addOnState = when {
-                            localAddOn == null -> AddOnListItemState.NOT_INSTALLED
-                            localAddOn.isEnabled -> AddOnListItemState.ENABLED
-                            else -> AddOnListItemState.DISABLED
-                        },
-                        onClick = { component.navigateToAddOnDetails(listing.id) },
-                        updateAddOn = { component.updateAddOn(availableAddOnUpdate!!) },
-                        installAddOn = { component.installAddOn(listing.id) },
-                        setAddOnEnabled = { enabled -> component.setEnabled(localAddOn!!.ref, enabled) },
-                        getJobs = { jobs.filter { listing.id in it.addOnListings } },
-                        availableAddOnUpdate = availableAddOnUpdate,
-                        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
-                    )
-
-                    if (index < addOnListings.lastIndex)
-                        Box(
-                            modifier = modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp)
-                                .height((1f / LocalDensity.current.density).dp)
-                                .background(
-                                    brush = Brush.horizontalGradient(colors = listOf(Color.Transparent, Color(0xFF8ad3d3), Color.Transparent))
-                                )
-                        ) {}
+            Modifier
+                .let {
+                    if (availableAddOnUpdate != null)
+                        it.background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(Color.Transparent, Color(0xFF9BD99F)),
+                                startX = 650F
+                            )
+                        )
+                    else
+                        it
                 }
-            }
-        }
+        },
+        itemContentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
+    ) { item ->
+        val localAddOn = localAddOns.find { item isMatching it }
+        val availableAddOnUpdate = availableUpdates.find { it.addOnId == item.id }
 
-        VerticalScrollbar(
-            adapter = rememberScrollbarAdapter(lazyListState),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 2.dp),
-            style = LocalScrollbarStyle.current.copy(
-                thickness = 6.dp,
-                shape = RectangleShape
-            )
+        AddOnListItem(
+            title = item.addOnName,
+            summary = item.addOnSummary,
+            version = item.download!!.version.toString(),
+            addOnState = when {
+                localAddOn == null -> AddOnListItemState.NOT_INSTALLED
+                localAddOn.isEnabled -> AddOnListItemState.ENABLED
+                else -> AddOnListItemState.DISABLED
+            },
+            updateAddOn = { component.updateAddOn(availableAddOnUpdate!!) },
+            installAddOn = { component.installAddOn(item.id) },
+            setAddOnEnabled = { enabled -> component.setEnabled(localAddOn!!.ref, enabled) },
+            getJobs = { jobs.filter { item.id in it.addOnListings } },
+            availableAddOnUpdate = availableAddOnUpdate
         )
     }
 }
