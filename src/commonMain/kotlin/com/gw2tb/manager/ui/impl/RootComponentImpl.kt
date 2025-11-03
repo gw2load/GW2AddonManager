@@ -123,7 +123,12 @@ class RootComponentImpl(
                 mainComponent.navigateToConfirm(plan)
             }
             is NotificationDuplicateInstallation -> {
-                TODO()
+                /*
+                 * There is not really a good way to solve all at once, so instead, we just display the details screen
+                 * for the first offender. This is sufficient since we require all to be resolved anyway.
+                 */
+                val firstOffender = notification.inspections.first()
+                mainComponent.navigateToAddOnDetails(firstOffender.id)
             }
             is NotificationManagerUpdateAvailable -> {
                 // TODO Implement automatic updates for the manager

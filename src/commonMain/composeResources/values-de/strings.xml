@@ -31,6 +31,8 @@
   <string name="addon_install_tooltip">Klicken zum installieren</string>
   <string name="addon_installed">INSTALLIERT</string>
   <string name="addon_installed_tooltip">Bereits installiert</string>
+  <string name="addon_repair">REPARIEREN</string>
+  <string name="addon_repair_tooltip">Klicken zum reparieren</string>
   <string name="addon_uninstall">DEINSTALLIEREN</string>
   <string name="addon_uninstall_tooltip">Klicken zum deinstallieren</string>
   <string name="addon_update">AKTUALISIEREN</string>
@@ -70,6 +72,8 @@
   <string name="setting_game_directory_change_tooltip">Klicke, um das Spielverzeichnis zu ändern</string>
 
   <string name="setting_auto_update_label">AUTOMATISCH AKTUALISIEREN</string>
+
+  <string name="suffix_recommended">(Empfohlen)</string>
 
   <string name="game_start">SPIELEN</string>
 

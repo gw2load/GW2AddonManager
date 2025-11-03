@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.ui.screens.explore
+package com.gw2tb.manager.ui.screens.details
 
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.addon_manifest.AddOnId
@@ -23,40 +23,36 @@ import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.inspections.Inspection
 import com.gw2tb.manager.model.local.LocalAddOn
-import com.gw2tb.manager.services.Job
 import kotlinx.coroutines.flow.StateFlow
+import java.nio.file.Path
 
-interface ExploreComponent {
+interface AddOnDetailsComponent {
 
-    val addOnListings: StateFlow<List<AddOnListing>>
+    val listing: StateFlow<AddOnListing?>
 
     val localAddOns: StateFlow<List<LocalAddOn>>
 
     val inspections: StateFlow<Iterable<Inspection>>
 
-    val jobs: StateFlow<List<Job>>
+    val selectedGameDirectory: StateFlow<Path?>
+
+    fun deleteAddOns(localAddOns: Iterable<LocalAddOn>)
 
     fun disableAddOn(ref: LocalAddOnReference)
 
     fun enableAddOn(ref: LocalAddOnReference)
 
-    fun setEnabled(ref: LocalAddOnReference, enabled: Boolean) =
-        if (enabled) enableAddOn(ref) else disableAddOn(ref)
-
     fun installAddOn(id: AddOnId)
-
-    fun repairAddOn(inspections: Iterable<Inspection>)
 
     fun uninstallAddOn(ref: LocalAddOnReference)
 
     fun updateAddOn(update: AvailableAddOnUpdate)
 
-    fun navigateToAddOnDetails(id: AddOnId)
+    fun navigateToVendor(url: String)
 
     sealed interface Output {
+        data class NavigateToVendor(val url: String) : Output
         data class RequiresConfirmation(val plan: ActionPlan) : Output
-        data class NavigateToDetailsById(val addOnId: AddOnId) : Output
-        data class NavigateToDetailsByRef(val ref: LocalAddOnReference) : Output
     }
 
 }

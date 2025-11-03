@@ -23,56 +23,72 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.ui.composables.AddOnList
 import com.gw2tb.manager.ui.composables.AddOnListItem
 import com.gw2tb.manager.ui.composables.AddOnListItemState
 import com.gw2tb.manager.ui.theme.ManagerColors
+import kotlinx.coroutines.flow.map
+import kotlin.collections.contains
 
 @Composable
 fun ManageAddOns(
     component: ManageComponent,
     modifier: Modifier = Modifier
 ) {
-    val installedAddOns by component.installedAddOns.collectAsState()
-    val availableUpdates by component.availableUpdates.collectAsState()
+    val installedAddOns by component.installedAddOns
+        .map { installedAddOns -> installedAddOns.distinctBy { it.localAddOn.name to it.localAddOn.kind } }
+        .collectAsState(initial = emptyList())
+
+    val inspections by component.inspections.collectAsState()
 
     val jobs by component.jobs.collectAsState()
 
     AddOnList(
         items = installedAddOns,
-        onClick = { item -> component.navigateToDetails(item.localAddOn.ref) },
+        onClick = { installedAddOn -> component.navigateToDetails(installedAddOn.localAddOn.ref) },
         modifier = modifier
             .background(brush = Brush.verticalGradient(listOf(Color.White, ManagerColors.BackgroundTint))),
-        itemModifier = { item ->
-            val availableAddOnUpdate = availableUpdates.find { it.addOnId == item.listing?.id }
+        itemModifier = { installedAddOn ->
+            val errorInspection = inspections.find { inspection -> installedAddOn.localAddOn.ref in inspection.affectedRefs && (inspection is InspectionDuplicateInstallations || inspection is InspectionMissingAddOnDependencies) }
+            val availableAddOnUpdate = (inspections.find { inspection -> installedAddOn.localAddOn.ref in inspection.affectedRefs && inspection is InspectionAddOnUpdateAvailable } as? InspectionAddOnUpdateAvailable)?.update
 
             Modifier
                 .let {
-                    if (availableAddOnUpdate != null)
+                    val backgroundTintColor = when {
+                        errorInspection != null -> ManagerColors.NegativeHint
+                        availableAddOnUpdate != null -> ManagerColors.PositiveHint
+                        else -> null
+                    }
+
+                    if (backgroundTintColor != null) {
                         it.background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, ManagerColors.PositiveHint),
+                                colors = listOf(Color.Transparent, backgroundTintColor),
                                 startX = 650F
                             )
                         )
-                    else
+                    } else
                         it
                 }
         },
         itemContentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
     ) { (localAddOn, listing) ->
-        val availableAddOnUpdate = availableUpdates.find { it.addOnId == listing?.id }
+        val inspections = inspections.filter { inspection -> localAddOn.ref in inspection.affectedRefs }
 
         AddOnListItem(
             title = listing?.addOnName ?: localAddOn.name,
             summary = listing?.addOnSummary ?: "",
             version = localAddOn.version.toString(),
             addOnState = if (localAddOn.isEnabled) AddOnListItemState.ENABLED else AddOnListItemState.DISABLED,
-            updateAddOn = { component.updateAddOn(availableAddOnUpdate!!) },
+            repairAddOn = component::repairAddOn,
+            updateAddOn = component::updateAddOn,
             installAddOn = { error("Should never be reached") }, // In this screen, add-ons are already installed
             setAddOnEnabled = { enabled -> component.setEnabled(localAddOn.ref, enabled) },
             getJobs = { jobs.filter { localAddOn.ref in it.localAddOns } },
-            availableAddOnUpdate = availableAddOnUpdate
+            inspections = inspections
         )
     }
 }

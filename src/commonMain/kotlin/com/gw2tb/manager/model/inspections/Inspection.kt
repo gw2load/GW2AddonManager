@@ -20,6 +20,6 @@ import com.gw2tb.manager.model.LocalAddOnReference
 
 sealed interface Inspection {
 
-    val affectRefs: Iterable<LocalAddOnReference>
+    val affectedRefs: Iterable<LocalAddOnReference>
 
 }

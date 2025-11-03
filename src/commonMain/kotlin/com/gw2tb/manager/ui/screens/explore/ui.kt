@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.gw2tb.manager.model.catalog.isMatching
+import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.ui.composables.AddOnList
 import com.gw2tb.manager.ui.composables.AddOnListItem
 import com.gw2tb.manager.ui.composables.AddOnListItemState
@@ -36,7 +39,7 @@ fun ExploreAddOns(
 ) {
     val addOnListings by component.addOnListings.collectAsState()
     val localAddOns by component.localAddOns.collectAsState()
-    val availableUpdates by component.availableUpdates.collectAsState()
+    val inspections by component.inspections.collectAsState()
 
     val jobs by component.jobs.collectAsState()
 
@@ -45,26 +48,34 @@ fun ExploreAddOns(
         onClick = { item -> component.navigateToAddOnDetails(item.id) },
         modifier = modifier
             .background(brush = Brush.verticalGradient(listOf(Color.White, ManagerColors.BackgroundTint))),
-        itemModifier = { item ->
-            val availableAddOnUpdate = availableUpdates.find { it.addOnId == item.id }
+        itemModifier = { addOnListing ->
+            val localAddOn = localAddOns.find { addOnListing isMatching it }
+            val errorInspection = inspections.find { inspection -> localAddOn?.ref in inspection.affectedRefs && (inspection is InspectionDuplicateInstallations || inspection is InspectionMissingAddOnDependencies) }
+            val availableAddOnUpdate = (inspections.find { inspection -> localAddOn?.ref in inspection.affectedRefs && inspection is InspectionAddOnUpdateAvailable } as? InspectionAddOnUpdateAvailable)?.update
 
             Modifier
                 .let {
-                    if (availableAddOnUpdate != null)
+                    val backgroundTintColor = when {
+                        errorInspection != null -> ManagerColors.NegativeHint
+                        availableAddOnUpdate != null -> ManagerColors.PositiveHint
+                        else -> null
+                    }
+
+                    if (backgroundTintColor != null) {
                         it.background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, ManagerColors.PositiveHint),
+                                colors = listOf(Color.Transparent, backgroundTintColor),
                                 startX = 650F
                             )
                         )
-                    else
+                    } else
                         it
                 }
         },
         itemContentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
     ) { item ->
         val localAddOn = localAddOns.find { item isMatching it }
-        val availableAddOnUpdate = availableUpdates.find { it.addOnId == item.id }
+        val inspections = inspections.filter { inspection -> localAddOn?.ref in inspection.affectedRefs }
 
         AddOnListItem(
             title = item.addOnName,
@@ -75,11 +86,12 @@ fun ExploreAddOns(
                 localAddOn.isEnabled -> AddOnListItemState.ENABLED
                 else -> AddOnListItemState.DISABLED
             },
-            updateAddOn = { component.updateAddOn(availableAddOnUpdate!!) },
+            repairAddOn = component::repairAddOn,
+            updateAddOn = component::updateAddOn,
             installAddOn = { component.installAddOn(item.id) },
             setAddOnEnabled = { enabled -> component.setEnabled(localAddOn!!.ref, enabled) },
             getJobs = { jobs.filter { item.id in it.addOnListings } },
-            availableAddOnUpdate = availableAddOnUpdate
+            inspections = inspections
         )
     }
 }

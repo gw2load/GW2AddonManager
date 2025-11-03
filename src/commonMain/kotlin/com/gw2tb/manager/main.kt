@@ -16,6 +16,7 @@
  */
 package com.gw2tb.manager
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.runtime.CompositionLocalProvider
@@ -42,6 +43,7 @@ import com.gw2tb.manager.ui.AddOnManager
 import com.gw2tb.manager.ui.composables.LocalAppLocaleIso
 import com.gw2tb.manager.ui.composables.LocalApplicationInfo
 import com.gw2tb.manager.ui.impl.RootComponentImpl
+import com.gw2tb.manager.ui.theme.glimmer
 import com.gw2tb.manager.util.use
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -207,6 +209,7 @@ private fun runApplication(
                          * because it's mostly useless padding in a desktop environment.
                          */
                         CompositionLocalProvider(
+                            LocalIndication provides glimmer(),
                             @OptIn(ExperimentalMaterialApi::class) LocalMinimumInteractiveComponentEnforcement provides false,
                             LocalAppLocaleIso provides locale
                         ) {

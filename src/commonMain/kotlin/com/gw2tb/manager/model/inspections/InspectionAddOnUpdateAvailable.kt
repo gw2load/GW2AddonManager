@@ -77,7 +77,7 @@ data class InspectionAddOnUpdateAvailable(
 
     }
 
-    override val affectRefs: Iterable<LocalAddOnReference>
+    override val affectedRefs: Iterable<LocalAddOnReference>
         get() = setOf(update.localRef)
 
 }

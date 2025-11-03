@@ -19,6 +19,8 @@ package com.gw2tb.manager.ui
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.addon_manifest.AddOnId
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.ui.screens.settings.SettingsComponent
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +34,10 @@ interface MainComponent {
     val jobs: StateFlow<List<Job>>
 
     val page: Value<ChildStack<*, Child>>
+
+    fun navigateToAddOnDetails(id: AddOnId)
+
+    fun navigateToAddOnDetails(ref: LocalAddOnReference)
 
     fun navigateToConfirm(plan: ActionPlan)
 

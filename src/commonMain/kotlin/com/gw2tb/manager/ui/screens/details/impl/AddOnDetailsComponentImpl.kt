@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,62 +14,77 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.ui.screens.explore.impl
+package com.gw2tb.manager.ui.screens.details.impl
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
-import com.gw2tb.manager.actions.ActionInstallAddOn
-import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.OperationResult
 import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.catalog.isMatching
 import com.gw2tb.manager.model.inspections.Inspection
-import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
-import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.AddOnService
+import com.gw2tb.manager.services.ConfigurationService
 import com.gw2tb.manager.services.InspectionService
-import com.gw2tb.manager.services.Job
-import com.gw2tb.manager.services.JobService
-import com.gw2tb.manager.ui.screens.explore.ExploreComponent
-import com.gw2tb.manager.ui.screens.explore.ExploreComponent.Output
+import com.gw2tb.manager.ui.screens.details.AddOnDetailsComponent
+import com.gw2tb.manager.ui.screens.details.AddOnDetailsComponent.Output
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.collections.map
-import kotlin.collections.toSet
+import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
+import kotlin.io.path.deleteExisting
 
-class ExploreComponentImpl(
+class AddOnDetailsComponentImpl(
     private val addOnService: AddOnService,
+    configurationService: ConfigurationService,
     inspectionService: InspectionService,
-    jobService: JobService,
+    private val addOnId: AddOnId?,
+    private val localAddOnRef: LocalAddOnReference?,
     mainContext: CoroutineContext,
     componentContext: ComponentContext,
     private val output: (Output) -> Unit
-) : ExploreComponent, ComponentContext by componentContext {
+) : AddOnDetailsComponent, ComponentContext by componentContext {
 
     private val coroutineScope = coroutineScope(mainContext + SupervisorJob())
 
-    override val addOnListings: StateFlow<List<AddOnListing>> =
-        addOnService.addOnListings
-            .map { it.filter { listing -> listing.download != null } }
-            .map { it.sortedBy(AddOnListing::addOnName) }
-            .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val listing: StateFlow<AddOnListing?> = addOnService.addOnListings
+        .mapLatest { listings -> listings.firstOrNull { (addOnId != null && it.id == addOnId) || (localAddOnRef != null && it isMatching localAddOnRef) } }
+        .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = null)
 
     override val localAddOns: StateFlow<List<LocalAddOn>> =
-        addOnService.localAddOns.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
-
-    override val jobs: StateFlow<List<Job>> =
-        jobService.jobs.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+        combine(addOnService.localAddOns, listing) { localAddOns, listing ->
+            localAddOns.filter { (listing != null && listing isMatching it) || (localAddOnRef != null && it.ref == localAddOnRef) }
+        }
+        .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     override val inspections: StateFlow<Iterable<Inspection>> =
-        inspectionService.inspections.map { it.values.flatten() }
+        combine(localAddOns, inspectionService.inspections) { localAddOns, inspections ->
+            inspections.values.flatten().filter { inspection -> localAddOns.any { it.ref in inspection.affectedRefs } }
+        }
             .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+
+    override val selectedGameDirectory: StateFlow<Path?> = configurationService.localConfiguration
+        .map { it!!.selectedGameDirectory }
+        .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = null)
+
+    override fun deleteAddOns(localAddOns: Iterable<LocalAddOn>) {
+        for (localAddOn in localAddOns) {
+            localAddOn.path.deleteExisting()
+        }
+    }
 
     override fun disableAddOn(ref: LocalAddOnReference) {
         coroutineScope.launch {
@@ -104,27 +119,6 @@ class ExploreComponentImpl(
         }
     }
 
-    override fun repairAddOn(inspections: Iterable<Inspection>) {
-        var inspection = inspections.find { it is InspectionDuplicateInstallations }
-        if (inspection != null) {
-            output(Output.NavigateToDetailsByRef(ref = inspection.affectedRefs.first()))
-            return
-        }
-
-        inspection = inspections.find { it is InspectionMissingAddOnDependencies }
-        if (inspection != null) {
-            val plan = ActionPlan(
-                actions = (inspection as InspectionMissingAddOnDependencies).missingDependencies.map(::ActionInstallAddOn).toSet(),
-                effects = emptySet()
-            )
-
-            output(Output.RequiresConfirmation(plan))
-            return
-        }
-
-        error("This should never happen")
-    }
-
     override fun uninstallAddOn(ref: LocalAddOnReference) {
         coroutineScope.launch {
             val result = addOnService.uninstallAddOns(listOf(ref))
@@ -147,8 +141,8 @@ class ExploreComponentImpl(
         }
     }
 
-    override fun navigateToAddOnDetails(id: AddOnId) {
-        output(Output.NavigateToDetailsById(id))
+    override fun navigateToVendor(url: String) {
+        output(Output.NavigateToVendor(url))
     }
 
 }

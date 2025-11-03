@@ -21,6 +21,7 @@ import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.inspections.Inspection
 import com.gw2tb.manager.services.Job
 import kotlinx.coroutines.flow.StateFlow
 
@@ -30,7 +31,7 @@ interface ManageComponent {
 
     val addOnListings: StateFlow<List<AddOnListing>>
 
-    val availableUpdates: StateFlow<List<AvailableAddOnUpdate>>
+    val inspections: StateFlow<Iterable<Inspection>>
 
     val jobs: StateFlow<List<Job>>
 
@@ -40,6 +41,8 @@ interface ManageComponent {
 
     fun setEnabled(ref: LocalAddOnReference, enabled: Boolean) =
         if (enabled) enableAddOn(ref) else disableAddOn(ref)
+
+    fun repairAddOn(inspections: Iterable<Inspection>)
 
     fun uninstallAddOn(ref: LocalAddOnReference)
 

@@ -41,6 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gw2tb.manager.ui.theme.ManagerColors
+import com.gw2tb.manager.ui.theme.glimmer
+import com.gw2tb.manager.ui.theme.indication.IndicationAlpha
 import java.awt.Cursor
 
 @Composable
@@ -57,7 +59,15 @@ fun OutlinedButton(
         modifier = modifier
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null,
+                indication = glimmer(
+                    color = baseColor,
+                    alpha = IndicationAlpha(
+                        pressedAlpha = 0.32f,
+                        focusedAlpha = 0.32f,
+                        draggedAlpha = 0.24f,
+                        hoveredAlpha = 0.16f
+                    )
+                ),
                 onClick = onClick
             )
             .pointerHoverIcon(icon = PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)))

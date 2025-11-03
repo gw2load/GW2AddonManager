@@ -35,6 +35,8 @@
   <string name="addon_install_tooltip">Click to install</string>
   <string name="addon_installed">INSTALLED</string>
   <string name="addon_installed_tooltip">Already installed</string>
+  <string name="addon_repair">REPAIR</string>
+  <string name="addon_repair_tooltip">Click to repair</string>
   <string name="addon_uninstall">UNINSTALL</string>
   <string name="addon_uninstall_tooltip">Click to Uninstall</string>
   <string name="addon_update">UPDATE</string>
@@ -74,6 +76,8 @@
   <string name="setting_game_directory_change_tooltip">Click to change the game directory</string>
 
   <string name="setting_auto_update_label">AUTO-UPDATE</string>
+
+  <string name="suffix_recommended">(Recommended)</string>
 
   <string name="game_start">PLAY</string>
 

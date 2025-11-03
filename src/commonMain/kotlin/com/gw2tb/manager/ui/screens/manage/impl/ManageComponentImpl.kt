@@ -18,6 +18,8 @@ package com.gw2tb.manager.ui.screens.manage.impl
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.gw2tb.manager.actions.ActionInstallAddOn
+import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.OperationResult
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.LocalAddOnReference
@@ -28,15 +30,22 @@ import com.gw2tb.manager.services.AddOnService
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.services.JobService
 import com.gw2tb.manager.model.InstalledAddOn
+import com.gw2tb.manager.model.inspections.Inspection
 import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.services.InspectionService
 import com.gw2tb.manager.ui.screens.manage.ManageComponent
 import com.gw2tb.manager.ui.screens.manage.ManageComponent.Output
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.collections.flatten
+import kotlin.collections.map
+import kotlin.collections.toSet
 import kotlin.coroutines.CoroutineContext
 
 class ManageComponentImpl(
@@ -71,9 +80,8 @@ class ManageComponentImpl(
     override val jobs: StateFlow<List<Job>> =
         jobService.jobs.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
-    override val availableUpdates: StateFlow<List<AvailableAddOnUpdate>> =
-        inspectionService.inspectionsByType(InspectionAddOnUpdateAvailable)
-            .map { inspection -> inspection.map(InspectionAddOnUpdateAvailable::update) }
+    override val inspections: StateFlow<Iterable<Inspection>> =
+        inspectionService.inspections.map { it.values.flatten() }
             .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     override fun disableAddOn(ref: LocalAddOnReference) {
@@ -96,6 +104,27 @@ class ManageComponentImpl(
                 }
             }
         }
+    }
+
+    override fun repairAddOn(inspections: Iterable<Inspection>) {
+        var inspection = inspections.find { it is InspectionDuplicateInstallations }
+        if (inspection != null) {
+            navigateToDetails(ref = inspection.affectedRefs.first())
+            return
+        }
+
+        inspection = inspections.find { it is InspectionMissingAddOnDependencies }
+        if (inspection != null) {
+            val plan = ActionPlan(
+                actions = (inspection as InspectionMissingAddOnDependencies).missingDependencies.map(::ActionInstallAddOn).toSet(),
+                effects = emptySet()
+            )
+
+            output(Output.RequiresConfirmation(plan))
+            return
+        }
+
+        error("This should never happen")
     }
 
     override fun uninstallAddOn(ref: LocalAddOnReference) {

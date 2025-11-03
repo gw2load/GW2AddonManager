@@ -62,7 +62,7 @@ data class InspectionDuplicateInstallations(
 
     }
 
-    override val affectRefs: Iterable<LocalAddOnReference>
+    override val affectedRefs: Iterable<LocalAddOnReference>
         get() = refs
 
 }

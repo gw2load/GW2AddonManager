@@ -20,8 +20,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.LocalContentColor
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -85,7 +85,12 @@ fun TextButton(
     @Suppress("NAME_SHADOWING")
     val color = if (isHovered) color else idleColor
 
-    CompositionLocalProvider(LocalContentColor provides color) {
+    CompositionLocalProvider(
+        LocalContentColor provides color,
+        LocalTextStyle provides LocalTextStyle.current.copy(
+            color = color
+        )
+    ) {
         Row(
             modifier = modifier
                 .clickable(

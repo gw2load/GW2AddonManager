@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory
 data class InspectionMissingAddOnDependencies(
     val ref: LocalAddOnReference,
     val id: AddOnId,
+    val disabledDependencies: Iterable<LocalAddOnReference>,
     val missingDependencies: Iterable<AddOnId>
 ) : Inspection {
 
@@ -55,18 +56,28 @@ data class InspectionMissingAddOnDependencies(
 
                 val allDependencies = findAllDependencies(listing.id, addOnIdToListing)
 
+                val disabledDependencies = if (localAddOn.isEnabled) {
+                    allDependencies
+                        .mapNotNull { dependencyId ->
+                            val dependencyListing = addOnListings.find { listing -> listing.id == dependencyId } ?: error("Unreachable state")
+                            localAddOns.find { localAddOn -> dependencyListing isMatching localAddOn && !localAddOn.isEnabled }?.ref
+                        }
+                } else {
+                    emptyList()
+                }
+
                 val missingDependencies = allDependencies
                     .filter { dependencyId ->
                         val dependencyListing = addOnListings.find { listing -> listing.id == dependencyId } ?: error("Unreachable state")
                         localAddOns.none { localAddOn -> dependencyListing isMatching localAddOn }
                     }
 
-                if (missingDependencies.isEmpty()) {
+                if (disabledDependencies.isEmpty() && missingDependencies.isEmpty()) {
                     log.debug("All dependencies are satisfied for '{}' @ '{}'", listing.id, localAddOn.path)
                     continue
                 }
 
-                add(InspectionMissingAddOnDependencies(localAddOn.ref, listing.id, missingDependencies))
+                add(InspectionMissingAddOnDependencies(localAddOn.ref, listing.id, disabledDependencies, missingDependencies))
             }
         }
 
@@ -93,7 +104,7 @@ data class InspectionMissingAddOnDependencies(
 
     }
 
-    override val affectRefs: Iterable<LocalAddOnReference>
+    override val affectedRefs: Iterable<LocalAddOnReference>
         get() = setOf(ref)
 
 }

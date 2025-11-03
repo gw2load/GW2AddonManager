@@ -19,14 +19,12 @@ package com.gw2tb.manager.ui.composables
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.button
 import com.gw2tb.manager.ui.theme.ManagerColors
+import com.gw2tb.manager.ui.theme.glimmer
+import com.gw2tb.manager.ui.theme.indication.IndicationAlpha
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Cursor
 
@@ -52,15 +52,20 @@ fun EmphasisButton(
     onClickLabel: String? = null,
     content: @Composable () -> Unit
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isHovered by interactionSource.collectIsHoveredAsState()
-
     Box(
         modifier = modifier
             .aspectRatio(182F / 45F)
             .clickable(
-                interactionSource = interactionSource,
-                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = glimmer(
+                    color = ManagerColors.Primary,
+                    alpha = IndicationAlpha(
+                        pressedAlpha = 0.32f,
+                        focusedAlpha = 0.32f,
+                        draggedAlpha = 0.24f,
+                        hoveredAlpha = 0.16f
+                    )
+                ),
                 enabled = enabled,
                 onClickLabel = onClickLabel,
                 role = Role.Button,
@@ -79,7 +84,7 @@ fun EmphasisButton(
             contentScale = ContentScale.FillBounds,
             colorFilter = when {
                 !enabled -> ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0F) })
-                isHovered -> ColorFilter.tint(ManagerColors.Primary.copy(alpha = 0.4F), BlendMode.Hardlight)
+//                isHovered -> ColorFilter.tint(ManagerColors.Primary.copy(alpha = 0.4F), BlendMode.Hardlight)
                 else -> null
             }
         )

@@ -20,6 +20,7 @@ import androidx.compose.foundation.LocalScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +33,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -40,6 +42,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.gw2tb.manager.ui.theme.ManagerColors
+import com.gw2tb.manager.ui.theme.glimmer
+import com.gw2tb.manager.ui.theme.indication.IndicationAlpha
 
 @Composable
 fun <E> AddOnList(
@@ -57,7 +61,19 @@ fun <E> AddOnList(
             itemsIndexed(items) { index, item ->
                 Column(
                     modifier = itemModifier(item)
-                        .clickable(onClick = { onClick(item) })
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = glimmer(
+                                color = ManagerColors.Primary,
+                                alpha = IndicationAlpha(
+                                    pressedAlpha = 0.32f,
+                                    focusedAlpha = 0.32f,
+                                    draggedAlpha = 0.24f,
+                                    hoveredAlpha = 0.16f
+                                )
+                            ),
+                            onClick = { onClick(item) }
+                        )
                 ) {
                     Row(
                         modifier = Modifier

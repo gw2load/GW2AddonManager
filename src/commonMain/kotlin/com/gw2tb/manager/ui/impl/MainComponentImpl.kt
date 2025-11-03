@@ -25,7 +25,9 @@ import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.internal.BuildConfig
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.LocalConfiguration
 import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.notifications.Urgency
@@ -98,12 +100,14 @@ class MainComponentImpl(
             when (config) {
                 is Config.MasterDetail -> Child.MasterDetail(MasterDetailComponentImpl(
                     addOnService = addOnService,
+                    configurationService = configurationService,
                     inspectionService = inspectionService,
                     jobService = jobService,
                     mainContext = mainContext,
                     output = { output ->
                         when (output) {
                             is MasterDetailComponent.Output.NavigateToSettings -> navigateToSettings()
+                            is MasterDetailComponent.Output.OpenUrl -> openLink(url = output.url)
                         }
                     },
                     initialConfiguration = config.child,
@@ -127,6 +131,30 @@ class MainComponentImpl(
         @Serializable
         data object Settings : Config()
 
+    }
+
+    override fun navigateToAddOnDetails(id: AddOnId) {
+        val activeChild = page.active.instance
+        if (activeChild is Child.MasterDetail) {
+            activeChild.component.navigateToAddOnDetails(id)
+            return
+        }
+
+        navigation.replaceCurrent(Config.MasterDetail(
+            child = MasterDetailComponent.Config.AddOnDetails(addOnId = id)
+        ))
+    }
+
+    override fun navigateToAddOnDetails(ref: LocalAddOnReference) {
+        val activeChild = page.active.instance
+        if (activeChild is Child.MasterDetail) {
+            activeChild.component.navigateToAddOnDetails(ref)
+            return
+        }
+
+        navigation.replaceCurrent(Config.MasterDetail(
+            child = MasterDetailComponent.Config.AddOnDetails(ref = ref)
+        ))
     }
 
     override fun navigateToConfirm(plan: ActionPlan) {

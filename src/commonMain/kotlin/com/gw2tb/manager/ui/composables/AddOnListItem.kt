@@ -16,15 +16,14 @@
  */
 package com.gw2tb.manager.ui.composables
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,8 +39,13 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_disable
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_enable
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_install
+import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_repair
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_update
 import com.gw2tb.manager.model.AvailableAddOnUpdate
+import com.gw2tb.manager.model.inspections.Inspection
+import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.compose.resources.stringResource
@@ -52,12 +56,13 @@ fun AddOnListItem(
     summary: String,
     version: String,
     addOnState: AddOnListItemState,
-    updateAddOn: () -> Unit,
+    repairAddOn: (Iterable<Inspection>) -> Unit,
+    updateAddOn: (AvailableAddOnUpdate) -> Unit,
     installAddOn: () -> Unit,
     setAddOnEnabled: (enabled: Boolean) -> Unit,
     getJobs: () -> List<Job>,
+    inspections: Iterable<Inspection>,
     modifier: Modifier = Modifier,
-    availableAddOnUpdate: AvailableAddOnUpdate? = null
 ) {
     Row(
         modifier = modifier,
@@ -111,22 +116,52 @@ fun AddOnListItem(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
+            val hint = remember(inspections) {
+                when {
+                    inspections.firstOrNull()?.let { it is InspectionDuplicateInstallations || it is InspectionMissingAddOnDependencies } ?: false -> {
+                        val inspections = inspections.filter { it is InspectionDuplicateInstallations || it is InspectionMissingAddOnDependencies }
+                        AddOnInfoHint.FixRequired(inspections = inspections)
+                    }
+                    inspections.singleOrNull()?.let { it is InspectionAddOnUpdateAvailable } ?: false -> {
+                        val inspection = inspections.single() as InspectionAddOnUpdateAvailable
+                        AddOnInfoHint.UpdateAvailable(update = inspection.update)
+                    }
+                    else -> null
+                }
+            }
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AnimatedVisibility(
-                    visible = availableAddOnUpdate != null,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Update,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(16.dp),
-                        tint = ManagerColors.PositiveHighlight
-                    )
+                val icon: (@Composable () -> Unit)? = remember(inspections) {
+                    when {
+                        inspections.firstOrNull()?.let { it is InspectionDuplicateInstallations || it is InspectionMissingAddOnDependencies } ?: false -> {{
+                            Icon(
+                                imageVector = Icons.Default.ReportProblem,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(16.dp),
+                                tint = ManagerColors.NegativeHighlight
+                            )
+                        }}
+                        inspections.singleOrNull()?.let { it is InspectionAddOnUpdateAvailable } ?: false -> {{
+                            Icon(
+                                imageVector = Icons.Default.Update,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(16.dp),
+                                tint = ManagerColors.PositiveHighlight
+                            )
+                        }}
+                        else -> null
+                    }
+                }
+
+                AnimatedContent(
+                    targetState = icon
+                ) { icon ->
+                    icon?.invoke()
                 }
 
                 Text(
@@ -143,11 +178,18 @@ fun AddOnListItem(
                 jobs.isNotEmpty() -> {
                     CircularProgressIndicator()
                 }
-                availableAddOnUpdate != null -> {
+                hint is AddOnInfoHint.UpdateAvailable -> {
                     OutlinedButton(
-                        onClick = updateAddOn
+                        onClick = { updateAddOn(hint.update) }
                     ) {
                         Text(stringResource(Res.string.addon_update))
+                    }
+                }
+                hint is AddOnInfoHint.FixRequired -> {
+                    OutlinedButton(
+                        onClick = { repairAddOn(hint.inspections) }
+                    ) {
+                        Text(stringResource(Res.string.addon_repair))
                     }
                 }
                 addOnState == AddOnListItemState.NOT_INSTALLED -> {
@@ -177,3 +219,8 @@ fun AddOnListItem(
 }
 
 enum class AddOnListItemState { NOT_INSTALLED, ENABLED, DISABLED }
+
+sealed class AddOnInfoHint {
+    class FixRequired(val inspections: Iterable<Inspection>) : AddOnInfoHint()
+    class UpdateAvailable(val update: AvailableAddOnUpdate) : AddOnInfoHint()
+}

@@ -31,6 +31,10 @@ interface MasterDetailComponent {
 
     val page: Value<ChildStack<*, Child>>
 
+    fun navigateToAddOnDetails(id: AddOnId)
+
+    fun navigateToAddOnDetails(ref: LocalAddOnReference)
+
     fun navigateToConfirm(plan: ActionPlan)
 
     fun navigateToExploreAddOns()
@@ -76,6 +80,7 @@ interface MasterDetailComponent {
 
     sealed class Output {
         data object NavigateToSettings : Output()
+        data class OpenUrl(val url: String) : Output()
     }
 
 }

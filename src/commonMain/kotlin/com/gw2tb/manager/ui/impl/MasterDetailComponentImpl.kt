@@ -20,11 +20,14 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.addon_manifest.AddOnId
+import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.MasterDetailComponent
 import com.gw2tb.manager.ui.MasterDetailComponent.*
 import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent
 import com.gw2tb.manager.ui.screens.confirm.impl.ConfirmComponentImpl
+import com.gw2tb.manager.ui.screens.details.AddOnDetailsComponent
 import com.gw2tb.manager.ui.screens.details.impl.AddOnDetailsComponentImpl
 import com.gw2tb.manager.ui.screens.explore.ExploreComponent
 import com.gw2tb.manager.ui.screens.explore.impl.ExploreComponentImpl
@@ -34,6 +37,7 @@ import kotlin.coroutines.CoroutineContext
 
 class MasterDetailComponentImpl(
     private val addOnService: AddOnService,
+    private val configurationService: ConfigurationService,
     private val inspectionService: InspectionService,
     private val jobService: JobService,
     private val mainContext: CoroutineContext,
@@ -53,10 +57,18 @@ class MasterDetailComponentImpl(
             when (config) {
                 is Config.AddOnDetails -> Child.AddOnDetails(AddOnDetailsComponentImpl(
                     addOnService = addOnService,
+                    configurationService = configurationService,
+                    inspectionService = inspectionService,
                     addOnId = config.addOnId,
                     localAddOnRef = config.ref,
                     mainContext = mainContext,
-                    componentContext = componentContext
+                    componentContext = componentContext,
+                    output = { output ->
+                        when (output) {
+                            is AddOnDetailsComponent.Output.NavigateToVendor -> output(Output.OpenUrl(url = output.url))
+                            is AddOnDetailsComponent.Output.RequiresConfirmation -> navigateToConfirm(plan = output.plan)
+                        }
+                    }
                 ))
                 is Config.Confirm -> Child.Confirm(ConfirmComponentImpl(
                     addOnService = addOnService,
@@ -77,7 +89,8 @@ class MasterDetailComponentImpl(
                     componentContext = componentContext,
                     output = { output ->
                         when (output) {
-                            is ExploreComponent.Output.NavigateToDetails -> navigation.pushToFront(Config.AddOnDetails(addOnId = output.addOnId))
+                            is ExploreComponent.Output.NavigateToDetailsById -> navigateToAddOnDetails(output.addOnId)
+                            is ExploreComponent.Output.NavigateToDetailsByRef -> navigateToAddOnDetails(output.ref)
                             is ExploreComponent.Output.RequiresConfirmation -> navigateToConfirm(plan = output.plan)
                         }
                     }
@@ -90,7 +103,7 @@ class MasterDetailComponentImpl(
                     componentContext = componentContext,
                     output = { output ->
                         when (output) {
-                            is ManageComponent.Output.NavigateToDetails -> navigation.pushToFront(Config.AddOnDetails(ref = output.localAddOn))
+                            is ManageComponent.Output.NavigateToDetails -> navigateToAddOnDetails(output.localAddOn)
                             is ManageComponent.Output.RequiresConfirmation -> navigateToConfirm(plan = output.plan)
                         }
                     }
@@ -98,6 +111,14 @@ class MasterDetailComponentImpl(
             }
         }
     )
+
+    override fun navigateToAddOnDetails(id: AddOnId) {
+        navigation.pushToFront(Config.AddOnDetails(addOnId = id))
+    }
+
+    override fun navigateToAddOnDetails(ref: LocalAddOnReference) {
+        navigation.pushToFront(Config.AddOnDetails(ref = ref))
+    }
 
     override fun navigateToConfirm(plan: ActionPlan) {
         navigation.pushToFront(Config.Confirm(plan))

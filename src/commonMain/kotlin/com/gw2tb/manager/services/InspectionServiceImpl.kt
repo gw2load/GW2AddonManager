@@ -69,7 +69,7 @@ class InspectionServiceImpl(
                 override val localAddOns: Iterable<LocalAddOn> get() = localAddOns
 
                 override fun LocalAddOnReference.hasInspection(inspector: Inspector<*>, ): Boolean =
-                    this@inspections[inspector]?.any { inspection -> this in inspection.affectRefs } ?: false
+                    this@inspections[inspector]?.any { inspection -> this in inspection.affectedRefs } ?: false
 
                 override fun hasInspector(inspector: Inspector<*>): Boolean = inspector in inspectors
 
