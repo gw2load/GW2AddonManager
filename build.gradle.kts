@@ -37,7 +37,7 @@ jvmLauncher {
         register("GW2AddonManager") {
             fun String.toVersionNumber(): VersionNumber {
                 val segments = this.split(".")
-                require(segments.size == 4) { "Version number must have four segments" }
+                require(segments.size == 4) { "Version number must have four segments: $this" }
                 return VersionNumber(segments[0].toShort(), segments[1].toShort(), segments[2].toShort(), segments[3].toShort())
             }
 
