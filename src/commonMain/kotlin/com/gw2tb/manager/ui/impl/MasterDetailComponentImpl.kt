@@ -17,6 +17,7 @@
 package com.gw2tb.manager.ui.impl
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.actions.ActionPlan
@@ -113,15 +114,17 @@ class MasterDetailComponentImpl(
     )
 
     override fun navigateToAddOnDetails(id: AddOnId) {
-        navigation.pushToFront(Config.AddOnDetails(addOnId = id))
+        @OptIn(DelicateDecomposeApi::class)
+        navigation.push(Config.AddOnDetails(addOnId = id))
     }
 
     override fun navigateToAddOnDetails(ref: LocalAddOnReference) {
-        navigation.pushToFront(Config.AddOnDetails(ref = ref))
+        @OptIn(DelicateDecomposeApi::class)
+        navigation.push(Config.AddOnDetails(ref = ref))
     }
 
     override fun navigateToConfirm(plan: ActionPlan) {
-        navigation.pushToFront(Config.Confirm(plan))
+        navigation.bringToFront(Config.Confirm(plan))
     }
 
     override fun navigateToExploreAddOns() {

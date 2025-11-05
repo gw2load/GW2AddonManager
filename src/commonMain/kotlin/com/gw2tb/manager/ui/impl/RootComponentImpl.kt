@@ -20,6 +20,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.gw2tb.manager.actions.ActionEnableAddOn
 import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.ActionUpdateAddOn
@@ -83,7 +84,7 @@ class RootComponentImpl(
                     configurationService = configurationService,
                     output = { output ->
                         when (output) {
-                            is SetupComponent.Output.ConfirmSetup -> navigation.replaceCurrent(Config.Main)
+                            is SetupComponent.Output.ConfirmSetup -> navigation.replaceAll(Config.Main)
                         }
                     },
                     componentContext = componentContext
@@ -104,7 +105,7 @@ class RootComponentImpl(
     }
 
     override fun navigateToSettings() {
-        navigation.replaceCurrent(Config.Setup)
+        navigation.replaceAll(Config.Setup)
     }
 
     override fun onNotificationClick(notification: Notification) {
@@ -136,7 +137,7 @@ class RootComponentImpl(
             }
             is NotificationMissingAddOnDependencies -> {
                 val plan = ActionPlan(
-                    actions = notification.inspections.flatMap { it.missingDependencies.map(::ActionInstallAddOn) }.toSet(),
+                    actions = notification.inspections.flatMap { it.missingDependencies.map(::ActionInstallAddOn) + it.disabledDependencies.map(::ActionEnableAddOn) }.toSet(),
                     effects = emptySet()
                 )
 

@@ -17,11 +17,14 @@
 package com.gw2tb.manager.ui.impl
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.active
+import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.replaceCurrent
+import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.gw2tb.manager.actions.ActionPlan
@@ -140,7 +143,8 @@ class MainComponentImpl(
             return
         }
 
-        navigation.replaceCurrent(Config.MasterDetail(
+        @OptIn(DelicateDecomposeApi::class)
+        navigation.push(Config.MasterDetail(
             child = MasterDetailComponent.Config.AddOnDetails(addOnId = id)
         ))
     }
@@ -152,7 +156,8 @@ class MainComponentImpl(
             return
         }
 
-        navigation.replaceCurrent(Config.MasterDetail(
+        @OptIn(DelicateDecomposeApi::class)
+        navigation.push(Config.MasterDetail(
             child = MasterDetailComponent.Config.AddOnDetails(ref = ref)
         ))
     }
@@ -164,7 +169,7 @@ class MainComponentImpl(
             return
         }
 
-        navigation.replaceCurrent(Config.MasterDetail(
+        navigation.bringToFront(Config.MasterDetail(
             child = MasterDetailComponent.Config.Confirm(plan)
         ))
     }
@@ -176,7 +181,7 @@ class MainComponentImpl(
             return
         }
 
-        navigation.replaceCurrent(Config.MasterDetail(
+        navigation.replaceAll(Config.MasterDetail(
             child = MasterDetailComponent.Config.ExploreAddOns
         ))
     }
@@ -192,13 +197,13 @@ class MainComponentImpl(
             return
         }
 
-        navigation.replaceCurrent(Config.MasterDetail(
+        navigation.replaceAll(Config.MasterDetail(
             child = MasterDetailComponent.Config.ManageAddOns
         ))
     }
 
     override fun navigateToSettings() {
-        navigation.replaceCurrent(Config.Settings)
+        navigation.replaceAll(Config.Settings)
     }
 
     override fun openLink(url: String) {
