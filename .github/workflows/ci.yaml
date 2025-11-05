@@ -33,10 +33,10 @@ jobs:
           BASE_VERSION=$(grep '^version=' gradle.properties | cut -d '=' -f 2)
 
           SEMVER_VERSION="${BASE_VERSION}-dev.${{ github.run_number }}"
-          echo "version=SEMVER_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$SEMVER_VERSION" >> $GITHUB_OUTPUT
 
           MS_VERSION="${BASE_VERSION}.${{ github.run_number }}"
-          echo "msversion=MS_VERSION" >> $GITHUB_OUTPUT
+          echo "msversion=$MS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Build with Gradle
         env:

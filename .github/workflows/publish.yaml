@@ -37,10 +37,10 @@ jobs:
           BASE_VERSION=$(grep '^version=' gradle.properties | cut -d '=' -f 2)
 
           SEMVER_VERSION="${BASE_VERSION}"
-          echo "version=SEMVER_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$SEMVER_VERSION" >> $GITHUB_OUTPUT
 
           MS_VERSION="${BASE_VERSION}.65535"
-          echo "msversion=MS_VERSION" >> $GITHUB_OUTPUT
+          echo "msversion=$MS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Build with Gradle
         run: ./gradlew build bundle --info -S --show-version -Pversion="${{ steps.get_version.outputs.version }}"
