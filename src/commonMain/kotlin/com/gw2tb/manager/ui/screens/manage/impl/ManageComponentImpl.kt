@@ -18,6 +18,7 @@ package com.gw2tb.manager.ui.screens.manage.impl
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import com.gw2tb.manager.actions.ActionEnableAddOn
 import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.OperationResult
@@ -116,7 +117,8 @@ class ManageComponentImpl(
         inspection = inspections.find { it is InspectionMissingAddOnDependencies }
         if (inspection != null) {
             val plan = ActionPlan(
-                actions = (inspection as InspectionMissingAddOnDependencies).missingDependencies.map(::ActionInstallAddOn).toSet(),
+                actions = ((inspection as InspectionMissingAddOnDependencies).missingDependencies.map(::ActionInstallAddOn)
+                    + inspection.disabledDependencies.map(::ActionEnableAddOn)).toSet(),
                 effects = emptySet()
             )
 
