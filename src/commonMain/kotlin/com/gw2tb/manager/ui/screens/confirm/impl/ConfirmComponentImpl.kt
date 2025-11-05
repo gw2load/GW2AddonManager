@@ -50,6 +50,8 @@ class ConfirmComponentImpl(
 
     private val coroutineScope = CoroutineScope(mainContext + SupervisorJob())
 
+    private var isExited = false
+
     init {
         /* If the list of locally installed add-ons changes, we discard the confirmation dialog. */
         var isFirst = true
@@ -60,8 +62,11 @@ class ConfirmComponentImpl(
                     if (isFirst) {
                         isFirst = false
                     } else {
-                        withContext(Dispatchers.Main) {
-                            cancel()
+                        if (!isExited) {
+                            isExited = true
+                            withContext(Dispatchers.Main) {
+                                cancel()
+                            }
                         }
                     }
                 }
@@ -70,14 +75,14 @@ class ConfirmComponentImpl(
 
     override fun getAddOnListing(id: AddOnId): StateFlow<AddOnListing?> =
         addOnService.addOnListings
-            .map { listings -> listings.first { listing -> listing.id == id } }
+            .map { listings -> listings.firstOrNull { listing -> listing.id == id } }
             .stateIn(coroutineScope, SharingStarted.Eagerly, initialValue = null)
 
     override fun getInstalledAddOn(ref: LocalAddOnReference): StateFlow<InstalledAddOn?> {
         return addOnService.localAddOns
             .combine(addOnService.addOnListings) { a, b -> a to b }
             .map { (localAddOns, listings) ->
-                val localAddOn = localAddOns.first { localAddOn -> localAddOn.ref == ref }
+                val localAddOn = localAddOns.firstOrNull { localAddOn -> localAddOn.ref == ref } ?: return@map null
 
                 InstalledAddOn(
                     localAddOn = localAddOn,
@@ -88,6 +93,7 @@ class ConfirmComponentImpl(
     }
 
     override fun cancel() {
+        isExited = true
         output(Output.Exit)
     }
 
@@ -97,6 +103,7 @@ class ConfirmComponentImpl(
             addOnService.execute(plan)
         }
 
+        isExited = true
         output(Output.Exit)
     }
 
