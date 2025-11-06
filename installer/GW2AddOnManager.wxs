@@ -26,6 +26,7 @@
       <Component Id="Main" Bitness="always64">
         <File Id="LauncherExe" KeyPath="yes" Source="../build/tmp/bundle/GW2AddOnManager.exe" />
         <File Id="LauncherConfig" Source="../build/tmp/bundle/config.toml" />
+        <File Id="LauncherJar" Source="../build/tmp/bundle/app.jar" />
         <File Id="InstalledMarker" Source=".installed" />
       </Component>
     </DirectoryRef>
@@ -57,7 +58,8 @@
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALL_DIRECTORY" Name="GW2AddOnManager">
-        <Directory Id="JarsDirectory" Name="jars" />
+        <Directory Id="LibsDirectory" Name="libs" />
+        <Directory Id="LoaderDirectory" Name="loader" />
         <Directory Id="RuntimeDirectory" Name="runtime" />
       </Directory>
     </StandardDirectory>
