@@ -32,7 +32,7 @@ import kotlin.test.assertEquals
 class SetupComponentTest {
 
     @Test
-    fun testConfirmSetup() {
+    fun testConfirmSetup() = runBlocking {
         val configurationService: ConfigurationService = mock()
         val output: (SetupComponent.Output) -> Unit = mock()
 
@@ -43,6 +43,13 @@ class SetupComponentTest {
         )
 
         component.selectGameDirectory(Path.of("S:\\Program Files\\Guild Wars 2"))
+
+        component.selectedGameDirectory.test {
+            assertEquals(
+                Path.of("S:\\Program Files\\Guild Wars 2"),
+                awaitItem()
+            )
+        }
 
         val inOrder = inOrder(configurationService, output)
         component.confirmSetup()
