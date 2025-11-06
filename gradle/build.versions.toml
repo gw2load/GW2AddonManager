@@ -93,7 +93,7 @@ gradle-jdkTools = { id = "com.osmerion.jdk-tools", version = "0.3.0" }
 
 # com.osmerion.gradle.jvm-launcher - JVM Launcher Gradle Plugin
 # https://github.com/Osmerion/jvm-launcher
-jvmLauncher = { id = "com.osmerion.jvm-launcher", version = "0.3.0" }
+jvmLauncher = { id = "com.osmerion.jvm-launcher", version = "0.3.1" }
 
 # org.jetbrains.compose - Compose Multiplatform
 # https://github.com/JetBrains/compose-multiplatform
