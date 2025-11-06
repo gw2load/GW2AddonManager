@@ -48,11 +48,11 @@ jobs:
           VERSION: ${{ steps.get_version.outputs.version }}
           MS_VERSION: ${{ steps.get_version.outputs.msversion }}
         run: |
-          Push-Location .
+          pushd .
           cd installer
-          msbuild -restore /p:Configuration=Release /p:Platform=x64 /p:MS_VERSION=${MS_VERSION} /t:Rebuild
-          Move-Item -Path "./bin/x64/Release/GW2AddOnManager.msi" -Destination "./installer/bin/x64/Release/GW2AddOnManager-${VERSION}.msi" -Force
-          Pop-Location
+          msbuild -restore /p:Configuration=Release /p:Platform=x64 /p:MS_VERSION=$env:MS_VERSION /t:Rebuild
+          mv "./bin/x64/Release/GW2AddOnManager.msi" "./installer/bin/x64/Release/GW2AddOnManager-$env:MS_VERSION.msi"
+          popd
 
       - name: Upload Installer
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
