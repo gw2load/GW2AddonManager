@@ -49,6 +49,7 @@ jobs:
         env:
           VERSION: ${{ steps.get_version.outputs.version }}
           MS_VERSION: ${{ steps.get_version.outputs.msversion }}
+        shell: bash
         run: |
           pushd .
           cd installer
@@ -60,6 +61,7 @@ jobs:
         id: vcs_tag
         env:
           VERSION: ${{ steps.get_version.outputs.version }}
+        shell: bash
         run: |
           TAG_NAME="v${VERSION}"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
@@ -130,9 +132,9 @@ jobs:
             -portable-url=${PORTABLE_URL}
 
       - name: Push Manifest
-        shell: bash
         env:
           VERSION: ${{ steps.get_version.outputs.version }}
+        shell: bash
         run: |
           cd ./run/site
           
