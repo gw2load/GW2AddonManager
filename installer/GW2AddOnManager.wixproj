@@ -1,4 +1,8 @@
 <Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);MS_VERSION=$(MS_VERSION)</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <HarvestDirectory Include="../build/tmp/bundle/runtime">
       <ComponentGroupName>HarvestedRuntimeComponents</ComponentGroupName>
@@ -11,14 +15,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <HarvestDirectory Include="../build/tmp/bundle/jars">
-      <ComponentGroupName>HarvestedJarsComponents</ComponentGroupName>
-      <DirectoryRefId>JarsDirectory</DirectoryRefId>
+    <HarvestDirectory Include="../build/tmp/bundle/libs">
+      <ComponentGroupName>HarvestedLibsComponents</ComponentGroupName>
+      <DirectoryRefId>LibsDirectory</DirectoryRefId>
       <SuppressRegistry>true</SuppressRegistry>
       <SuppressRootDirectory>true</SuppressRootDirectory>
     </HarvestDirectory>
 
-    <BindPath Include="../build/tmp/bundle/jars" />
+    <BindPath Include="../build/tmp/bundle/libs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <HarvestDirectory Include="../build/tmp/bundle/loader">
+      <ComponentGroupName>HarvestedLoaderComponents</ComponentGroupName>
+      <DirectoryRefId>LoaderDirectory</DirectoryRefId>
+      <SuppressRegistry>true</SuppressRegistry>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+    </HarvestDirectory>
+
+    <BindPath Include="../build/tmp/bundle/loader" />
   </ItemGroup>
 
   <ItemGroup>

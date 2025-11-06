@@ -18,7 +18,8 @@
     <Feature Id="Application" Title="Installer" Level="1">
       <ComponentRef Id="Main" />
       <ComponentRef Id="ApplicationShortcut" />
-      <ComponentGroupRef Id="HarvestedJarsComponents" />
+      <ComponentGroupRef Id="HarvestedLibsComponents" />
+      <ComponentGroupRef Id="HarvestedLoaderComponents" />
       <ComponentGroupRef Id="HarvestedRuntimeComponents" />
     </Feature>
 
