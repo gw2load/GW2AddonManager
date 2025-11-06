@@ -126,9 +126,9 @@ jobs:
           PORTABLE_URL: ${{ steps.extract_info.outputs.portable_url }}
         run: |
           ./gradlew updateManifest \
-            -manifest-dir=./run/site/manifests \
-            -installer-url=${INSTALLER_URL} \
-            -portable-url=${PORTABLE_URL}
+            --manifest-dir=./run/site/manifests \
+            --installer-url=${INSTALLER_URL} \
+            --portable-url=${PORTABLE_URL}
 
       - name: Push Manifest
         env:
