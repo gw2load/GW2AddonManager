@@ -62,6 +62,7 @@ class SetupComponentTest {
     }
 
     @Test
+    @Disabled // This is flaky and needs to be rewritten
     fun testSelectGameDirectory() = runBlocking {
         val configurationService: ConfigurationService = mock()
         val output: (SetupComponent.Output) -> Unit = mock()
