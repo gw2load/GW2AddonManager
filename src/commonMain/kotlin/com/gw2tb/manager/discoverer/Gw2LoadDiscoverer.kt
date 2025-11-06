@@ -48,25 +48,31 @@ class Gw2LoadDiscoverer(
             if (libraryPath.isRegularFile()) {
                 log.info("Found {} at '{}'", addOnName, libraryPath)
 
-                add(LocalAddOn(
-                    kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
-                    name = addOnName,
-                    path = libraryPath,
-                    version = libraryPath.readAddOnFileInfo()!!.let { AddOnVersion(it.version, it.versionString) },
-                    isEnabled = true
-                ))
+                val addOnFileInfo = libraryPath.readAddOnFileInfo()
+                if (addOnFileInfo != null) {
+                    add(LocalAddOn(
+                        kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
+                        name = addOnName,
+                        path = libraryPath,
+                        version = AddOnVersion(addOnFileInfo.version, addOnFileInfo.versionString),
+                        isEnabled = true
+                    ))
+                }
             }
 
             if (disabledLibraryPath.isRegularFile()) {
                 log.info("Found {} at '{}'", addOnName, libraryPath)
 
-                add(LocalAddOn(
-                    kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
-                    name = addOnName,
-                    path = disabledLibraryPath,
-                    version = libraryPath.readAddOnFileInfo()!!.let { AddOnVersion(it.version, it.versionString) },
-                    isEnabled = false
-                ))
+                val addOnFileInfo = libraryPath.readAddOnFileInfo()
+                if (addOnFileInfo != null) {
+                    add(LocalAddOn(
+                        kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
+                        name = addOnName,
+                        path = disabledLibraryPath,
+                        version = AddOnVersion(addOnFileInfo.version, addOnFileInfo.versionString),
+                        isEnabled = false
+                    ))
+                }
             }
         }
     }
