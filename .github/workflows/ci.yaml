@@ -51,7 +51,7 @@ jobs:
           pushd .
           cd installer
           msbuild -restore /p:Configuration=Release /p:Platform=x64 /p:MS_VERSION=$env:MS_VERSION /t:Rebuild
-          mv "./bin/x64/Release/GW2AddOnManager.msi" "./installer/bin/x64/Release/GW2AddOnManager-$env:MS_VERSION.msi"
+          mv "./bin/x64/Release/GW2AddOnManager.msi" "./bin/x64/Release/GW2AddOnManager-$env:MS_VERSION.msi"
           popd
 
       - name: Upload Installer
