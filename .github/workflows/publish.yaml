@@ -53,7 +53,7 @@ jobs:
           pushd .
           cd installer
           msbuild -restore /p:Configuration=Release /p:Platform=x64 /p:MS_VERSION=$env:MS_VERSION /t:Rebuild
-          mv "./bin/x64/Release/GW2AddOnManager.msi" "./bin/x64/Release/GW2AddOnManager-$env:VERSION.msi"
+          mv "./bin/x64/Release/GW2AddOnManager.msi" "./bin/x64/Release/GW2AddonManager-$env:VERSION.msi"
           popd
 
       - name: Create VCS Tag
@@ -78,13 +78,13 @@ jobs:
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: installer
-          path: "./installer/bin/x64/Release/GW2AddOnManager-${{ steps.get_version.outputs.version }}.msi"
+          path: "./installer/bin/x64/Release/GW2AddonManager-${{ steps.get_version.outputs.version }}.msi"
 
       - name: Upload Portable Bundle
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: portable
-          path: "./build/bundles/GW2AddOnManager-${{ steps.get_version.outputs.version }}.zip"
+          path: "./build/bundles/GW2AddonManager-${{ steps.get_version.outputs.version }}.zip"
 
       - name: Create GitHub Release
         id: create_release
@@ -93,8 +93,8 @@ jobs:
           body_path: ${{ github.workspace }}/docs/changelog/${{ steps.get_version.outputs.version }}.md
           draft: true
           files: |
-            "./installer/bin/x64/Release/GW2AddOnManager-${{ steps.get_version.outputs.version }}.msi"
-            "./build/bundles/GW2AddOnManager-${{ steps.get_version.outputs.version }}.zip"
+            ./installer/bin/x64/Release/GW2AddonManager-${{ steps.get_version.outputs.version }}.msi
+            ./build/bundles/GW2AddonManager-${{ steps.get_version.outputs.version }}.zip
           overwrite_files: true
           preserve_order: true
           tag_name: ${{ steps.vcs_tag.outputs.tag_name }}
@@ -105,8 +105,8 @@ jobs:
         env:
           RELEASE_ASSETS_JSON: ${{ steps.create_release.outputs.assets }}
         run: |
-          INSTALLER_URL=$(echo "$RELEASE_ASSETS_JSON" | jq -r '.[].browser_download_url | select(test("GW2AddOnManager-.*\\.msi"))')
-          PORTABLE_URL=$(echo "$RELEASE_ASSETS_JSON" | jq -r '.[].browser_download_url | select(test("GW2AddOnManager-.*\\.zip"))')
+          INSTALLER_URL=$(echo "$RELEASE_ASSETS_JSON" | jq -r '.[].browser_download_url | select(test("GW2AddonManager-.*\\.msi"))')
+          PORTABLE_URL=$(echo "$RELEASE_ASSETS_JSON" | jq -r '.[].browser_download_url | select(test("GW2AddonManager-.*\\.zip"))')
 
           echo "installer_url=$INSTALLER_URL" >> $GITHUB_OUTPUT
           echo "portable_url=$PORTABLE_URL" >> $GITHUB_OUTPUT
