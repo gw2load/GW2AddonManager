@@ -234,7 +234,7 @@ private fun AddOnDetails(
 
                 AnimatedVisibility(visible = availableUpdate != null) {
                     OutlinedButton(
-                        onClick = installAddOn,
+                        onClick = { updateAddOn(availableUpdate!!) },
                         baseColor = ManagerColors.PositiveHighlight
                     ) {
                         Icon(
@@ -258,7 +258,7 @@ private fun AddOnDetails(
                     }
                 } else {
                     OutlinedButton(
-                        onClick = uninstallAddOn,
+                        onClick = installAddOn,
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Download,
