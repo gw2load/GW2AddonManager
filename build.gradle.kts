@@ -201,8 +201,10 @@ tasks {
 
         addModules.addAll(
             "java.desktop",
+            "java.logging",
             "java.management",
             "java.net.http",
+            "jdk.crypto.ec",
             "jdk.unsupported"
         )
 
