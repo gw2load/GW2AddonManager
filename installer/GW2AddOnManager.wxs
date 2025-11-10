@@ -67,5 +67,16 @@
     <StandardDirectory Id="ProgramMenuFolder">
       <Directory Id="ApplicationProgramsFolder" Name="GW2AddOnManager" />
     </StandardDirectory>
+
+    <CustomAction Id="EXECUTE_AFTER_FINALIZE"
+                  Execute="immediate"
+                  Impersonate="no"
+                  Return="asyncNoWait"
+                  FileRef="LauncherExe"
+                  ExeCommand="" />
+
+    <InstallExecuteSequence>
+        <Custom Action="EXECUTE_AFTER_FINALIZE" After="InstallFinalize" Condition="NOT Installed" />
+    </InstallExecuteSequence>
   </Package>
 </Wix>
