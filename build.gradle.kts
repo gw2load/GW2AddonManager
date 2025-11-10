@@ -200,11 +200,17 @@ tasks {
         destinationDirectory = layout.buildDirectory.dir("jlink")
 
         addModules.addAll(
+            "java.compiler",
             "java.desktop",
+            "java.instrument",
             "java.logging",
             "java.management",
             "java.net.http",
+            "java.rmi",
+            "java.scripting",
+            "java.sql",
             "jdk.crypto.ec",
+            "jdk.security.auth",
             "jdk.unsupported"
         )
 
