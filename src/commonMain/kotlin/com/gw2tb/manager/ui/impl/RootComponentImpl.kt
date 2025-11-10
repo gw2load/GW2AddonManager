@@ -35,10 +35,10 @@ import com.gw2tb.manager.ui.RootComponent
 import com.gw2tb.manager.ui.RootComponent.Child
 import com.gw2tb.manager.ui.screens.setup.SetupComponent
 import com.gw2tb.manager.ui.screens.setup.impl.SetupComponentImpl
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
+import kotlin.coroutines.CoroutineContext
 
 class RootComponentImpl(
     private val addOnService: AddOnService,
@@ -46,11 +46,10 @@ class RootComponentImpl(
     inspectionService: InspectionService,
     jobService: JobService,
     notificationService: NotificationService,
+    private val mainContext: CoroutineContext,
     componentContext: ComponentContext
 ) : RootComponent, ComponentContext by componentContext {
 
-    // TODO Properly scope coroutines
-    private val mainContext = Dispatchers.Default
     private val coroutineScope = coroutineScope(mainContext + SupervisorJob())
 
     private val localConfiguration: StateFlow<LocalConfiguration?> =

@@ -49,8 +49,10 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.config.Configurator
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -88,7 +90,10 @@ private fun runApplication(
     localAppDataDirectory: Path,
     appInfo: AppInfo
 ) {
-    val mainContext = Dispatchers.Default
+    val mainContext = Dispatchers.Default + CoroutineExceptionHandler { _, throwable ->
+        val log = LogManager.getLogger("Main")
+        log.fatal("Caught uncaught exception", throwable)
+    }
 
     val configurationService = ConfigurationService(
         localAppDataDirectory = localAppDataDirectory,
@@ -162,6 +167,7 @@ private fun runApplication(
                         inspectionService = inspectionService,
                         jobService = jobService,
                         notificationService = notificationService,
+                        mainContext = mainContext,
                         componentContext = DefaultComponentContext(lifecycle)
                     )
                 }
