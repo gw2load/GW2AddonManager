@@ -11,5 +11,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The "install" button in the add-on details screen now correctly installs the add-on. (#174)
 - The "update" button in the add-on details screen now correctly updates the add-on.
-- The manager now longer fails to load logging-related classes leading to error popups and
-  incorrect behavior. (#171)
+- The manager now longer fails to load logging-related classes leading to error popups and incorrect behavior. (#171)
+- The manager is now automatically started after completing the installation when using the installer. (#170)
