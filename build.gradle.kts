@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import com.gw2tb.manager.build.tasks.GenerateLauncherApplicationManifest
 import com.gw2tb.manager.deploy.tasks.DownloadGw2Load
 import com.gw2tb.manager.deploy.tasks.UpdateManagerManifests
 import com.osmerion.gradle.jdk.tools.tasks.JLink
@@ -29,12 +30,13 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.kotlin.plugin.serialization)
+    id("com.gw2tb.manager.build.dummy")
     id("com.gw2tb.manager.deploy.dummy")
 }
 
 jvmLauncher {
     launchers {
-        register("GW2AddonManager") {
+        register(project.name) {
             fun String.toVersionNumber(): VersionNumber {
                 val segments = this.split(".")
                 require(segments.size == 4) { "Version number must have four segments: $this" }
@@ -57,7 +59,7 @@ jvmLauncher {
                 companyName = "GW2ToolBelt"
                 fileDescription = "Guild Wars 2 Add-on Manager"
                 fileVersion = "$version"
-                internalName = "GW2AddOnManager"
+                internalName = project.name
                 productName = "Guild Wars 2 Add-on Manager"
                 productVersion = "$version"
             }
@@ -221,8 +223,18 @@ tasks {
         )
     }
 
-    val compileGW2AddonManagerJvmLauncher by getting(BuildJvmLauncher::class)
     val generateGW2AddonManagerLauncherConfig by getting(GenerateLauncherConfig::class)
+
+    val generateGW2AddOnManagerLauncherManifest by registering(GenerateLauncherApplicationManifest::class) {
+        assemblyName = project.name
+        version = jvmLauncher.launchers.named(project.name).flatMap { it.fileVersion }.map { it.toString(".") }
+    }
+
+    val compileGW2AddonManagerJvmLauncher by getting(BuildJvmLauncher::class) {
+        dependsOn(generateGW2AddOnManagerLauncherManifest)
+
+        resources.from(generateGW2AddOnManagerLauncherManifest.map { it.destinationDirectory.file("manifest.rc") })
+    }
 
     val copyBundle = register<Sync>("copyBundle") {
         dependsOn(compileGW2AddonManagerJvmLauncher, downloadGw2Load, generateGW2AddonManagerLauncherConfig, jlink)
@@ -253,7 +265,7 @@ tasks {
         }
 
         into(".") {
-            from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("GW2AddOnManager.exe"))
+            from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("${project.name}.exe"))
             from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("config.toml"))
             from(generateGW2AddonManagerLauncherConfig.outputFile)
         }

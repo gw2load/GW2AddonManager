@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,39 +14,22 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-pluginManagement {
-    plugins {
-        id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-    }
-
-    includeBuild("./build-logic")
-    includeBuild("./deploy-logic")
-}
-
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention")
-}
-
-rootProject.name = "GW2AddonManager"
+rootProject.name = "build-logic"
 
 dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
 
     repositories {
         mavenCentral()
-        google()
     }
 
     versionCatalogs {
         register("buildDeps") {
-            from(files("./gradle/build.versions.toml"))
+            from(files("../gradle/build.versions.toml"))
+        }
+
+        register("libs") {
+            from(files("../gradle/libs.versions.toml"))
         }
     }
 }
-
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-includeBuild("./libs/addon-manifest-lib")
-includeBuild("./libs/fileinfo-reader")
-includeBuild("./libs/manager-manifest-lib")
