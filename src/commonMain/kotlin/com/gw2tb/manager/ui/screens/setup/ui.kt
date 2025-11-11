@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
@@ -66,7 +67,8 @@ fun SetupScreen(component: SetupComponent) {
             onClick = component::confirmSetup,
             modifier = Modifier
                 .width(182.dp)
-                .align(Alignment.CenterHorizontally),
+                .align(Alignment.CenterHorizontally)
+                .testTag("ConfirmSetupButton"),
             enabled = selectedGameDirectory != null
         ) {
             Text(

@@ -21,6 +21,7 @@ import com.osmerion.gradle.jdk.tools.tasks.JLink
 import com.osmerion.jvm.launcher.gradle.VersionNumber
 import com.osmerion.jvm.launcher.gradle.tasks.BuildJvmLauncher
 import com.osmerion.jvm.launcher.gradle.tasks.GenerateLauncherConfig
+import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
     alias(buildDeps.plugins.gradle.buildconfig)
@@ -121,6 +122,8 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
+                @OptIn(ExperimentalComposeLibrary::class)
+                implementation(compose.uiTest)
                 implementation(buildDeps.turbine)
             }
         }
