@@ -18,9 +18,7 @@ package com.gw2tb.manager.discoverer
 
 import com.gw2tb.manager.discoverer.loader.Loader
 import com.gw2tb.manager.model.local.LocalAddOn
-import org.apache.logging.log4j.LogManager
 import java.nio.file.Path
-import kotlin.io.path.isDirectory
 
 /**
  * An add-on discoverer that uses GW2Load to discover add-ons.
@@ -34,21 +32,9 @@ class Gw2LoadAddOnDiscoverer(
     private val pattern: String = ".*\\.dll(\\.disabled)?"
 ) : AddOnDiscoverer {
 
-    private companion object {
-        private val log = LogManager.getLogger(Gw2LoadAddOnDiscoverer::class)
-    }
-
-    override fun getAddOns(gameDirectory: Path): List<LocalAddOn> {
-        val addOnsDirectory = gameDirectory.resolve("addons")
-        if (!addOnsDirectory.isDirectory()) {
-            log.info("Skipping add-on discovery using GW2Load because 'addons' directory does not exist")
-            return emptyList()
-        }
-
-        val localAddOns = loader.getAddOns(addOnsDirectory, pattern)
-        log.info("Discovered {} add-ons using GW2Load", localAddOns.size)
-
-        return localAddOns
+    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+        // We can safely ignore add-ons that have already been discovered due to GW2Load's reliable discovery
+        return loader.getAddOns(gameDirectory, pattern)
     }
 
 }

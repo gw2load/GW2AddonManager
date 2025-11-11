@@ -56,8 +56,13 @@ class Loader(
             .mapNotNull {
                 val addOnFileInfo = Path.of(it.path).readAddOnFileInfo() ?: return@mapNotNull null
 
+                val kind = when {
+                    addOnFileInfo.name.equals("arcdps", ignoreCase = true) -> LocalAddOn.Kind.ARC_DPS
+                    else -> LocalAddOn.Kind.GW2_LOAD_ADDON
+                }
+
                 LocalAddOn(
-                    kind = LocalAddOn.Kind.GW2_LOAD_ADDON,
+                    kind = kind,
                     name = it.name,
                     path = Path.of(it.path),
                     version = AddOnVersion(fileVersion = addOnFileInfo.version, versionString = addOnFileInfo.versionString),

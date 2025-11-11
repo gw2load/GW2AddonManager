@@ -18,3 +18,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The manager now longer fails to load logging-related classes leading to error popups and incorrect behavior. (#171)
 - The manager is now automatically started after completing the installation when using the installer. (#170)
 - The manager now correctly declares DPI awareness and should no longer scale poorly on high-resolution monitors. (#29)
+- The manager is now more resilient against unexpected add-on structures.

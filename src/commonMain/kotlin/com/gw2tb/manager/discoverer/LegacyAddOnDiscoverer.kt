@@ -18,58 +18,61 @@ package com.gw2tb.manager.discoverer
 
 import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
-import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
+import com.gw2tb.manager.util.fileinfo.FileVersion
+import org.apache.logging.log4j.LogManager
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.name
 
+/**
+ * A discoverer addonloader add-ons.
+ *
+ * This discoverer treats all unclaimed DLLs with a relative path of `addons/<addon-name>/gw2addon_<addon-name>.dll` as
+ * add-ons.
+ */
 class LegacyAddOnDiscoverer : AddOnDiscoverer {
 
-    override fun getAddOns(gameDirectory: Path): List<LocalAddOn> = buildList {
-        val addOnsDir = gameDirectory.resolve("addons")
-        if (!addOnsDir.isDirectory()) return@buildList
+    private companion object {
+        private val log = LogManager.getLogger(LegacyAddOnDiscoverer::class)
+    }
 
-        val arcDpsDir = gameDirectory.resolve("addons/arcdps")
-        if (arcDpsDir.isDirectory()) {
-            addAll(
-                (arcDpsDir.listDirectoryEntries("*.dll") + arcDpsDir.listDirectoryEntries(glob = "*.dll.disabled"))
-                    .mapNotNull { path ->
-                        val addOnFileInfo = path.readAddOnFileInfo()
-                        if (addOnFileInfo == null) {
-                            return@mapNotNull null
-                        }
+    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+        val addOnsDirectory = gameDirectory.resolve("addons")
 
-                        LocalAddOn(
-                            kind = LocalAddOn.Kind.ADDON_LOADER,
-                            path = path,
-                            name = addOnFileInfo.name,
-                            version = AddOnVersion(fileVersion = addOnFileInfo.version, versionString = addOnFileInfo.versionString)
-                        )
-                    }
-            )
+        if (!addOnsDirectory.isDirectory()) {
+            log.info("Skipping legacy add-on discovery because 'addons' directory does not exist")
+            return emptyList()
         }
 
-        addAll(
-            addOnsDir.listDirectoryEntries()
-                .filter { it.name != "arcdps" }
-                .flatMap {
-                    it.listDirectoryEntries("gw2addon_*.dll") + it.listDirectoryEntries("gw2addon_*.dll.disabled")
-                }
-                .mapNotNull { path ->
-                    val addOnFileInfo = path.readAddOnFileInfo()
-                    if (addOnFileInfo == null) {
-                        return@mapNotNull null
-                    }
+        return addOnsDirectory.listDirectoryEntries()
+            .filter(Path::isDirectory)
+            .flatMap(::discover)
+    }
 
-                    LocalAddOn(
-                        kind = LocalAddOn.Kind.ADDON_LOADER,
-                        path = path,
-                        name = addOnFileInfo.name,
-                        version = AddOnVersion(fileVersion = addOnFileInfo.version, versionString = addOnFileInfo.versionString)
-                    )
-                }
-        )
+    private fun discover(directory: Path): List<LocalAddOn> = buildList {
+        val addonFileBaseName = "gw2addon_${directory.fileName}"
+
+        val enabledAddOnPath = directory.resolve("$addonFileBaseName.dll")
+        val disabledAddOnPath = directory.resolve("$addonFileBaseName.dll.disabled")
+
+        if (enabledAddOnPath.isRegularFile()) {
+            add(LocalAddOn(
+                kind = LocalAddOn.Kind.ADDONLOADER_ADDON,
+                path = enabledAddOnPath,
+                name = directory.fileName.toString(),
+                version = AddOnVersion(FileVersion(0u, 0u, 0u, 0u))
+            ))
+        }
+
+        if (disabledAddOnPath.isRegularFile()) {
+            add(LocalAddOn(
+                kind = LocalAddOn.Kind.ADDONLOADER_ADDON,
+                path = disabledAddOnPath,
+                name = directory.fileName.toString(),
+                version = AddOnVersion(FileVersion(0u, 0u, 0u, 0u))
+            ))
+        }
     }
 
 }

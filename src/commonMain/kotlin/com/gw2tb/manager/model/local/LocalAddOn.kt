@@ -51,11 +51,17 @@ data class LocalAddOn(
 
     /** A kind of add-on. */
     enum class Kind {
+        /** The (legacy) addonloader itself or a related proxy (`d3d11.dll`, `dxgi.dll`, etc.). */
+        ADDONLOADER,
         /** An _addon-loader_ (legacy) add-on. */
-        ADDON_LOADER,
+        ADDONLOADER_ADDON,
+        /** ArcDPS itself. */
+        ARC_DPS,
+        /** An ArcDPS add-on. */
+        ARC_DPS_ADDON,
         /** GW2Load itself. */
         GW2_LOAD_LOADER,
-        /** A _GW2Load_ add-on. */
+        /** A GW2Load add-on. */
         GW2_LOAD_ADDON
     }
 

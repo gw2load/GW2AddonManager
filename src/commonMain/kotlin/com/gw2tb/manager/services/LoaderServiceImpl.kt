@@ -135,11 +135,11 @@ class LoaderServiceImpl(
                         }
                     }
 
-                    var gw2LoadInstances = gw2LoadDiscoverer.getAddOns(gameDirectory)
+                    var gw2LoadInstances = gw2LoadDiscoverer.getAddOns(gameDirectory, emptyList())
                     emit(when (gw2LoadInstances.size) {
                         0 -> {
                             val applicationDir = appInfo.applicationDir ?: error("Application directory could not be identified")
-                            gw2LoadInstances = gw2LoadDiscoverer.getAddOns(applicationDir.resolve("loader"))
+                            gw2LoadInstances = gw2LoadDiscoverer.getAddOns(applicationDir.resolve("loader"), emptyList())
 
                             val localLoader = gw2LoadInstances.single()
                             log.info("Using bundled instance of GW2Load at '{}'", localLoader.path)

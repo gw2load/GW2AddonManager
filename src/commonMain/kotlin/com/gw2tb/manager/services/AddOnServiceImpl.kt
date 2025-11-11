@@ -26,8 +26,12 @@ import com.gw2tb.manager.actions.ActionUpdateAddOn
 import com.gw2tb.manager.actions.OperationResult
 import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.discoverer.AddOnDiscoverer
+import com.gw2tb.manager.discoverer.LegacyAddOnLoaderDiscoverer
+import com.gw2tb.manager.discoverer.ArcDpsAddOnDiscoverer
 import com.gw2tb.manager.discoverer.Gw2LoadAddOnDiscoverer
+import com.gw2tb.manager.discoverer.Gw2LoadDiscoverer
 import com.gw2tb.manager.discoverer.LegacyAddOnDiscoverer
+import com.gw2tb.manager.discoverer.LegacyArcDpsDiscoverer
 import com.gw2tb.manager.model.*
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.isMatching
@@ -83,21 +87,11 @@ private class AddOnServiceImpl(
     private val addOnDiscoverers: Flow<List<AddOnDiscoverer>> = loaderService.loader
         .map { loader ->
             buildList {
-                /*
-                 * We don't want to show GW2Load itself in the list of add-ons at this time, but we could easily
-                 * change that by uncommenting the following line.
-                 * (The reason for this is that the loader is unnecessary cognitive load that regular users should
-                 * not have to deal with. So, we hide it as good as possible.)
-                 */
-//                add(loader.gw2LoadDiscoverer)
-
-                /* Add the GW2Load-based discoverer. */
+                add(Gw2LoadDiscoverer())
                 add(Gw2LoadAddOnDiscoverer(loader))
-
-                /*
-                 * We always want to show the legacy add-on discoverer because it's required to provide clean
-                 * migration paths.
-                 */
+                add(LegacyAddOnLoaderDiscoverer())
+                add(LegacyArcDpsDiscoverer())
+                add(ArcDpsAddOnDiscoverer())
                 add(LegacyAddOnDiscoverer())
             }
         }
@@ -132,11 +126,14 @@ private class AddOnServiceImpl(
                      */
                     buildList<LocalAddOn> {
                         for (discoverer in discoverers) {
-                            val localAddOns = discoverer.getAddOns(gameDirectory)
+                            val localAddOns = discoverer.getAddOns(gameDirectory, toList())
+                            log.info("Found {} local add-ons using {}", localAddOns.size, discoverer::class.simpleName)
 
                             for (localAddOn in localAddOns) {
+                                log.debug("Found local-addon: {}", localAddOn)
+
                                 if (this.any { it.path == localAddOn.path }) {
-                                    log.info("Skipping local add-on '{}' that was already discovered", localAddOn.path)
+                                    log.warn("Skipping local add-on '{}' that was already discovered", localAddOn.path)
                                     continue
                                 }
 

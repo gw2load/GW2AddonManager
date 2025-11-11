@@ -38,7 +38,8 @@ class Gw2LoadDiscoverer(
         val log: Logger = LoggerFactory.getLogger(Gw2LoadDiscoverer::class.java)
     }
 
-    override fun getAddOns(gameDirectory: Path): List<LocalAddOn> {
+    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+        require(discoveredAddOns.isEmpty()) { "${this::class.simpleName} should always run first" }
         log.info("Searching directory for {} using {}: {}", addOnName, this::class.simpleName, gameDirectory)
 
         val libraryPath = gameDirectory.resolve(libraryName)
