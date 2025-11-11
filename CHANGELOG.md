@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Users are now told explicitly when no add-ons are installed rather than being presented an empty list.
+
 ### Fixed
 
 - The "install" button in the add-on details screen now correctly installs the add-on. (#174)

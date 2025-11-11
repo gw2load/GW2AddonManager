@@ -57,7 +57,7 @@
   <string name="confirm_action_description_uninstall">Uninstalling %1$s</string>
   <string name="confirm_action_description_update">Updating %1$s to %2$s (from %3$s)</string>
 
-  <string name="no_addon_selected">Select an add-on to view details</string>
+  <string name="no_addons_installed">No add-ons installed</string>
 
   <string name="notification_addon_updates_available">ADD-ON UPDATES AVAILABLE</string>
   <string name="notification_duplicate_installations">DUPLICATE INSTALLATIONS</string>
