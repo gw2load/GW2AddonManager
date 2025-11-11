@@ -103,11 +103,13 @@ private class AddOnServiceImpl(
         }
 
     private val _addOnListings = MutableStateFlow(emptyList<AddOnListing>())
+    override val addOnListings: Flow<List<AddOnListing>> = _addOnListings.asStateFlow()
 
-    override val addOnListings: Flow<List<AddOnListing>> = flow {
-        emit(addOnRepository.getAddOnListings())
+    init {
+        coroutineScope.launch {
+            refresh()
+        }
     }
-        .shareIn(coroutineScope, SharingStarted.Eagerly, replay = 1)
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     override val localAddOns: Flow<List<LocalAddOn>> = configurationService.localConfiguration
