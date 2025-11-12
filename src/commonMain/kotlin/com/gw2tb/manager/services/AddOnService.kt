@@ -20,6 +20,7 @@ import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.OperationResult
 import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.AvailableAddOnUpdate
+import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.local.LocalAddOn
@@ -30,6 +31,8 @@ interface AddOnService {
     val addOnListings: Flow<List<AddOnListing>>
 
     val localAddOns: Flow<List<LocalAddOn>>
+
+    val installedAddOns: Flow<List<InstalledAddOn>>
 
     suspend fun execute(plan: ActionPlan): OperationResult
 

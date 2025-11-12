@@ -25,16 +25,14 @@ import com.gw2tb.manager.actions.OperationResult
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.catalog.isMatching
-import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.AddOnService
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.services.JobService
 import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.inspections.Inspection
-import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
 import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.InspectionService
 import com.gw2tb.manager.ui.screens.manage.ManageComponent
 import com.gw2tb.manager.ui.screens.manage.ManageComponent.Output
@@ -58,24 +56,25 @@ class ManageComponentImpl(
     private val output: (Output) -> Unit
 ) : ManageComponent, ComponentContext by componentContext {
 
+    private companion object {
+
+        private val EXPOSED_ADDON_KINDS = setOf(
+            LocalAddOn.Kind.GW2_LOAD_ADDON,
+            LocalAddOn.Kind.ARC_DPS_ADDON,
+            LocalAddOn.Kind.ARC_DPS,
+            LocalAddOn.Kind.ADDONLOADER_ADDON
+        )
+
+    }
+
     private val coroutineScope = coroutineScope(mainContext + SupervisorJob())
 
     override val addOnListings: StateFlow<List<AddOnListing>> =
         addOnService.addOnListings.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
-    private val localAddOns: StateFlow<List<LocalAddOn>> =
-        addOnService.localAddOns.stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
-
     override val installedAddOns: StateFlow<List<InstalledAddOn>> =
-        localAddOns
-            .combine(addOnListings) { localAddOns, addOnListings ->
-               localAddOns
-                    .map { localAddOn ->
-                        val listing = addOnListings.find { it isMatching localAddOn }
-                        InstalledAddOn(localAddOn, listing)
-                    }
-                    .sortedBy { (localAddOn, addOnListing) -> addOnListing?.addOnName ?: localAddOn.name }
-            }
+        addOnService.installedAddOns
+            .map { installedAddOns -> installedAddOns.filter { (localAddOn, _) -> localAddOn.kind in EXPOSED_ADDON_KINDS } }
             .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     override val jobs: StateFlow<List<Job>> =

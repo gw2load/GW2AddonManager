@@ -146,6 +146,18 @@ private class AddOnServiceImpl(
         .onStart { emit(emptyList()) }
         .shareIn(scope = coroutineScope, started = SharingStarted.Eagerly, replay = 1)
 
+    override val installedAddOns: Flow<List<InstalledAddOn>> =
+        localAddOns
+            .combine(addOnListings) { localAddOns, addOnListings ->
+                localAddOns
+                    .map { localAddOn ->
+                        val listing = addOnListings.find { it isMatching localAddOn }
+                        InstalledAddOn(localAddOn, listing)
+                    }
+                    .sortedBy { (localAddOn, addOnListing) -> addOnListing?.addOnName ?: localAddOn.name }
+            }
+            .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+
     private suspend fun doDisableAddOn(localAddOn: LocalAddOn) {
         withContext(Dispatchers.IO) {
             log.info("Disabling add-on: {}", localAddOn.name)
