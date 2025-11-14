@@ -228,7 +228,7 @@ private class AddOnServiceImpl(
                 DownloadType.Archive -> Url(listing.download.downloadUrl).segments.last()
                 DownloadType.Dll -> when (listing.installMode) {
                     AddOnListing.InstallMode.Arc -> Url(listing.download.downloadUrl).segments.last()
-                    AddOnListing.InstallMode.Gw2Load -> "gw2addon_${listing.addOnName}.dll"
+                    AddOnListing.InstallMode.Gw2Load -> "${listing.id}.dll"
                 }
             }
 
