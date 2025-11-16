@@ -65,7 +65,8 @@ fun AddOnListItem(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier
+            .heightIn(min = 48.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
@@ -176,7 +177,13 @@ fun AddOnListItem(
             val jobs = getJobs() // TODO Fix state hoisting for jobs
             when {
                 jobs.isNotEmpty() -> {
-                    CircularProgressIndicator()
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .height(4.dp)
+                            .widthIn(max = 100.dp),
+                        color = ManagerColors.Primary,
+                        strokeCap = StrokeCap.Square
+                    )
                 }
                 hint is AddOnInfoHint.UpdateAvailable -> {
                     OutlinedButton(

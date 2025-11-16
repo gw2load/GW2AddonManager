@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Users are now told explicitly when no add-ons are installed rather than being presented an empty list.
+- The circular progress indicator in the add-on lists has been replaced with a more fitting customized linear progress
+  indicator.
 
 ### Fixed
 
