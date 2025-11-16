@@ -44,6 +44,8 @@ import androidx.compose.ui.window.PopupProperties
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.select_language_label
 import com.gw2tb.manager.ui.theme.ManagerColors
+import com.gw2tb.manager.ui.theme.glimmer
+import com.gw2tb.manager.ui.theme.indication.IndicationAlpha
 import org.jetbrains.compose.resources.stringResource
 import java.awt.Cursor
 import java.util.Locale
@@ -122,7 +124,18 @@ fun LanguageSelector(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = glimmer(
+                                        color = ManagerColors.Primary,
+                                        alpha = IndicationAlpha(
+                                            pressedAlpha = 0.32f,
+                                            focusedAlpha = 0.32f,
+                                            draggedAlpha = 0.24f,
+                                            hoveredAlpha = 0.16f
+                                        )
+                                    )
+                                ) {
                                     selectLocale(Locale.ENGLISH)
                                     isDropdownVisible = false
                                 }
@@ -135,7 +148,18 @@ fun LanguageSelector(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = glimmer(
+                                        color = ManagerColors.Primary,
+                                        alpha = IndicationAlpha(
+                                            pressedAlpha = 0.32f,
+                                            focusedAlpha = 0.32f,
+                                            draggedAlpha = 0.24f,
+                                            hoveredAlpha = 0.16f
+                                        )
+                                    )
+                                ) {
                                     selectLocale(Locale.GERMAN)
                                     isDropdownVisible = false
                                 }
