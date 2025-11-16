@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024 Leon Linhart
+ * Copyright (C) 2024-2025 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -156,11 +156,12 @@ private fun runApplication(
                 val coroutineScope = rememberCoroutineScope()
 
                 /*
-                 * We use a remember block to ensure that the component is not recreated on every recomposition. This is not
-                 * strictly necessary here but neat for correctness in case the application block is ever recomposed.
+                 * We use a remember block to ensure that the component is not recreated on every recomposition. This is
+                 * not strictly necessary here but neat for correctness in case the application block is ever
+                 * recomposed.
                  *
-                 * Ideally, we would lift this out of the application block but at that point the AWT event loop is not yet
-                 * initialized, causing Decompose's thread checks to fail.
+                 * Ideally, we would lift this out of the application block but at that point the AWT event loop is not
+                 * yet initialized, causing Decompose's thread checks to fail.
                  */
                 val component = remember {
                     RootComponentImpl(
