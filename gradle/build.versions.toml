@@ -83,6 +83,10 @@ compose-constraintlayout = { module = "tech.annexflow.compose:constraintlayout-c
 
 
 [plugins]
+# app.cash.licensee - Licensee
+# https://github.com/cashapp/licensee
+licensee = { id = "app.cash.licensee", version = "1.14.1" }
+
 # com.github.gmazzo.buildconfig - gradle-buildconfig-plugin
 # https://github.com/gmazzo/gradle-buildconfig-plugin
 gradle-buildconfig = { id = "com.github.gmazzo.buildconfig", version = "5.7.1" }

@@ -28,6 +28,7 @@ plugins {
     alias(buildDeps.plugins.gradle.jdkTools)
     alias(buildDeps.plugins.jetbrainsCompose)
     alias(buildDeps.plugins.jvmLauncher)
+    alias(buildDeps.plugins.licensee)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.kotlin.plugin.serialization)
@@ -163,6 +164,15 @@ buildConfig {
     buildConfigField("HELP_URL", providers.gradleProperty("com.gw2tb.manager.help-url"))
     buildConfigField("ADDON_MANIFEST_URL", providers.gradleProperty("com.gw2tb.manager.addon-manifest-url"))
     buildConfigField("MANAGER_MANIFEST_BASE_URL", providers.gradleProperty("com.gw2tb.manager.manager-manifest-base-url"))
+}
+
+licensee {
+    allow("Apache-2.0")
+
+    allowUrl("https://github.com/hypfvieh/dbus-java/blob/master/LICENSE") // MIT
+    allowUrl("https://github.com/vinceglb/FileKit/blob/main/LICENSE") // MIT
+    allowUrl("https://raw.githubusercontent.com/z4kn4fein/kotlin-semver/main/LICENSE") // MIT
+    allowUrl("https://opensource.org/license/mit") // MIT
 }
 
 tasks {
