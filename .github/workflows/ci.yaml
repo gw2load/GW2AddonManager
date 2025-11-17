@@ -59,9 +59,11 @@ jobs:
         with:
           name: installer
           path: "./installer/bin/x64/Release/GW2AddOnManager-${{ steps.get_version.outputs.version }}.msi"
+          retention-days: 7
 
       - name: Upload Portable Bundle
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: portable
           path: "./build/bundles/GW2AddOnManager-${{ steps.get_version.outputs.version }}.zip"
+          retention-days: 7
