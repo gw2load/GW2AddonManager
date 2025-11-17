@@ -51,11 +51,11 @@
   <string name="confirm_yes">Confirm</string>
   <string name="confirm_no">Cancel</string>
 
-  <string name="confirm_action_description_disable">Disabling %1$s</string>
-  <string name="confirm_action_description_enable">Enabling %1$s</string>
-  <string name="confirm_action_description_install">Installing %1$s</string>
-  <string name="confirm_action_description_uninstall">Uninstalling %1$s</string>
-  <string name="confirm_action_description_update">Updating %1$s to %2$s (from %3$s)</string>
+  <string name="confirm_action_description_disable">Disable %1$s</string>
+  <string name="confirm_action_description_enable">Enable %1$s</string>
+  <string name="confirm_action_description_install">Install %1$s</string>
+  <string name="confirm_action_description_uninstall">Uninstall %1$s</string>
+  <string name="confirm_action_description_update">Update %1$s to %2$s (from %3$s)</string>
 
   <string name="no_addons_installed">No add-ons installed</string>
 
