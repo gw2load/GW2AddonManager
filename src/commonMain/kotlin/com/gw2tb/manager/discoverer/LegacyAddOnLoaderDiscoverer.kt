@@ -103,7 +103,7 @@ class LegacyAddOnLoaderDiscoverer(
 
         return LocalAddOn(
             kind = LocalAddOn.Kind.ADDONLOADER,
-            name = "addon-loader",
+            name = "addonloader",
             path = path,
             version = AddOnVersion(FileVersion(0u, 0u, 0u, 0u))
         )
