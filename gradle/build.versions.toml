@@ -89,7 +89,7 @@ licensee = { id = "app.cash.licensee", version = "1.14.1" }
 
 # com.github.gmazzo.buildconfig - gradle-buildconfig-plugin
 # https://github.com/gmazzo/gradle-buildconfig-plugin
-gradle-buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.1" }
+gradle-buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.7" }
 
 # com.osmerion.gradle.jdk-tools - JDK Tools Gradle Plugin
 # https://github.com/Osmerion/gradle-jdk-tools
