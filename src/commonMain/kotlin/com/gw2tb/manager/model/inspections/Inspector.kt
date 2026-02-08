@@ -30,6 +30,8 @@ interface InspectionContext {
 
     val addOnListings: Iterable<AddOnListing>
 
+    val allLocalAddOns: Iterable<LocalAddOn>
+
     val localAddOns: Iterable<LocalAddOn>
 
     fun LocalAddOnReference.hasInspection(inspector: Inspector<*>): Boolean

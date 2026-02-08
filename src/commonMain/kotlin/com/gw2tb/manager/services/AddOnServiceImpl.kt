@@ -114,7 +114,7 @@ private class AddOnServiceImpl(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    override val localAddOns: Flow<List<LocalAddOn>> = configurationService.localConfiguration
+    override val allLocalAddOns: Flow<List<LocalAddOn>> = configurationService.localConfiguration
         .mapNotNull { it?.selectedGameDirectory }
         .combine(addOnDiscoverers) { a, b -> a to b }
         .distinctUntilChanged()
@@ -127,31 +127,38 @@ private class AddOnServiceImpl(
                  */
                 .debounce(10.milliseconds)
                 .map {
-                    /*
-                     * It is possible that some add-ons support multiple loaders and are detected by multiple
-                     * discoverers. To prevent this, we take the first add-on for each path. This requires that the
-                     * discoverers have to run in the expected order.
-                     */
-                    buildList<LocalAddOn> {
+                    buildList {
                         for (discoverer in discoverers) {
                             val localAddOns = discoverer.getAddOns(gameDirectory, toList())
                             log.info("Found {} local add-ons using {}", localAddOns.size, discoverer::class.simpleName)
 
-                            for (localAddOn in localAddOns) {
-                                log.debug("Found local-addon: {}", localAddOn)
-
-                                if (this.any { it.path == localAddOn.path }) {
-                                    log.warn("Skipping local add-on '{}' that was already discovered", localAddOn.path)
-                                    continue
-                                }
-
-                                add(localAddOn)
-                            }
+                            addAll(localAddOns)
                         }
                     }
                 }
         }
         .onStart { emit(emptyList()) }
+        .shareIn(scope = coroutineScope, started = SharingStarted.Eagerly, replay = 1)
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    override val localAddOns: Flow<List<LocalAddOn>> = allLocalAddOns
+        .map { localAddOns ->
+            buildList<LocalAddOn> {
+                /*
+                 * It is possible that some add-ons support multiple loaders and are detected by multiple
+                 * discoverers. To prevent this, we take the first add-on for each path. This requires that the
+                 * discoverers have to run in the expected order.
+                 */
+                for (localAddOn in localAddOns) {
+                    if (this.any { it.path == localAddOn.path }) {
+                        log.warn("Skipping local add-on '{}' that was already discovered", localAddOn.path)
+                        continue
+                    }
+
+                    add(localAddOn)
+                }
+            }
+        }
         .shareIn(scope = coroutineScope, started = SharingStarted.Eagerly, replay = 1)
 
     override val installedAddOns: Flow<List<InstalledAddOn>> =
@@ -435,22 +442,26 @@ private class AddOnServiceImpl(
         val allAddOnListings = addOnListings.first()
             .associateBy(AddOnListing::id)
 
-        val allLocalAddons = localAddOns.first()
+        val allLocalAddOns = this@AddOnServiceImpl.allLocalAddOns.first()
+        val localAddOns = this@AddOnServiceImpl.localAddOns.first()
 
         return jobService.runJob(
             addOnListings = plan.actions.mapNotNull { it.affectedAddOnId },
             localAddOns = plan.actions.mapNotNull { it.affectedLocalAddOn }
         ) {
             val allActionsToExecute = plan.actions + plan.effects
-            val sideEffects = allActionsToExecute.flatMap { action -> getSideEffects(action, allAddOnListings, allLocalAddons) }.toSet()
+            val sideEffects = allActionsToExecute.flatMap { action -> getSideEffects(action, allAddOnListings, localAddOns) }.toSet()
 
             val migrations = buildMap<Migrator<*>, Iterable<Migration>> migrations@{
                 val migrationContext = object : MigrationContext {
 
                     override val addOnListings: Iterable<AddOnListing> get() = allAddOnListings.values
 
+                    override val allLocalAddOns: Iterable<LocalAddOn> get() =
+                        allLocalAddOns.filter { localAddOn -> (allActionsToExecute + sideEffects).none { action -> action is ActionUninstallAddOn && localAddOn.ref == action.affectedLocalAddOn } }
+
                     override val localAddOns: Iterable<LocalAddOn> get() =
-                        allLocalAddons.filter { localAddOn -> (allActionsToExecute + sideEffects).none { action -> action is ActionUninstallAddOn && localAddOn.ref == action.affectedLocalAddOn } }
+                        localAddOns.filter { localAddOn -> (allActionsToExecute + sideEffects).none { action -> action is ActionUninstallAddOn && localAddOn.ref == action.affectedLocalAddOn } }
 
                     override fun LocalAddOnReference.hasMigration(migrator: Migrator<*>): Boolean =
                         this@migrations[migrator]?.any { migration -> this in migration.affectedRefs } ?: false
@@ -481,11 +492,11 @@ private class AddOnServiceImpl(
             for (action in allActionsToExecute) {
                 when (action) {
                     is ActionEnableAddOn -> {
-                        val localAddOn = allLocalAddons.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
+                        val localAddOn = localAddOns.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
                         doEnableAddOn(localAddOn)
                     }
                     is ActionDisableAddOn -> {
-                        val localAddOn = allLocalAddons.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
+                        val localAddOn = localAddOns.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
                         doDisableAddOn(localAddOn)
                     }
                     is ActionInstallAddOn -> {
@@ -494,15 +505,15 @@ private class AddOnServiceImpl(
                         doInstallAddOn(listing)
                     }
                     is ActionRenameAddOn -> {
-                        val localAddOn = allLocalAddons.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
+                        val localAddOn = localAddOns.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
                         doRenameAddOn(localAddOn, action.newFileName)
                     }
                     is ActionUninstallAddOn -> {
-                        val localAddOn = allLocalAddons.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
+                        val localAddOn = localAddOns.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
                         doUninstallAddOn(localAddOn)
                     }
                     is ActionUpdateAddOn -> {
-                        val localAddOn = allLocalAddons.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
+                        val localAddOn = localAddOns.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
                         val listing = allAddOnListings[action.id] ?: error("Could not find listing for add-on: ${action.id}")
                         doUpdateAddOn(localAddOn, listing)
                     }

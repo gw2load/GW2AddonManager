@@ -53,10 +53,14 @@ class InspectionServiceImpl(
     override val inspections: Flow<Map<Inspector<*>, Iterable<Inspection>>> =
         addOnService.addOnListings
             .combine(addOnService.localAddOns) { a, b -> a to b }
-            .map { (listings, localAddOns) -> inspect(listings, localAddOns) }
+            .combine(addOnService.allLocalAddOns) { (addOnListings, localAddOns), allLocalAddOns -> inspect(addOnListings, allLocalAddOns, localAddOns) }
             .shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
 
-    private fun inspect(listings: Iterable<AddOnListing>, localAddOns: Iterable<LocalAddOn>): Map<Inspector<*>, Iterable<Inspection>> {
+    private fun inspect(
+        listings: Iterable<AddOnListing>,
+        allLocalAddOns: Iterable<LocalAddOn>,
+        localAddOns: Iterable<LocalAddOn>
+    ): Map<Inspector<*>, Iterable<Inspection>> {
         val inspectors = listOf(
             InspectionDuplicateInstallations,
             InspectionMissingAddOnDependencies,
@@ -68,6 +72,7 @@ class InspectionServiceImpl(
             val inspectionContext = object : InspectionContext {
 
                 override val addOnListings: Iterable<AddOnListing> get() = listings
+                override val allLocalAddOns: Iterable<LocalAddOn> get() = allLocalAddOns
                 override val localAddOns: Iterable<LocalAddOn> get() = localAddOns
 
                 override fun LocalAddOnReference.hasInspection(inspector: Inspector<*>): Boolean =

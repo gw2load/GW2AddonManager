@@ -30,6 +30,8 @@ interface MigrationContext {
 
     val addOnListings: Iterable<AddOnListing>
 
+    val allLocalAddOns: Iterable<LocalAddOn>
+
     val localAddOns: Iterable<LocalAddOn>
 
     fun LocalAddOnReference.hasMigration(migrator: Migrator<*>): Boolean

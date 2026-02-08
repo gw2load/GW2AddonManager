@@ -19,6 +19,7 @@ package com.gw2tb.manager.model.inspections
 import com.gw2tb.manager.model.inspections.migrations.Migration
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.inspections.migrations.AddOnLoaderAddOnToGw2LoadAddOnMigration
 import com.gw2tb.manager.model.inspections.migrations.AddOnLoaderMigration
 import com.gw2tb.manager.model.inspections.migrations.MigrationContext
 import com.gw2tb.manager.model.inspections.migrations.Migrator
@@ -36,6 +37,7 @@ class InspectionMigrationPossible(
     companion object : Inspector<InspectionMigrationPossible> {
 
         val migrators = listOf(
+            AddOnLoaderAddOnToGw2LoadAddOnMigration,
             AddOnLoaderMigration
         )
 
@@ -44,6 +46,7 @@ class InspectionMigrationPossible(
                 val migrationContext = object : MigrationContext {
 
                     override val addOnListings: Iterable<AddOnListing> get() = this@inspect.addOnListings
+                    override val allLocalAddOns: Iterable<LocalAddOn> get() = this@inspect.allLocalAddOns
                     override val localAddOns: Iterable<LocalAddOn> get() = this@inspect.localAddOns
 
                     override fun LocalAddOnReference.hasMigration(migrator: Migrator<*>): Boolean =

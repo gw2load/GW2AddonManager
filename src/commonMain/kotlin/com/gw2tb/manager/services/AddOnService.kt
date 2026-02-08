@@ -30,6 +30,8 @@ interface AddOnService {
 
     val addOnListings: Flow<List<AddOnListing>>
 
+    val allLocalAddOns: Flow<List<LocalAddOn>>
+
     val localAddOns: Flow<List<LocalAddOn>>
 
     val installedAddOns: Flow<List<InstalledAddOn>>

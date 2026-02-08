@@ -71,6 +71,7 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_disable
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_enable
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_install
+import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_rename
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_uninstall
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_action_description_update
 import com.gw2tb.manager.gw2addonmanager.generated.resources.confirm_heading
@@ -313,7 +314,7 @@ private fun stringDescription(
         is ActionDisableAddOn -> Res.string.confirm_action_description_disable
         is ActionEnableAddOn -> Res.string.confirm_action_description_enable
         is ActionInstallAddOn -> Res.string.confirm_action_description_install
-        is ActionRenameAddOn -> Res.string.confirm_action_description_disable
+        is ActionRenameAddOn -> Res.string.confirm_action_description_rename
         is ActionUninstallAddOn -> Res.string.confirm_action_description_uninstall
         is ActionUpdateAddOn -> Res.string.confirm_action_description_update
     }
