@@ -45,19 +45,19 @@ class NotificationServiceImpl(
             buildList {
                 for ((inspector, inspections) in inspections) {
                     when (inspector) {
-                        is InspectionAddOnUpdateAvailable.Companion -> {
+                        InspectionAddOnUpdateAvailable -> {
                             val updates = inspections.map { (it as InspectionAddOnUpdateAvailable).update }
                             if (updates.isNotEmpty()) add(NotificationAddOnUpdatesAvailable(updates))
                         }
-                        InspectionDuplicateInstallations.Companion -> {
+                        InspectionDuplicateInstallations -> {
                             val inspections = inspections.map { it as InspectionDuplicateInstallations }
                             if (inspections.isNotEmpty()) add(NotificationDuplicateInstallation(inspections))
                         }
-                        InspectionMigrationPossible.Companion -> {
+                        InspectionMigrationPossible -> {
                             val inspections = inspections.map { it as InspectionMigrationPossible }
                             if (inspections.isNotEmpty()) add(NotificationMigrationPossible(inspections.single().migrations))
                         }
-                        InspectionMissingAddOnDependencies.Companion -> {
+                        InspectionMissingAddOnDependencies -> {
                             val inspections = inspections.map { it as InspectionMissingAddOnDependencies }
                             if (inspections.isNotEmpty()) add(NotificationMissingAddOnDependencies(inspections))
                         }
