@@ -108,7 +108,12 @@ class ConfirmComponentImpl(
     override fun confirm(includeOptional: Boolean) {
         @OptIn(DelicateCoroutinesApi::class)
         GlobalScope.launch(Dispatchers.Default) {
-            addOnService.execute(plan.copy(actions = plan.actions + plan.optionalActions))
+            val actions = buildSet {
+                addAll(plan.actions)
+                if (includeOptional) addAll(plan.optionalActions)
+            }
+
+            addOnService.execute(plan.copy(actions = actions))
         }
 
         isExited = true
