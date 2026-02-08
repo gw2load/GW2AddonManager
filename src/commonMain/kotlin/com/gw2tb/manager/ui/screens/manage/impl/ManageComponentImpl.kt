@@ -116,9 +116,11 @@ class ManageComponentImpl(
         inspection = inspections.find { it is InspectionMissingAddOnDependencies }
         if (inspection != null) {
             val plan = ActionPlan(
+                stage = ActionPlan.Stage.PROPOSED,
                 actions = ((inspection as InspectionMissingAddOnDependencies).missingDependencies.map(::ActionInstallAddOn)
                     + inspection.disabledDependencies.map(::ActionEnableAddOn)).toSet(),
-                effects = emptySet()
+                effects = emptySet(),
+                optionalActions = emptySet()
             )
 
             output(Output.RequiresConfirmation(plan))

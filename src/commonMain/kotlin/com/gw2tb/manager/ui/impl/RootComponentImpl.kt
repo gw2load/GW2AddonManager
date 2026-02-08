@@ -118,6 +118,7 @@ class RootComponentImpl(
         when (notification) {
             is NotificationAddOnUpdatesAvailable -> {
                 val plan = ActionPlan(
+                    stage = ActionPlan.Stage.PROPOSED,
                     actions = notification.updates.map { ActionUpdateAddOn(it.localRef, it.addOnId) }.toSet(),
                     effects = emptySet(),
                     optionalActions = emptySet()
@@ -135,6 +136,7 @@ class RootComponentImpl(
             }
             is NotificationMigrationPossible -> {
                 val plan = ActionPlan(
+                    stage = ActionPlan.Stage.PROPOSED,
                     actions = notification.migrations.flatMap(Migration::migrate).toSet(),
                     effects = emptySet(),
                     optionalActions = emptySet()
@@ -148,6 +150,7 @@ class RootComponentImpl(
             }
             is NotificationMissingAddOnDependencies -> {
                 val plan = ActionPlan(
+                    stage = ActionPlan.Stage.PROPOSED,
                     actions = notification.inspections.flatMap { it.missingDependencies.map(::ActionInstallAddOn) + it.disabledDependencies.map(::ActionEnableAddOn) }.toSet(),
                     effects = emptySet(),
                     optionalActions = emptySet()

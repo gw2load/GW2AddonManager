@@ -29,7 +29,15 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ActionPlan(
+    val stage: Stage,
     val actions: Set<Action>,
     val effects: Set<Action>,
     val optionalActions: Set<Action>
-)
+) {
+
+    enum class Stage {
+        PROPOSED,
+        CONFIRMED
+    }
+
+}

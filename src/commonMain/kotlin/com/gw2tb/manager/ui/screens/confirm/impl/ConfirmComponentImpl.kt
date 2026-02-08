@@ -18,6 +18,7 @@ package com.gw2tb.manager.ui.screens.confirm.impl
 
 import com.arkivanov.decompose.ComponentContext
 import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.actions.ActionPlan.Stage
 import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.LocalAddOnReference
@@ -113,7 +114,7 @@ class ConfirmComponentImpl(
                 if (includeOptional) addAll(plan.optionalActions)
             }
 
-            addOnService.execute(plan.copy(actions = actions))
+            addOnService.execute(plan.copy(stage = Stage.CONFIRMED, actions = actions))
         }
 
         isExited = true

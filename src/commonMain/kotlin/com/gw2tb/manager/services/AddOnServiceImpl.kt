@@ -21,6 +21,7 @@ import com.gw2tb.manager.actions.ActionDisableAddOn
 import com.gw2tb.manager.actions.ActionEnableAddOn
 import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.actions.ActionPlan.Stage
 import com.gw2tb.manager.actions.ActionRenameAddOn
 import com.gw2tb.manager.actions.ActionUninstallAddOn
 import com.gw2tb.manager.actions.ActionUpdateAddOn
@@ -470,7 +471,7 @@ private class AddOnServiceImpl(
                 .values
                 .flatten()
 
-            if (sideEffects.any { it !in allActionsToExecute } || migrations.isNotEmpty()) {
+            if (sideEffects.any { it !in allActionsToExecute } || (plan.stage == Stage.PROPOSED && migrations.isNotEmpty())) {
                 return@runJob OperationResult.RequiresConfirmation(plan.copy(
                     effects = sideEffects.filterNot { it in plan.actions }.toSet(),
                     optionalActions = migrations.flatMap(Migration::migrate).toSet()
@@ -516,6 +517,7 @@ private class AddOnServiceImpl(
 
     override suspend fun disableAddOns(refs: Iterable<LocalAddOnReference>): OperationResult {
         val plan = ActionPlan(
+            stage = Stage.PROPOSED,
             actions = refs.map(::ActionDisableAddOn).toSet(),
             effects = emptySet(),
             optionalActions = emptySet()
@@ -526,6 +528,7 @@ private class AddOnServiceImpl(
 
     override suspend fun enableAddOns(refs: Iterable<LocalAddOnReference>): OperationResult {
         val plan = ActionPlan(
+            stage = Stage.PROPOSED,
             actions = refs.map(::ActionEnableAddOn).toSet(),
             effects = emptySet(),
             optionalActions = emptySet()
@@ -536,6 +539,7 @@ private class AddOnServiceImpl(
 
     override suspend fun installAddOns(ids: Iterable<AddOnId>): OperationResult {
         val plan = ActionPlan(
+            stage = Stage.PROPOSED,
             actions = ids.map { id -> ActionInstallAddOn(id = id) }.toSet(),
             effects = emptySet(),
             optionalActions = emptySet()
@@ -546,6 +550,7 @@ private class AddOnServiceImpl(
 
     override suspend fun uninstallAddOns(refs: Iterable<LocalAddOnReference>): OperationResult {
         val plan = ActionPlan(
+            stage = Stage.PROPOSED,
             actions = refs.map(::ActionUninstallAddOn).toSet(),
             effects = emptySet(),
             optionalActions = emptySet()
@@ -556,6 +561,7 @@ private class AddOnServiceImpl(
 
     override suspend fun updateAddOns(updates: Iterable<AvailableAddOnUpdate>): OperationResult {
         val plan = ActionPlan(
+            stage = Stage.PROPOSED,
             actions = updates.map { update -> ActionUpdateAddOn(update.localRef, update.addOnId) }.toSet(),
             effects = emptySet(),
             optionalActions = emptySet()
