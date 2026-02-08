@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The manager now supports migrations to smoothen the on-boarding experience for users with existing set-ups by
+  inspecting and cleaning up their game directories.
+  - The legacy addonloader can now automatically be removed if it is no longer needed.
+
 ### Changed
 
 - Users are now told explicitly when no add-ons are installed rather than being presented an empty list.
