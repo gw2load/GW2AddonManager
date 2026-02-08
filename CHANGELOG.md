@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Users are now told explicitly when no add-ons are installed rather than being presented an empty list.
 - The circular progress indicator in the add-on lists has been replaced with a more fitting customized linear progress
   indicator.
+- Directories that become empty after uninstalling add-ons are now automatically deleted.
+  - Directories that still contain files are not deleted automatically to preserve add-on configurations.
 
 ### Fixed
 

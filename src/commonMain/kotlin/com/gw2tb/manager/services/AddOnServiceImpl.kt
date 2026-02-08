@@ -62,6 +62,7 @@ import kotlin.collections.flatten
 import kotlin.collections.none
 import kotlin.collections.toList
 import kotlin.coroutines.CoroutineContext
+import kotlin.io.path.listDirectoryEntries
 import kotlin.time.Duration.Companion.milliseconds
 
 fun AddOnService(
@@ -220,6 +221,15 @@ private class AddOnServiceImpl(
                 Files.delete(localAddOn.path)
             } catch (e: IOException) {
                 log.error("Failed to delete add-on: {}", localAddOn, e)
+                return@withContext
+            }
+
+            if (localAddOn.path.parent.listDirectoryEntries().isEmpty()) {
+                try {
+                    Files.delete(localAddOn.path.parent)
+                } catch (e: IOException) {
+                    log.error("Failed to delete add-on directory: {}", localAddOn.path.parent, e)
+                }
             }
         }
     }
