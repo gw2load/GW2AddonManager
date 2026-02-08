@@ -21,7 +21,6 @@ import com.osmerion.gradle.jdk.tools.tasks.JLink
 import com.osmerion.jvm.launcher.gradle.VersionNumber
 import com.osmerion.jvm.launcher.gradle.tasks.BuildJvmLauncher
 import com.osmerion.jvm.launcher.gradle.tasks.GenerateLauncherConfig
-import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
     alias(buildDeps.plugins.gradle.buildconfig)
@@ -99,12 +98,12 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(compose.components.resources)
                 implementation(compose.desktop.currentOs)
-                implementation(compose.foundation)
-                implementation(compose.materialIconsExtended)
-                implementation(compose.ui)
+                implementation(buildDeps.compose.components.resources)
+                implementation(buildDeps.compose.foundation)
+                implementation(buildDeps.compose.material.iconsExtended)
                 implementation(buildDeps.compose.constraintlayout)
+                implementation(buildDeps.compose.ui)
                 implementation(buildDeps.decompose)
                 implementation(buildDeps.decompose.extensions.compose)
                 implementation(buildDeps.essenty.lifecycle.coroutines)
@@ -123,8 +122,8 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                @OptIn(ExperimentalComposeLibrary::class)
-                implementation(compose.uiTest)
+                implementation(buildDeps.compose.ui.test)
+                implementation(buildDeps.ktor.client.mock)
                 implementation(buildDeps.turbine)
             }
         }
