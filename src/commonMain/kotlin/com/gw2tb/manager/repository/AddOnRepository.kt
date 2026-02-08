@@ -194,7 +194,7 @@ class AddOnRepositoryImpl(
 
     private fun mapToDomainObject(entry: AddOnManifestV1.Loader): LoaderListing {
         return LoaderListing(
-            release = entry.release?.let { release ->
+            release = entry.release.let { release ->
                 Download(
                     downloadUrl = release.downloadUrl,
                     AddOnVersion(

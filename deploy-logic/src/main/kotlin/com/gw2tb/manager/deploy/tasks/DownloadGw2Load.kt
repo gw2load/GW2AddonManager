@@ -66,7 +66,7 @@ abstract class DownloadGw2Load : DefaultTask() {
         val manifest = parseAddOnManifest(manifestResponse.body())
         if (manifest !is AddOnManifestV1) error("Unexpected AddOnManifest version: ${manifest::class.simpleName}")
 
-        val loaderRelease = manifest.loader.release ?: manifest.loader.prerelease ?: TODO("needs adjustments once the full release is available")
+        val loaderRelease = manifest.loader.release
 
         if (currentLoaderAddOnFileInfo == null || loaderRelease isMoreRecentThan currentLoaderAddOnFileInfo) {
             val loaderRequest = HttpRequest.newBuilder()

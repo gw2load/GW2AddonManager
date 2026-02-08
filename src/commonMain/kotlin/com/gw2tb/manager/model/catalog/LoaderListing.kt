@@ -17,6 +17,6 @@
 package com.gw2tb.manager.model.catalog
 
 data class LoaderListing(
-    val release: Download?,
+    val release: Download,
     val prerelease: Download?
 )

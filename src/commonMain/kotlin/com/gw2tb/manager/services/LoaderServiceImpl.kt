@@ -190,8 +190,7 @@ class LoaderServiceImpl(
                 val currentLoader = loader.first()
                 val loaderManifestEntry = addOnRepository.getLoader() ?: return@withWriteLock
 
-                val loaderRelease = loaderManifestEntry.release ?: loaderManifestEntry.prerelease ?: TODO("needs cleanup after full release")
-
+                val loaderRelease = loaderManifestEntry.release
                 if (loaderRelease.version > currentLoader.localAddOn.version || currentLoader.isBundled) {
                     downloadLoader(loaderRelease)
                 }

@@ -108,7 +108,7 @@ data class AddOnManifestV1(
 
     @Serializable
     data class Loader(
-        val release: Release? = null, // TODO This should not be nullable
+        val release: Release,
         val prerelease: Release? = null,
     )
 }
