@@ -42,12 +42,14 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_addon_updates_available
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_duplicate_installations
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_manager_update_available
+import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_migrations_possible
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_missing_addon_dependencies
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_more
 import com.gw2tb.manager.model.notifications.Notification
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
 import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
+import com.gw2tb.manager.model.notifications.NotificationMigrationPossible
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
 import com.gw2tb.manager.model.notifications.Urgency
 import com.gw2tb.manager.ui.theme.ManagerColors
@@ -179,6 +181,7 @@ private fun NotificationChip(
                         is NotificationAddOnUpdatesAvailable -> stringResource(Res.string.notification_addon_updates_available)
                         is NotificationDuplicateInstallation -> stringResource(Res.string.notification_duplicate_installations)
                         is NotificationManagerUpdateAvailable -> stringResource(Res.string.notification_manager_update_available)
+                        is NotificationMigrationPossible -> stringResource(Res.string.notification_migrations_possible)
                         is NotificationMissingAddOnDependencies -> stringResource(Res.string.notification_missing_addon_dependencies)
                     },
                     fontWeight = FontWeight.SemiBold

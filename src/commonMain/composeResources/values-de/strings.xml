@@ -50,6 +50,7 @@
   <string name="confirm_action_description_disable">Deaktiviere %1$s</string>
   <string name="confirm_action_description_enable">Aktiviere %1$s</string>
   <string name="confirm_action_description_install">Installiere %1$s</string>
+  <string name="confirm_action_description_rename">Bennene %1$s um zu %2$s (von %3$s)</string>
   <string name="confirm_action_description_uninstall">Deinstalliere %1$s</string>
   <string name="confirm_action_description_update">Aktualisiere %1$s zu %2$s (von %3$s)</string>
 
@@ -58,6 +59,7 @@
   <string name="notification_addon_updates_available">ADD-ON UPDATES VERFÜGBAR</string>
   <string name="notification_duplicate_installations">DOPPELTE INSTALLATIONEN</string>
   <string name="notification_manager_update_available">UPDATE VERFÜGBAR</string>
+  <string name="notification_migrations_possible">AUFRÄUMEN MÖGLICH</string>
   <string name="notification_missing_addon_dependencies">FEHLENDE ADD-ON ABHÄNGIGKEITEN</string>
   <string name="notification_more">+%1$s weitere</string>
 

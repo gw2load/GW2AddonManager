@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024-2025 Leon Linhart
+ * Copyright (C) 2024-2026 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,32 +14,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.ui.screens.confirm
+package com.gw2tb.manager.model.inspections.migrations
 
-import com.gw2tb.manager.actions.ActionPlan
-import com.gw2tb.manager.addon_manifest.AddOnId
-import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
-import kotlinx.coroutines.flow.StateFlow
-import java.nio.file.Path
+import com.gw2tb.manager.model.local.LocalAddOn
 
-interface ConfirmComponent {
+sealed interface Migrator<M : Migration> {
 
-    val plan: ActionPlan
+    fun MigrationContext.migrate(): Iterable<M>
 
-    val selectedGameDirectory: StateFlow<Path?>
+}
 
-    fun getAddOnListing(id: AddOnId): StateFlow<AddOnListing?>
+interface MigrationContext {
 
-    fun getInstalledAddOn(ref: LocalAddOnReference): StateFlow<InstalledAddOn?>
+    val addOnListings: Iterable<AddOnListing>
 
-    fun cancel()
+    val localAddOns: Iterable<LocalAddOn>
 
-    fun confirm(includeOptional: Boolean)
+    fun LocalAddOnReference.hasMigration(migrator: Migrator<*>): Boolean
 
-    sealed class Output {
-        data object Exit : Output()
-    }
+    fun hasMigrator(migrator: Migrator<*>): Boolean
 
 }

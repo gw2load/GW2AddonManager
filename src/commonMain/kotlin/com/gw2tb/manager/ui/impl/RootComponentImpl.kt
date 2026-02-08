@@ -25,10 +25,12 @@ import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.ActionUpdateAddOn
 import com.gw2tb.manager.model.LocalConfiguration
+import com.gw2tb.manager.model.inspections.migrations.Migration
 import com.gw2tb.manager.model.notifications.Notification
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
 import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
+import com.gw2tb.manager.model.notifications.NotificationMigrationPossible
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.RootComponent
@@ -117,7 +119,8 @@ class RootComponentImpl(
             is NotificationAddOnUpdatesAvailable -> {
                 val plan = ActionPlan(
                     actions = notification.updates.map { ActionUpdateAddOn(it.localRef, it.addOnId) }.toSet(),
-                    effects = emptySet()
+                    effects = emptySet(),
+                    optionalActions = emptySet()
                 )
 
                 mainComponent.navigateToConfirm(plan)
@@ -130,6 +133,15 @@ class RootComponentImpl(
                 val firstOffender = notification.inspections.first()
                 mainComponent.navigateToAddOnDetails(firstOffender.id)
             }
+            is NotificationMigrationPossible -> {
+                val plan = ActionPlan(
+                    actions = notification.migrations.flatMap(Migration::migrate).toSet(),
+                    effects = emptySet(),
+                    optionalActions = emptySet()
+                )
+
+                mainComponent.navigateToConfirm(plan)
+            }
             is NotificationManagerUpdateAvailable -> {
                 // TODO Implement automatic updates for the manager
                 mainComponent.openLink(notification.version.downloadUrl)
@@ -137,7 +149,8 @@ class RootComponentImpl(
             is NotificationMissingAddOnDependencies -> {
                 val plan = ActionPlan(
                     actions = notification.inspections.flatMap { it.missingDependencies.map(::ActionInstallAddOn) + it.disabledDependencies.map(::ActionEnableAddOn) }.toSet(),
-                    effects = emptySet()
+                    effects = emptySet(),
+                    optionalActions = emptySet()
                 )
 
                 mainComponent.navigateToConfirm(plan)

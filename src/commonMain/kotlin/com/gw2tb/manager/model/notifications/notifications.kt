@@ -20,6 +20,7 @@ import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.ManagerVersion
 import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
 import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.model.inspections.migrations.Migration
 
 /**
  * Indicates that add-on updates are available.
@@ -45,6 +46,15 @@ data class NotificationDuplicateInstallation(val inspections: Iterable<Inspectio
  * @param version   the latest available manager version
  */
 data class NotificationManagerUpdateAvailable(val version: ManagerVersion) : Notification {
+    override val urgency: Urgency get() = Urgency.Informational
+}
+
+/**
+ * Indicates that migrations are possible.
+ *
+ * @param migrations    the possible migrations
+ */
+data class NotificationMigrationPossible(val migrations: Iterable<Migration>) : Notification {
     override val urgency: Urgency get() = Urgency.Informational
 }
 

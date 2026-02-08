@@ -24,6 +24,7 @@ import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.isMatching
 import com.gw2tb.manager.services.AddOnService
+import com.gw2tb.manager.services.ConfigurationService
 import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent
 import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent.Output
 import kotlinx.coroutines.CoroutineScope
@@ -34,14 +35,17 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 
 class ConfirmComponentImpl(
     private val addOnService: AddOnService,
+    configurationService: ConfigurationService,
     override val plan: ActionPlan,
     mainContext: CoroutineContext,
     componentContext: ComponentContext,
@@ -49,6 +53,10 @@ class ConfirmComponentImpl(
 ) : ConfirmComponent, ComponentContext by componentContext {
 
     private val coroutineScope = CoroutineScope(mainContext + SupervisorJob())
+
+    override val selectedGameDirectory: StateFlow<Path?> = configurationService.localConfiguration
+        .map { it?.selectedGameDirectory }
+        .stateIn(coroutineScope, started = SharingStarted.Eagerly, initialValue = null)
 
     private var isExited = false
 
@@ -86,7 +94,7 @@ class ConfirmComponentImpl(
 
                 InstalledAddOn(
                     localAddOn = localAddOn,
-                    listing = listings.first { listing -> listing isMatching localAddOn }
+                    listing = listings.firstOrNull { listing -> listing isMatching localAddOn }
                 )
             }
             .stateIn(coroutineScope, SharingStarted.Eagerly, initialValue = null)
@@ -97,10 +105,10 @@ class ConfirmComponentImpl(
         output(Output.Exit)
     }
 
-    override fun confirm() {
+    override fun confirm(includeOptional: Boolean) {
         @OptIn(DelicateCoroutinesApi::class)
         GlobalScope.launch(Dispatchers.Default) {
-            addOnService.execute(plan)
+            addOnService.execute(plan.copy(actions = plan.actions + plan.optionalActions))
         }
 
         isExited = true

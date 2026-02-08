@@ -47,6 +47,9 @@
   <string name="addon_vendor_by">by </string>
   <string name="addon_vendor_unknown">Vendor information unavailable</string>
 
+  <string name="addon_manifest_data_error">Could not fetch add-on catalog.</string>
+  <string name="addon_manifest_network_error">Could not fetch add-on catalog.</string>
+
   <string name="confirm_heading">Apply Changes?</string>
   <string name="confirm_yes">Confirm</string>
   <string name="confirm_no">Cancel</string>
@@ -54,6 +57,7 @@
   <string name="confirm_action_description_disable">Disable %1$s</string>
   <string name="confirm_action_description_enable">Enable %1$s</string>
   <string name="confirm_action_description_install">Install %1$s</string>
+  <string name="confirm_action_description_rename">Rename %1$s to %2$s (from %3$s)</string>
   <string name="confirm_action_description_uninstall">Uninstall %1$s</string>
   <string name="confirm_action_description_update">Update %1$s to %2$s (from %3$s)</string>
 
@@ -62,6 +66,7 @@
   <string name="notification_addon_updates_available">ADD-ON UPDATES AVAILABLE</string>
   <string name="notification_duplicate_installations">DUPLICATE INSTALLATIONS</string>
   <string name="notification_manager_update_available">UPDATE AVAILABLE</string>
+  <string name="notification_migrations_possible">CLEANUP POSSIBLE</string>
   <string name="notification_missing_addon_dependencies">MISSING ADD-ON DEPENDENCIES</string>
   <string name="notification_more">+%1$s more</string>
 

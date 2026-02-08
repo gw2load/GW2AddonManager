@@ -14,24 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model
+package com.gw2tb.manager.model.inspections.migrations
 
-import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.local.LocalAddOn
-import java.nio.file.Path
-import kotlin.io.path.relativeTo
+import com.gw2tb.manager.actions.Action
+import com.gw2tb.manager.model.LocalAddOnReference
 
-data class InstalledAddOn(
-    val localAddOn: LocalAddOn,
-    val listing: AddOnListing?
-)
+interface Migration {
 
-fun InstalledAddOn.toDisplayString(gameDirectory: Path?): String {
-    fun maybeRelative(path: Path) = if (gameDirectory != null) path.relativeTo(gameDirectory) else path
+    val affectedRefs: List<LocalAddOnReference>
 
-    if (listing != null) return listing.addOnName
-    return when (localAddOn.kind) {
-        LocalAddOn.Kind.GW2_LOAD_ADDON -> localAddOn.name
-        else -> "${localAddOn.name} (${maybeRelative(localAddOn.path)})"
-    }
+    fun migrate(): Iterable<Action>
+
 }

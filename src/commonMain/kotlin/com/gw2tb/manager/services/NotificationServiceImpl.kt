@@ -18,10 +18,12 @@ package com.gw2tb.manager.services
 
 import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.model.inspections.InspectionMigrationPossible
 import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
 import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
+import com.gw2tb.manager.model.notifications.NotificationMigrationPossible
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
 import kotlinx.coroutines.flow.combine
 
@@ -50,6 +52,10 @@ class NotificationServiceImpl(
                         InspectionDuplicateInstallations.Companion -> {
                             val inspections = inspections.map { it as InspectionDuplicateInstallations }
                             if (inspections.isNotEmpty()) add(NotificationDuplicateInstallation(inspections))
+                        }
+                        InspectionMigrationPossible.Companion -> {
+                            val inspections = inspections.map { it as InspectionMigrationPossible }
+                            if (inspections.isNotEmpty()) add(NotificationMigrationPossible(inspections.single().migrations))
                         }
                         InspectionMissingAddOnDependencies.Companion -> {
                             val inspections = inspections.map { it as InspectionMissingAddOnDependencies }

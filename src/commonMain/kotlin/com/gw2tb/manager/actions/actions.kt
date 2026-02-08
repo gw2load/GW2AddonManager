@@ -54,6 +54,21 @@ data class ActionInstallAddOn(val id: AddOnId) : Action {
 }
 
 /**
+ * Renames (or moves) a local add-on.
+ *
+ * @param ref           the reference to the local add-on to rename
+ * @param newFileName   the new file name for the add-on
+ */
+@Serializable
+data class ActionRenameAddOn(
+    val ref: LocalAddOnReference,
+    val newFileName: String
+) : Action {
+    override val affectedAddOnId: AddOnId? get() = null
+    override val affectedLocalAddOn: LocalAddOnReference get() = ref
+}
+
+/**
  * Uninstalls a [local add-on][ref].
  *
  * @param ref   the reference to the local add-on to uninstall

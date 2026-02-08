@@ -22,6 +22,7 @@ import com.gw2tb.manager.model.inspections.Inspection
 import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.inspections.InspectionContext
 import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.model.inspections.InspectionMigrationPossible
 import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.model.inspections.Inspector
 import com.gw2tb.manager.model.local.LocalAddOn
@@ -59,6 +60,7 @@ class InspectionServiceImpl(
         val inspectors = listOf(
             InspectionDuplicateInstallations,
             InspectionMissingAddOnDependencies,
+            InspectionMigrationPossible,
             InspectionAddOnUpdateAvailable,
         )
 
@@ -68,7 +70,7 @@ class InspectionServiceImpl(
                 override val addOnListings: Iterable<AddOnListing> get() = listings
                 override val localAddOns: Iterable<LocalAddOn> get() = localAddOns
 
-                override fun LocalAddOnReference.hasInspection(inspector: Inspector<*>, ): Boolean =
+                override fun LocalAddOnReference.hasInspection(inspector: Inspector<*>): Boolean =
                     this@inspections[inspector]?.any { inspection -> this in inspection.affectedRefs } ?: false
 
                 override fun hasInspector(inspector: Inspector<*>): Boolean = inspector in inspectors

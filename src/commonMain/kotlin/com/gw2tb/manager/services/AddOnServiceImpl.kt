@@ -21,6 +21,7 @@ import com.gw2tb.manager.actions.ActionDisableAddOn
 import com.gw2tb.manager.actions.ActionEnableAddOn
 import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionPlan
+import com.gw2tb.manager.actions.ActionRenameAddOn
 import com.gw2tb.manager.actions.ActionUninstallAddOn
 import com.gw2tb.manager.actions.ActionUpdateAddOn
 import com.gw2tb.manager.actions.OperationResult
@@ -35,6 +36,10 @@ import com.gw2tb.manager.discoverer.LegacyArcDpsDiscoverer
 import com.gw2tb.manager.model.*
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.isMatching
+import com.gw2tb.manager.model.inspections.InspectionMigrationPossible
+import com.gw2tb.manager.model.inspections.migrations.Migration
+import com.gw2tb.manager.model.inspections.migrations.MigrationContext
+import com.gw2tb.manager.model.inspections.migrations.Migrator
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.repository.AddOnRepository
 import com.gw2tb.manager.util.watchDirectory
@@ -51,6 +56,8 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.zip.ZipFile
+import kotlin.collections.any
+import kotlin.collections.flatten
 import kotlin.collections.none
 import kotlin.collections.toList
 import kotlin.coroutines.CoroutineContext
@@ -187,6 +194,16 @@ private class AddOnServiceImpl(
     private suspend fun doInstallAddOn(listing: AddOnListing) {
         log.info("Installing add-on: {}", listing.addOnName)
         downloadAddOn(listing)
+    }
+
+    private suspend fun doRenameAddOn(localAddOn: LocalAddOn, newFileName: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                Files.move(localAddOn.path, localAddOn.path.resolveSibling(newFileName))
+            } catch (e: IOException) {
+                log.error("Failed to rename add-on: {}", localAddOn, e)
+            }
+        }
     }
 
     private suspend fun doUninstallAddOn(localAddOn: LocalAddOn) {
@@ -398,13 +415,11 @@ private class AddOnServiceImpl(
                     is ActionUninstallAddOn -> dependents.map { dependent ->
                         ActionUninstallAddOn(ref = dependent.ref)
                     }
-                    else -> error("Unexpected action type for destructive action: $action")
                 }
-
             }
-            is ActionUpdateAddOn -> {
+            is ActionRenameAddOn, is ActionUpdateAddOn -> {
                 /*
-                 * Updating an add-on has no side effects on its dependencies or dependents.
+                 * Renaming or updating an add-on has no side effects on its dependencies or dependents.
                  *
                  * 1. We update the add-on in-place, so disabled add-ons remain disabled.
                  * 2. We don't have a notion of depending on a specific version of an add-on, so dependencies are
@@ -428,8 +443,38 @@ private class AddOnServiceImpl(
             val allActionsToExecute = plan.actions + plan.effects
             val sideEffects = allActionsToExecute.flatMap { action -> getSideEffects(action, allAddOnListings, allLocalAddons) }.toSet()
 
-            if (sideEffects.any { it !in allActionsToExecute }) {
-                return@runJob OperationResult.RequiresConfirmation(plan.copy(effects = sideEffects.filterNot { it in plan.actions }.toSet()))
+            val migrations = buildMap<Migrator<*>, Iterable<Migration>> migrations@{
+                val migrationContext = object : MigrationContext {
+
+                    override val addOnListings: Iterable<AddOnListing> get() = allAddOnListings.values
+
+                    override val localAddOns: Iterable<LocalAddOn> get() =
+                        allLocalAddons.filter { localAddOn -> (allActionsToExecute + sideEffects).none { action -> action is ActionUninstallAddOn && localAddOn.ref == action.affectedLocalAddOn } }
+
+                    override fun LocalAddOnReference.hasMigration(migrator: Migrator<*>): Boolean =
+                        this@migrations[migrator]?.any { migration -> this in migration.affectedRefs } ?: false
+
+                    override fun hasMigrator(migrator: Migrator<*>): Boolean =
+                        migrator in InspectionMigrationPossible.migrators
+
+                }
+
+                for (migrator in InspectionMigrationPossible.migrators) {
+                    val migrations = with(migrator) {
+                        migrationContext.migrate()
+                    }
+
+                    put(migrator, migrations)
+                }
+            }
+                .values
+                .flatten()
+
+            if (sideEffects.any { it !in allActionsToExecute } || migrations.isNotEmpty()) {
+                return@runJob OperationResult.RequiresConfirmation(plan.copy(
+                    effects = sideEffects.filterNot { it in plan.actions }.toSet(),
+                    optionalActions = migrations.flatMap(Migration::migrate).toSet()
+                ))
             }
 
             for (action in allActionsToExecute) {
@@ -446,6 +491,10 @@ private class AddOnServiceImpl(
                         // The error path should never be hit because we check for missing listings before executing the plan.
                         val listing = allAddOnListings[action.id] ?: error("Could not find listing for add-on: ${action.id}")
                         doInstallAddOn(listing)
+                    }
+                    is ActionRenameAddOn -> {
+                        val localAddOn = allLocalAddons.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
+                        doRenameAddOn(localAddOn, action.newFileName)
                     }
                     is ActionUninstallAddOn -> {
                         val localAddOn = allLocalAddons.find { it.ref == action.ref } ?: error("Could not find local add-on: ${action.ref}")
@@ -468,7 +517,8 @@ private class AddOnServiceImpl(
     override suspend fun disableAddOns(refs: Iterable<LocalAddOnReference>): OperationResult {
         val plan = ActionPlan(
             actions = refs.map(::ActionDisableAddOn).toSet(),
-            effects = emptySet()
+            effects = emptySet(),
+            optionalActions = emptySet()
         )
 
         return execute(plan)
@@ -477,7 +527,8 @@ private class AddOnServiceImpl(
     override suspend fun enableAddOns(refs: Iterable<LocalAddOnReference>): OperationResult {
         val plan = ActionPlan(
             actions = refs.map(::ActionEnableAddOn).toSet(),
-            effects = emptySet()
+            effects = emptySet(),
+            optionalActions = emptySet()
         )
 
         return execute(plan)
@@ -486,7 +537,8 @@ private class AddOnServiceImpl(
     override suspend fun installAddOns(ids: Iterable<AddOnId>): OperationResult {
         val plan = ActionPlan(
             actions = ids.map { id -> ActionInstallAddOn(id = id) }.toSet(),
-            effects = emptySet()
+            effects = emptySet(),
+            optionalActions = emptySet()
         )
 
         return execute(plan)
@@ -495,7 +547,8 @@ private class AddOnServiceImpl(
     override suspend fun uninstallAddOns(refs: Iterable<LocalAddOnReference>): OperationResult {
         val plan = ActionPlan(
             actions = refs.map(::ActionUninstallAddOn).toSet(),
-            effects = emptySet()
+            effects = emptySet(),
+            optionalActions = emptySet()
         )
 
         return execute(plan)
@@ -504,7 +557,8 @@ private class AddOnServiceImpl(
     override suspend fun updateAddOns(updates: Iterable<AvailableAddOnUpdate>): OperationResult {
         val plan = ActionPlan(
             actions = updates.map { update -> ActionUpdateAddOn(update.localRef, update.addOnId) }.toSet(),
-            effects = emptySet()
+            effects = emptySet(),
+            optionalActions = emptySet()
         )
 
         return execute(plan)
