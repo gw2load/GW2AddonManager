@@ -21,6 +21,7 @@ import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.inspections.migrations.AddOnLoaderAddOnToGw2LoadAddOnMigration
 import com.gw2tb.manager.model.inspections.migrations.AddOnLoaderMigration
+import com.gw2tb.manager.model.inspections.migrations.D3D9WrapperMigration
 import com.gw2tb.manager.model.inspections.migrations.MigrationContext
 import com.gw2tb.manager.model.inspections.migrations.Migrator
 import com.gw2tb.manager.model.local.LocalAddOn
@@ -38,6 +39,7 @@ class InspectionMigrationPossible(
 
         val migrators = listOf(
             AddOnLoaderAddOnToGw2LoadAddOnMigration,
+            D3D9WrapperMigration,
             AddOnLoaderMigration
         )
 
