@@ -116,7 +116,7 @@ private fun runApplication(
         }
     }
 
-    try {
+    httpClient.use { httpClient ->
         use(
             AddOnRepositoryImpl(httpClient = httpClient),
             ManagerVersionRepositoryImpl(httpClient = httpClient, appInfo = appInfo)
@@ -233,7 +233,5 @@ private fun runApplication(
                 }
             }
         }
-     } finally {
-        httpClient.close()
     }
 }
