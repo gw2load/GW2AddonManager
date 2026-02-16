@@ -16,6 +16,7 @@
  */
 package com.gw2tb.manager.ui
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.window.WindowDraggableArea
@@ -278,9 +279,16 @@ private fun MainScreenWrapper(component: MainComponent) {
             modifier = Modifier
                 .padding(end = 176.dp)
         ) {
-            Box(
+            val stack by component.page.subscribeAsState()
+            val targetElevation = if (stack.active.instance is MainComponent.Child.MasterDetail) 8.dp else 0.dp
+            val animatedElevation by animateDpAsState(targetValue = targetElevation)
+
+            Surface(
                 modifier = Modifier
-                    .weight(1F, fill = true)
+                    .fillMaxWidth()
+                    .weight(1F, fill = true),
+                color = if (stack.active.instance is MainComponent.Child.MasterDetail) Color.White else Color.Transparent,
+                elevation = animatedElevation
             ) {
                 Children(
                     stack = component.page,
@@ -423,20 +431,16 @@ private fun MainLayout(
     component: MasterDetailComponent,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Children(
+        stack = component.page,
         modifier = modifier,
-        elevation = 8.dp
-    ) {
-        Children(
-            stack = component.page,
-            animation = stackAnimation()
-        ) { child ->
-            when (val activeChild = child.instance) {
-                is MasterDetailComponent.Child.AddOnDetails -> AddOnDetails(activeChild.component)
-                is MasterDetailComponent.Child.Confirm -> ConfirmActionPlan(activeChild.component)
-                is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOns(activeChild.component)
-                is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOns(activeChild.component)
-            }
+        animation = stackAnimation()
+    ) { child ->
+        when (val activeChild = child.instance) {
+            is MasterDetailComponent.Child.AddOnDetails -> AddOnDetails(activeChild.component)
+            is MasterDetailComponent.Child.Confirm -> ConfirmActionPlan(activeChild.component)
+            is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOns(activeChild.component)
+            is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOns(activeChild.component)
         }
     }
 }
