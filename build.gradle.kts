@@ -23,6 +23,7 @@ import com.osmerion.jvm.launcher.gradle.tasks.BuildJvmLauncher
 import com.osmerion.jvm.launcher.gradle.tasks.GenerateLauncherConfig
 
 plugins {
+    alias(buildDeps.plugins.cyclonedx)
     alias(buildDeps.plugins.gradle.buildconfig)
     alias(buildDeps.plugins.gradle.jdkTools)
     alias(buildDeps.plugins.jetbrainsCompose)
@@ -281,6 +282,7 @@ tasks {
             from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("${project.name}.exe"))
             from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("config.toml"))
             from(generateGW2AddonManagerLauncherConfig.outputFile)
+            from(cyclonedxBom.get().jsonOutput)
         }
     }
 

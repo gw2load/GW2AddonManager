@@ -28,6 +28,7 @@
         <File Id="LauncherExe" KeyPath="yes" Source="../build/tmp/bundle/GW2AddOnManager.exe" />
         <File Id="LauncherConfig" Source="../build/tmp/bundle/config.toml" />
         <File Id="LauncherJar" Source="../build/tmp/bundle/app.jar" />
+        <File Id="SBOM" Source="../build/tmp/bundle/bom.json" />
         <File Id="InstalledMarker" Source=".installed" />
       </Component>
     </DirectoryRef>
