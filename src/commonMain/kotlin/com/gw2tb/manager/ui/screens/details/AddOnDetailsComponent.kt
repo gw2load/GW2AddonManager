@@ -48,9 +48,12 @@ interface AddOnDetailsComponent {
 
     fun updateAddOn(update: AvailableAddOnUpdate)
 
+    fun navigateBack()
+
     fun navigateToVendor(url: String)
 
     sealed interface Output {
+        data object Exit : Output
         data class NavigateToVendor(val url: String) : Output
         data class RequiresConfirmation(val plan: ActionPlan) : Output
     }

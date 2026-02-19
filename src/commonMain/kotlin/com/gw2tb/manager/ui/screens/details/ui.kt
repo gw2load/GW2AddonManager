@@ -17,7 +17,6 @@
 package com.gw2tb.manager.ui.screens.details
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.LocalScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
@@ -25,7 +24,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,12 +34,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
@@ -50,17 +45,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material.icons.filled.Update
-import androidx.compose.material.icons.outlined.Download
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -68,7 +58,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.FirstBaseline
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -77,19 +66,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_description_unknown
-import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_install
-import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_installed
-import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_uninstall
-import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_update
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_vendor_unknown
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.inspections.Inspection
 import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.local.LocalAddOn
-import com.gw2tb.manager.services.Job
-import com.gw2tb.manager.ui.composables.AddOnInfoHint
-import com.gw2tb.manager.ui.composables.EmphasisButton
 import com.gw2tb.manager.ui.composables.OutlinedButton
 import com.gw2tb.manager.ui.composables.TextButton
 import com.gw2tb.manager.ui.theme.ManagerColors
@@ -105,6 +87,11 @@ fun AddOnDetails(component: AddOnDetailsComponent) {
     val listing by component.listing.collectAsState()
     val localAddOns by component.localAddOns.collectAsState()
     val inspections by component.inspections.collectAsState()
+
+    if (listing == null && localAddOns.isEmpty()) {
+        component.navigateBack()
+        return
+    }
 
     AddOnDetails(
         component = component,

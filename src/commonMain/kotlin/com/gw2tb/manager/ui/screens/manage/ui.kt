@@ -77,6 +77,7 @@ fun ManageAddOns(
                     modifier = modifier
                         .fillMaxSize()
                         .background(brush = Brush.verticalGradient(listOf(Color.White, ManagerColors.BackgroundTint))),
+                    itemKey = { _, (localAddOn, _) -> localAddOn.ref },
                     itemModifier = { installedAddOn ->
                         val errorInspection = inspections.find { inspection -> installedAddOn.localAddOn.ref in inspection.affectedRefs && (inspection is InspectionDuplicateInstallations || inspection is InspectionMissingAddOnDependencies) }
                         val availableAddOnUpdate = (inspections.find { inspection -> installedAddOn.localAddOn.ref in inspection.affectedRefs && inspection is InspectionAddOnUpdateAvailable } as? InspectionAddOnUpdateAvailable)?.update

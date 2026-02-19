@@ -16,9 +16,16 @@
  */
 package com.gw2tb.manager.ui.screens.explore
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -35,63 +42,91 @@ import com.gw2tb.manager.ui.theme.ManagerColors
 @Composable
 fun ExploreAddOns(
     component: ExploreComponent,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val addOnListings by component.addOnListings.collectAsState()
-    val localAddOns by component.localAddOns.collectAsState()
-    val inspections by component.inspections.collectAsState()
 
-    val jobs by component.jobs.collectAsState()
-
-    AddOnList(
-        items = addOnListings,
-        onClick = { item -> component.navigateToAddOnDetails(item.id) },
+    Box(
         modifier = modifier
-            .background(brush = Brush.verticalGradient(listOf(Color.White, ManagerColors.BackgroundTint))),
-        itemModifier = { addOnListing ->
-            val localAddOn = localAddOns.find { addOnListing isMatching it }
-            val errorInspection = inspections.find { inspection -> localAddOn?.ref in inspection.affectedRefs && (inspection is InspectionDuplicateInstallations || inspection is InspectionMissingAddOnDependencies) }
-            val availableAddOnUpdate = (inspections.find { inspection -> localAddOn?.ref in inspection.affectedRefs && inspection is InspectionAddOnUpdateAvailable } as? InspectionAddOnUpdateAvailable)?.update
+            .fillMaxSize()
+            .background(brush = Brush.verticalGradient(listOf(Color.White, ManagerColors.BackgroundTint)))
+    ) {
+        AnimatedContent(
+            targetState = addOnListings.isNotEmpty(),
+            transitionSpec = {
+                fadeIn(animationSpec = tween(220, delayMillis = 90))
+                    .togetherWith(fadeOut(animationSpec = tween(90)))
+            }
+        ) { hasAddOnListings ->
+            if (hasAddOnListings) {
+                val localAddOns by component.localAddOns.collectAsState()
+                val inspections by component.inspections.collectAsState()
 
-            Modifier
-                .let {
-                    val backgroundTintColor = when {
-                        errorInspection != null -> ManagerColors.NegativeHint
-                        availableAddOnUpdate != null -> ManagerColors.PositiveHint
-                        else -> null
-                    }
+                val jobs by component.jobs.collectAsState()
 
-                    if (backgroundTintColor != null) {
-                        it.background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(Color.Transparent, backgroundTintColor),
-                                startX = 650F
-                            )
-                        )
-                    } else
-                        it
+                AddOnList(
+                    items = addOnListings,
+                    onClick = { item -> component.navigateToAddOnDetails(item.id) },
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    itemKey = { _, addOnListing -> addOnListing.id },
+                    itemModifier = { addOnListing ->
+                        val localAddOn = localAddOns.find { addOnListing isMatching it }
+                        val errorInspection = inspections.find { inspection -> localAddOn?.ref in inspection.affectedRefs && (inspection is InspectionDuplicateInstallations || inspection is InspectionMissingAddOnDependencies) }
+                        val availableAddOnUpdate = (inspections.find { inspection -> localAddOn?.ref in inspection.affectedRefs && inspection is InspectionAddOnUpdateAvailable } as? InspectionAddOnUpdateAvailable)?.update
+
+                        Modifier
+                            .let {
+                                val backgroundTintColor = when {
+                                    errorInspection != null -> ManagerColors.NegativeHint
+                                    availableAddOnUpdate != null -> ManagerColors.PositiveHint
+                                    else -> null
+                                }
+
+                                if (backgroundTintColor != null) {
+                                    it.background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(Color.Transparent, backgroundTintColor),
+                                            startX = 650F
+                                        )
+                                    )
+                                } else
+                                    it
+                            }
+                    },
+                    itemContentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
+                ) { item ->
+                    val localAddOn = localAddOns.find { item isMatching it }
+                    val inspections = inspections.filter { inspection -> localAddOn?.ref in inspection.affectedRefs }
+
+                    AddOnListItem(
+                        title = item.addOnName,
+                        summary = item.addOnSummary,
+                        version = item.download!!.version.toString(),
+                        addOnState = when {
+                            localAddOn == null -> AddOnListItemState.NOT_INSTALLED
+                            localAddOn.isEnabled -> AddOnListItemState.ENABLED
+                            else -> AddOnListItemState.DISABLED
+                        },
+                        repairAddOn = component::repairAddOn,
+                        updateAddOn = component::updateAddOn,
+                        installAddOn = { component.installAddOn(item.id) },
+                        setAddOnEnabled = { enabled -> component.setEnabled(localAddOn!!.ref, enabled) },
+                        getJobs = { jobs.filter { item.id in it.addOnListings } },
+                        inspections = inspections
+                    )
                 }
-        },
-        itemContentPadding = PaddingValues(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 18.dp)
-    ) { item ->
-        val localAddOn = localAddOns.find { item isMatching it }
-        val inspections = inspections.filter { inspection -> localAddOn?.ref in inspection.affectedRefs }
-
-        AddOnListItem(
-            title = item.addOnName,
-            summary = item.addOnSummary,
-            version = item.download!!.version.toString(),
-            addOnState = when {
-                localAddOn == null -> AddOnListItemState.NOT_INSTALLED
-                localAddOn.isEnabled -> AddOnListItemState.ENABLED
-                else -> AddOnListItemState.DISABLED
-            },
-            repairAddOn = component::repairAddOn,
-            updateAddOn = component::updateAddOn,
-            installAddOn = { component.installAddOn(item.id) },
-            setAddOnEnabled = { enabled -> component.setEnabled(localAddOn!!.ref, enabled) },
-            getJobs = { jobs.filter { item.id in it.addOnListings } },
-            inspections = inspections
-        )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No Add On List"
+                    )
+                }
+            }
+        }
     }
 }

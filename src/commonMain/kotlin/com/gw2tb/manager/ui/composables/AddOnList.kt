@@ -50,15 +50,18 @@ fun <E> AddOnList(
     items: List<E>,
     onClick: (E) -> Unit,
     modifier: Modifier = Modifier,
+    itemKey: ((Int, E) -> Any)? = null,
     itemModifier: (E) -> Modifier = { Modifier },
     itemContentPadding: PaddingValues = PaddingValues(0.dp),
     item: @Composable (E) -> Unit,
 ) {
+    val items = remember(items) { items }
+
     Box(modifier = modifier) {
         val lazyListState = rememberLazyListState()
 
         LazyColumn(state = lazyListState) {
-            itemsIndexed(items) { index, item ->
+            itemsIndexed(items, itemKey) { index, item ->
                 Column(
                     modifier = itemModifier(item)
                         .clickable(

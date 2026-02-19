@@ -141,6 +141,10 @@ class AddOnDetailsComponentImpl(
         }
     }
 
+    override fun navigateBack() {
+        output(Output.Exit)
+    }
+
     override fun navigateToVendor(url: String) {
         output(Output.NavigateToVendor(url))
     }
