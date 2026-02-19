@@ -22,27 +22,35 @@ import com.gw2tb.manager.model.inspections.InspectionMigrationPossible
 import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
+import com.gw2tb.manager.model.notifications.NotificationException
 import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
 import com.gw2tb.manager.model.notifications.NotificationMigrationPossible
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
 import kotlinx.coroutines.flow.combine
 
 fun NotificationService(
+    exceptionService: ExceptionService,
     inspectionService: InspectionService,
     updateService: UpdateService
 ): NotificationService = NotificationServiceImpl(
+    exceptionService = exceptionService,
     inspectionService = inspectionService,
     updateService = updateService
 )
 
 class NotificationServiceImpl(
+    exceptionService: ExceptionService,
     inspectionService: InspectionService,
     updateService: UpdateService
 ) : NotificationService {
 
     override val notifications =
-        combine(inspectionService.inspections, updateService.availableUpdate) { inspections, availableManagerUpdate ->
+        combine(exceptionService.exceptions, inspectionService.inspections, updateService.availableUpdate) { exceptions, inspections, availableManagerUpdate ->
             buildList {
+                for (exception in exceptions) {
+                    add(NotificationException(exception))
+                }
+
                 for ((inspector, inspections) in inspections) {
                     when (inspector) {
                         InspectionAddOnUpdateAvailable -> {

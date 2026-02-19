@@ -16,6 +16,7 @@
  */
 package com.gw2tb.manager.services
 
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.ManagerVersion
 import kotlinx.coroutines.flow.Flow
 
@@ -29,6 +30,8 @@ interface UpdateService {
      * are required, call [refresh] explicitly.
      */
     val availableUpdate: Flow<ManagerVersion?>
+
+    val managerManifestException: Flow<ManagerException?>
 
     /** Forces a refresh of the [availableUpdate]. */
     suspend fun refresh()

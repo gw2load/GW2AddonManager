@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The legacy addonloader can now be removed automatically if it is no longer required.
   - Legacy addonloader add-ons can now be renamed to ensure that they are loaded via GW2Load.
   - d3d9_wrapper can now be removed automatically if it is no longer required.
+- The manager now a dedicated screen for displaying errors, useful information, and relevant links to the user.
+  - Uncaught exceptions are now reported via this screen instead of a default AWT popup dialog.
+  - Issues with fetching manifests (for add-ons and the manager) are now reported via the exception mechanism. (#167)
 
 ### Changed
 
@@ -22,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   indicator.
 - Directories that become empty after uninstalling add-ons are now automatically deleted.
   - Directories that still contain files are not deleted automatically to preserve add-on configurations.
+- The manager is now more resilient against network failures when fetching add-on or manager version manifests.
+  - Manifests are now considered up-to-date and cached for up to 10 minutes before an attempt to reload them is made.
+  - In case of network failures, outdated manifests are now used for up to 6 hours.
 
 ### Fixed
 

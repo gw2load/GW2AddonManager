@@ -16,10 +16,13 @@
  */
 package com.gw2tb.manager.repository
 
-import com.github.benmanes.caffeine.cache.AsyncCache
+import com.github.benmanes.caffeine.cache.AsyncLoadingCache
+import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.gw2tb.manager.addon_manifest.AddOnManifest
 import com.gw2tb.manager.addon_manifest.AddOnManifestV1
 import com.gw2tb.manager.addon_manifest.parseAddOnManifest
+import com.gw2tb.manager.exceptions.AddOnManifestException
 import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.Download
@@ -45,7 +48,8 @@ import java.lang.AutoCloseable
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.time.Duration
-
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 
 /** A repository for add-ons. */
 interface AddOnRepository : AutoCloseable {
@@ -55,9 +59,9 @@ interface AddOnRepository : AutoCloseable {
      *
      * @return  the available add-ons
      */
-    suspend fun getAddOnListings(): List<AddOnListing>
+    suspend fun getAddOnListings(): FetchResult<List<AddOnListing>>
 
-    suspend fun getLoader(): LoaderListing?
+    suspend fun getLoader(): FetchResult<LoaderListing>
 
     /**
      * Opens a download channel for the given listing.
@@ -74,10 +78,7 @@ interface AddOnRepository : AutoCloseable {
 }
 
 class AddOnRepositoryImpl(
-    private val httpClient: HttpClient,
-    private val cache: AsyncCache<String, String> = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofMinutes(10))
-        .buildAsync()
+    private val httpClient: HttpClient
 ) : AddOnRepository {
 
     private companion object {
@@ -88,47 +89,51 @@ class AddOnRepositoryImpl(
 
     }
 
-    private val cacheScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val cacheScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val addOnManifestCache: AsyncLoadingCache<String, FetchResult<AddOnManifest>> = Caffeine.newBuilder()
+        .refreshAfterWrite(Duration.ofMinutes(10))
+        .expireAfterWrite(Duration.ofHours(6))
+        .buildAsync(object : CacheLoader<String, FetchResult<AddOnManifest>> {
+
+            override fun load(key: String): FetchResult<AddOnManifest> {
+                error("Not implemented")
+            }
+
+            override fun asyncLoad(key: String, executor: Executor): CompletableFuture<out FetchResult<AddOnManifest>> {
+                return cacheScope.future { fetchManifest().map(::parseAddOnManifest) }
+            }
+
+            override fun asyncReload(key: String, oldValue: FetchResult<AddOnManifest>, executor: Executor): CompletableFuture<out FetchResult<AddOnManifest>> {
+                return cacheScope.future {
+                    when (val fetchResult = asyncLoad(key, executor).await()) {
+                        is FetchResultWithException -> oldValue.withException(fetchResult.cause)
+                        else -> fetchResult
+                    }
+                }
+            }
+
+        })
 
     override fun close() {
         cacheScope.cancel()
     }
 
-    override suspend fun getAddOnListings(): List<AddOnListing> {
-        val manifestString = try {
-            cache.get(CACHE_KEY) { _, _ ->
-                cacheScope.future {
-                    fetchManifest()
-                        .also(::parseAddOnManifest)
-                }
-            }.await()
-        } catch (e: Exception) {
-            log.warn("Could not load manifest", e)
-            return emptyList()
-        }
-
-        return when (val manifest = parseAddOnManifest(manifestString)) {
-            is AddOnManifestV1 -> manifest.addons
-                .map(::mapToDomainObject)
-                .sortedBy(AddOnListing::addOnName)
+    override suspend fun getAddOnListings(): FetchResult<List<AddOnListing>> {
+        return addOnManifestCache.get(CACHE_KEY).await().map { manifest ->
+            when (manifest) {
+                is AddOnManifestV1 -> manifest.addons
+                    .map(::mapToDomainObject)
+                    .sortedBy(AddOnListing::addOnName)
+            }
         }
     }
 
-    override suspend fun getLoader(): LoaderListing? {
-        val manifestString = try {
-            cache.get(CACHE_KEY) { _, _ ->
-                cacheScope.future {
-                    fetchManifest()
-                        .also(::parseAddOnManifest)
-                }
-            }.await()
-        } catch (e: Exception) {
-            log.warn("Could not load manifest", e)
-            return null
-        }
-
-        return when (val manifest = parseAddOnManifest(manifestString)) {
-            is AddOnManifestV1 -> mapToDomainObject(manifest.loader)
+    override suspend fun getLoader(): FetchResult<LoaderListing> {
+        return addOnManifestCache.get(CACHE_KEY).await().map { manifest ->
+            when (manifest) {
+                is AddOnManifestV1 -> mapToDomainObject(manifest.loader)
+            }
         }
     }
 
@@ -139,24 +144,25 @@ class AddOnRepositoryImpl(
 
     override fun invalidateCache() {
         log.info("Invalidating add-on repository cache")
-        cache.synchronous().invalidateAll()
+        addOnManifestCache.synchronous().invalidate(CACHE_KEY)
     }
 
-    private suspend fun fetchManifest(): String {
+    private suspend fun fetchManifest(): FetchResult<String> {
         val httpResponse = try {
             withContext(Dispatchers.IO) {
                 httpClient.get(urlString = BuildConfig.ADDON_MANIFEST_URL)
             }
         } catch (e: Exception) {
             log.warn("Failed to fetch manifest", e)
-            throw e
+            return FetchResult.failed(AddOnManifestException.FetchException(e))
         }
 
         if (!httpResponse.status.isSuccess()) {
-            throw IllegalStateException("Failed to fetch manifest: ${httpResponse.status}")
+            val e = Throwable("Unexpected HTTP status code: ${httpResponse.status}")
+            return FetchResult.failed(AddOnManifestException.FetchException(httpResponse.status, e))
         }
 
-        return httpResponse.bodyAsText()
+        return FetchResult.Success(httpResponse.bodyAsText())
     }
 
     private fun mapToDomainObject(entry: AddOnManifestV1.AddOnEntry): AddOnListing {

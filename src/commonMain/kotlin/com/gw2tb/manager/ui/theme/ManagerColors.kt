@@ -32,4 +32,8 @@ object ManagerColors {
 
     val NegativeHint = Color(0xFFD99B9F)
 
+    val WarnHighlight = Color(0xFFCBBD18)
+
+    val WarnHint = Color(0xFFFFF9B2)
+
 }

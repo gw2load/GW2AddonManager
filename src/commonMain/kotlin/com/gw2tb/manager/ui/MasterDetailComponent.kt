@@ -20,9 +20,11 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.addon_manifest.AddOnId
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent
 import com.gw2tb.manager.ui.screens.details.AddOnDetailsComponent
+import com.gw2tb.manager.ui.screens.exception.ExceptionComponent
 import com.gw2tb.manager.ui.screens.explore.ExploreComponent
 import com.gw2tb.manager.ui.screens.manage.ManageComponent
 import kotlinx.serialization.Serializable
@@ -36,6 +38,8 @@ interface MasterDetailComponent {
     fun navigateToAddOnDetails(ref: LocalAddOnReference)
 
     fun navigateToConfirm(plan: ActionPlan)
+
+    fun navigateToException(exception: ManagerException)
 
     fun navigateToExploreAddOns()
 
@@ -64,6 +68,11 @@ interface MasterDetailComponent {
         ) : Config()
 
         @Serializable
+        data class Exception(
+            val exception: ManagerException
+        ) : Config()
+
+        @Serializable
         data object ExploreAddOns : Config()
 
         @Serializable
@@ -74,8 +83,9 @@ interface MasterDetailComponent {
     sealed class Child {
         data class AddOnDetails(val component: AddOnDetailsComponent) : Child()
         data class Confirm(val component: ConfirmComponent) : Child()
-        data class InstalledAddOns(val component: ManageComponent) : Child()
+        data class Exception(val component: ExceptionComponent) : Child()
         data class ExploreAddOns(val component: ExploreComponent) : Child()
+        data class InstalledAddOns(val component: ManageComponent) : Child()
     }
 
     sealed class Output {

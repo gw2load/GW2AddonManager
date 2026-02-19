@@ -16,9 +16,11 @@
  */
 package com.gw2tb.manager.repository
 
-import com.github.benmanes.caffeine.cache.AsyncCache
+import com.github.benmanes.caffeine.cache.AsyncLoadingCache
+import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.gw2tb.manager.AppInfo
+import com.gw2tb.manager.exceptions.ManagerManifestException
 import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.manager_manifest.AddOnManagerManifest
 import com.gw2tb.manager.manager_manifest.parseAddOnManagerManifest
@@ -39,6 +41,8 @@ import kotlinx.coroutines.future.future
 import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.LogManager
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 import kotlin.io.path.isRegularFile
 
 /** A repository for manager versions. */
@@ -49,7 +53,7 @@ interface ManagerVersionRepository : AutoCloseable {
      *
      * @return  a list of all manager versions
      */
-    suspend fun getVersions(): List<ManagerVersion>
+    suspend fun getVersions(): FetchResult<List<ManagerVersion>>
 
     /** Invalidates the repository's cache. */
     fun invalidateCache()
@@ -58,9 +62,6 @@ interface ManagerVersionRepository : AutoCloseable {
 
 class ManagerVersionRepositoryImpl(
     private val httpClient: HttpClient,
-    private val cache: AsyncCache<String, String> = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofMinutes(10))
-        .buildAsync(),
     appInfo: AppInfo
 ) : ManagerVersionRepository {
 
@@ -75,42 +76,57 @@ class ManagerVersionRepositoryImpl(
     }
 
     private val desiredArtifactType =
-        if (appInfo.applicationDir?.resolve(".installed")?.isRegularFile() == true) {
+        if (appInfo.applicationDir.resolve(".installed").isRegularFile()) {
             "installer"
         } else {
             "portable"
         }
 
-    private val cacheScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    private val cacheScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val managerManifestCache: AsyncLoadingCache<String, FetchResult<AddOnManagerManifest>> = Caffeine.newBuilder()
+        .refreshAfterWrite(Duration.ofMinutes(10))
+        .expireAfterWrite(Duration.ofHours(6))
+        .buildAsync(object : CacheLoader<String, FetchResult<AddOnManagerManifest>> {
+
+            override fun load(key: String): FetchResult<AddOnManagerManifest> {
+                error("Not implemented")
+            }
+
+            override fun asyncLoad(key: String, executor: Executor): CompletableFuture<out FetchResult<AddOnManagerManifest>> {
+                return cacheScope.future { fetchManifest().map(::parseAddOnManagerManifest) }
+            }
+
+            override fun asyncReload(key: String, oldValue: FetchResult<AddOnManagerManifest>, executor: Executor): CompletableFuture<out FetchResult<AddOnManagerManifest>> {
+                return cacheScope.future {
+                    when (val fetchResult = asyncLoad(key, executor).await()) {
+                        is FetchResultWithException -> oldValue.withException(fetchResult.cause)
+                        else -> fetchResult
+                    }
+                }
+            }
+
+        })
 
     override fun close() {
         cacheScope.cancel()
     }
 
-    override suspend fun getVersions(): List<ManagerVersion> {
-        val manifestString = try {
-            cache.get(CACHE_KEY) { _, _ ->
-                cacheScope.future {
-                    fetchManifest()
-                        .also(::parseAddOnManagerManifest)
-                }
-            }.await()
-        } catch (e: Exception) {
-            log.warn("Could not load manifest", e)
-            return emptyList()
-        }
-
-        return when (val manifest = parseAddOnManagerManifest(manifestString)) {
-            is AddOnManagerManifest.V1 -> manifest.versions.mapNotNull(::mapToDomainObject)
+    override suspend fun getVersions(): FetchResult<List<ManagerVersion>> {
+        return managerManifestCache.get(CACHE_KEY).await().map { manifest ->
+            when (manifest) {
+                is AddOnManagerManifest.V1 -> manifest.versions.mapNotNull(::mapToDomainObject)
+            }
         }
     }
 
     override fun invalidateCache() {
         log.debug("Invalidating cache")
-        cache.synchronous().invalidate(CACHE_KEY)
+        managerManifestCache.synchronous().invalidate(CACHE_KEY)
     }
 
-    private suspend fun fetchManifest(): String {
+    private suspend fun fetchManifest(): FetchResult<String> {
         val httpResponse = try {
             withContext(Dispatchers.IO) {
                 httpClient.get(buildUrl {
@@ -120,14 +136,15 @@ class ManagerVersionRepositoryImpl(
             }
         } catch (e: Exception) {
             log.warn("Failed to fetch manifest", e)
-            throw e
+            return FetchResult.failed(ManagerManifestException.FetchException(e))
         }
 
         if (!httpResponse.status.isSuccess()) {
-            throw IllegalStateException("Failed to fetch manifest: ${httpResponse.status}")
+            val e = Throwable("Unexpected HTTP status code: ${httpResponse.status}")
+            return FetchResult.failed(ManagerManifestException.FetchException(httpResponse.status, e))
         }
 
-        return httpResponse.bodyAsText()
+        return FetchResult.Success(httpResponse.bodyAsText())
     }
 
     private fun mapToDomainObject(version: AddOnManagerManifest.V1.Version): ManagerVersion? {

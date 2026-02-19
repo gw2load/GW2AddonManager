@@ -29,6 +29,7 @@ import com.gw2tb.manager.model.inspections.migrations.Migration
 import com.gw2tb.manager.model.notifications.Notification
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
+import com.gw2tb.manager.model.notifications.NotificationException
 import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
 import com.gw2tb.manager.model.notifications.NotificationMigrationPossible
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
@@ -133,6 +134,9 @@ class RootComponentImpl(
                  */
                 val firstOffender = notification.inspections.first()
                 mainComponent.navigateToAddOnDetails(firstOffender.id)
+            }
+            is NotificationException -> {
+                mainComponent.navigateToException(notification.exception)
             }
             is NotificationMigrationPossible -> {
                 val plan = ActionPlan(

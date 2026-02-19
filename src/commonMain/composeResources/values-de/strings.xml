@@ -54,6 +54,20 @@
   <string name="confirm_action_description_uninstall">Deinstalliere %1$s</string>
   <string name="confirm_action_description_update">Aktualisiere %1$s zu %2$s (von %3$s)</string>
 
+  <string name="copy_report">Fehlerbericht kopieren</string>
+
+  <string name="exception_addon_manifest_slug">KATALOG NICHT VERFÜGBAR</string>
+  <string name="exception_addon_manifest_title">Add-on Katalog Nicht Verfügbar</string>
+  <string name="exception_addon_manifest_description">Die Anwendung konnte den Add-on-Katalog nicht abrufen. Es ist zur Zeit nicht möglich Add-ons zu aktualisieren oder neu zu installieren.\n\nBitte überprüfe deine Netzwerkverbindung.</string>
+
+  <string name="exception_manager_manifest_slug">UPDATE-CHECK FEHLGESCHLAGEN</string>
+  <string name="exception_manager_manifest_title">Add-on Manager Update-Check Fehlgeschlagen</string>
+  <string name="exception_manager_manifest_description">Der Update-Check für den Manager ist fehlgeschlagen.\n\nBitte überprüfe deine Netzwerkverbindung.</string>
+
+  <string name="exception_unexpected_slug">INTERNER FEHLER</string>
+  <string name="exception_unexpected_title">Unerwarteter Interner Fehler</string>
+  <string name="exception_unexpected_description">Die Anwendung ist in einen internen Fehler gelaufen. Bitte prüfe ob du die aktuelle Version des Guild Wars 2 Add-on Managers benutzt und melde das Problem den Entwicklern.</string>
+
   <string name="no_addons_installed">Keine Add-ons installiert</string>
 
   <string name="notification_addon_updates_available">ADD-ON UPDATES VERFÜGBAR</string>
@@ -62,6 +76,10 @@
   <string name="notification_migrations_possible">AUFRÄUMEN MÖGLICH</string>
   <string name="notification_missing_addon_dependencies">FEHLENDE ADD-ON ABHÄNGIGKEITEN</string>
   <string name="notification_more">+%1$s weitere</string>
+
+  <string name="open_logs_directory">Anwendungsprotokolle anzeigen</string>
+
+  <string name="report_issue">Fehlerberichte durchsuchen</string>
 
   <string name="select_language_label">SPRACHE</string>
 

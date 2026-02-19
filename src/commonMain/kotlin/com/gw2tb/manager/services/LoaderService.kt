@@ -17,11 +17,14 @@
 package com.gw2tb.manager.services
 
 import com.gw2tb.manager.discoverer.loader.Loader
+import com.gw2tb.manager.exceptions.ManagerException
 import kotlinx.coroutines.flow.Flow
 
 interface LoaderService {
 
     val loader: Flow<Loader>
+
+    val loaderListingManifestException: Flow<ManagerException?>
 
     suspend fun verifyLoader()
 

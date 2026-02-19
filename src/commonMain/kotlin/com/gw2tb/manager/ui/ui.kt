@@ -49,6 +49,7 @@ import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.ui.composables.*
 import com.gw2tb.manager.ui.screens.confirm.ConfirmActionPlan
 import com.gw2tb.manager.ui.screens.details.AddOnDetails
+import com.gw2tb.manager.ui.screens.exception.Exception
 import com.gw2tb.manager.ui.screens.explore.ExploreAddOns
 import com.gw2tb.manager.ui.screens.manage.ManageAddOns
 import com.gw2tb.manager.ui.screens.settings.SettingsScreen
@@ -439,6 +440,7 @@ private fun MainLayout(
         when (val activeChild = child.instance) {
             is MasterDetailComponent.Child.AddOnDetails -> AddOnDetails(activeChild.component)
             is MasterDetailComponent.Child.Confirm -> ConfirmActionPlan(activeChild.component)
+            is MasterDetailComponent.Child.Exception -> Exception(activeChild.component)
             is MasterDetailComponent.Child.ExploreAddOns -> ExploreAddOns(activeChild.component)
             is MasterDetailComponent.Child.InstalledAddOns -> ManageAddOns(activeChild.component)
         }

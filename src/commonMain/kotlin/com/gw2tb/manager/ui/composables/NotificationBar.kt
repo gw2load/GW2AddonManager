@@ -38,7 +38,13 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gw2tb.manager.exceptions.AddOnManifestException
+import com.gw2tb.manager.exceptions.ManagerManifestException
+import com.gw2tb.manager.exceptions.UnexpectedException
 import com.gw2tb.manager.gw2addonmanager.generated.resources.Res
+import com.gw2tb.manager.gw2addonmanager.generated.resources.exception_addon_manifest_slug
+import com.gw2tb.manager.gw2addonmanager.generated.resources.exception_manager_manifest_slug
+import com.gw2tb.manager.gw2addonmanager.generated.resources.exception_unexpected_slug
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_addon_updates_available
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_duplicate_installations
 import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_manager_update_available
@@ -48,6 +54,7 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.notification_more
 import com.gw2tb.manager.model.notifications.Notification
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
+import com.gw2tb.manager.model.notifications.NotificationException
 import com.gw2tb.manager.model.notifications.NotificationManagerUpdateAvailable
 import com.gw2tb.manager.model.notifications.NotificationMigrationPossible
 import com.gw2tb.manager.model.notifications.NotificationMissingAddOnDependencies
@@ -132,7 +139,8 @@ private fun NotificationChip(
 ) {
     val baseColor = when (notification.urgency) {
         Urgency.Informational -> ManagerColors.PositiveHighlight
-        Urgency.Critical -> ManagerColors.NegativeHighlight
+        Urgency.Warning -> ManagerColors.WarnHighlight
+        Urgency.Error, Urgency.Critical -> ManagerColors.NegativeHighlight
     }
 
     val darkColor = lerp(baseColor, Color.Black, 0.4F)
@@ -159,7 +167,7 @@ private fun NotificationChip(
                 Icon(
                     imageVector = when (notification.urgency) {
                         Urgency.Informational -> Icons.Outlined.Info
-                        Urgency.Critical -> Icons.Outlined.ReportProblem
+                        Urgency.Warning, Urgency.Error, Urgency.Critical -> Icons.Outlined.ReportProblem
                     },
                     contentDescription = null,
                     tint = Color.White
@@ -180,6 +188,11 @@ private fun NotificationChip(
                     text = when (notification) {
                         is NotificationAddOnUpdatesAvailable -> stringResource(Res.string.notification_addon_updates_available)
                         is NotificationDuplicateInstallation -> stringResource(Res.string.notification_duplicate_installations)
+                        is NotificationException -> when (notification.exception) {
+                            is AddOnManifestException -> stringResource(Res.string.exception_addon_manifest_slug)
+                            is ManagerManifestException -> stringResource(Res.string.exception_manager_manifest_slug)
+                            is UnexpectedException -> stringResource(Res.string.exception_unexpected_slug)
+                        }
                         is NotificationManagerUpdateAvailable -> stringResource(Res.string.notification_manager_update_available)
                         is NotificationMigrationPossible -> stringResource(Res.string.notification_migrations_possible)
                         is NotificationMissingAddOnDependencies -> stringResource(Res.string.notification_missing_addon_dependencies)

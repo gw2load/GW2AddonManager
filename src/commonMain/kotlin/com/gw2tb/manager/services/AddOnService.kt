@@ -19,6 +19,7 @@ package com.gw2tb.manager.services
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.OperationResult
 import com.gw2tb.manager.addon_manifest.AddOnId
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.catalog.AddOnListing
@@ -29,6 +30,8 @@ import kotlinx.coroutines.flow.Flow
 interface AddOnService {
 
     val addOnListings: Flow<List<AddOnListing>>
+
+    val addOnListingManifestException: Flow<ManagerException?>
 
     val allLocalAddOns: Flow<List<LocalAddOn>>
 

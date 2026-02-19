@@ -20,5 +20,6 @@ import java.nio.file.Path
 
 data class AppInfo(
     val version: String,
-    val applicationDir: Path?
+    val applicationDir: Path,
+    val logsDir: Path
 )

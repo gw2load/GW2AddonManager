@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -46,6 +47,7 @@ import com.gw2tb.manager.ui.composables.LocalAppLocaleIso
 import com.gw2tb.manager.ui.composables.LocalApplicationInfo
 import com.gw2tb.manager.ui.impl.RootComponentImpl
 import com.gw2tb.manager.ui.theme.glimmer
+import com.gw2tb.manager.ui.windowExceptionHandlerFactory
 import com.gw2tb.manager.util.use
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -65,7 +67,7 @@ import java.util.Locale
 import kotlin.io.path.absolutePathString
 
 fun main() {
-    val applicationDir = System.getProperty("manager.dir")?.let(Path::of)
+    val applicationDir = System.getProperty("manager.dir")?.let(Path::of) ?: error("Missing 'manager.dir' path")
 
     // 1. Resolve the local configuration path (for PC-specific information and logs)
     val appdataPath = try {
@@ -80,11 +82,17 @@ fun main() {
     }
 
     // 2. Prepare logging system
-    System.setProperty("logsDirectory", localAppDataDirectory.resolve("logs").absolutePathString())
+    val logsDir = localAppDataDirectory.resolve("logs")
+    System.setProperty("logsDirectory", logsDir.absolutePathString())
     Configurator.initialize(null, "log4j2.xml")
 
     // 3. Launch application
-    val appInfo = AppInfo(version = BuildConfig.BUILD_VERSION, applicationDir = applicationDir)
+    val appInfo = AppInfo(
+        version = BuildConfig.BUILD_VERSION,
+        applicationDir = applicationDir,
+        logsDir = logsDir
+    )
+
     runApplication(localAppDataDirectory, appInfo)
 }
 
@@ -136,16 +144,27 @@ private fun runApplication(
                 mainContext = mainContext
             )
 
+            val updateService = UpdateService(
+                versionRepository = managerVersionRepository
+            )
+
+            val exceptionService = ExceptionService(
+                addOnService = addOnService,
+                loaderService = loaderService,
+                updateService = updateService
+            )
+
+            Thread.currentThread().uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, throwable ->
+                exceptionService.handleException(throwable)
+            }
+
             val inspectionService = InspectionService(
                 addOnService = addOnService,
                 mainContext = mainContext
             )
 
-            val updateService = UpdateService(
-                versionRepository = managerVersionRepository
-            )
-
             val notificationService = NotificationService(
+                exceptionService = exceptionService,
                 inspectionService = inspectionService,
                 updateService = updateService
             )
@@ -175,7 +194,11 @@ private fun runApplication(
                     )
                 }
 
-                CompositionLocalProvider(LocalApplicationInfo provides appInfo) {
+                CompositionLocalProvider(
+                    LocalApplicationInfo provides appInfo,
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    (LocalWindowExceptionHandlerFactory provides exceptionService.windowExceptionHandlerFactory())
+                ) {
                     Window(
                         onCloseRequest = ::exitApplication,
                         onKeyEvent = { event ->

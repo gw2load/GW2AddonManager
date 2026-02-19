@@ -19,8 +19,10 @@ package com.gw2tb.manager.services
 import com.gw2tb.manager.AppInfo
 import com.gw2tb.manager.discoverer.Gw2LoadDiscoverer
 import com.gw2tb.manager.discoverer.loader.Loader
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.catalog.Download
 import com.gw2tb.manager.repository.AddOnRepository
+import com.gw2tb.manager.repository.FetchResultWithValue
 import com.gw2tb.manager.util.ReadWriteMutex
 import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
 import com.gw2tb.manager.util.watchDirectory
@@ -32,7 +34,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
@@ -89,6 +93,9 @@ class LoaderServiceImpl(
 
     private var latestLoader: Loader? = null
 
+    private val _loaderListingManifestException = MutableStateFlow<ManagerException?>(null)
+    override val loaderListingManifestException: Flow<ManagerException?> = _loaderListingManifestException.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class, FlowPreview::class)
     override val loader: Flow<Loader> = configurationService.localConfiguration
         .mapNotNull { it?.selectedGameDirectory }
@@ -138,7 +145,7 @@ class LoaderServiceImpl(
                     var gw2LoadInstances = gw2LoadDiscoverer.getAddOns(gameDirectory, emptyList())
                     emit(when (gw2LoadInstances.size) {
                         0 -> {
-                            val applicationDir = appInfo.applicationDir ?: error("Application directory could not be identified")
+                            val applicationDir = appInfo.applicationDir
                             gw2LoadInstances = gw2LoadDiscoverer.getAddOns(applicationDir.resolve("loader"), emptyList())
 
                             val localLoader = gw2LoadInstances.single()
@@ -188,9 +195,12 @@ class LoaderServiceImpl(
         try {
             tempLoaderRwLock.withWriteLock {
                 val currentLoader = loader.first()
-                val loaderManifestEntry = addOnRepository.getLoader() ?: return@withWriteLock
+                val loaderManifestEntry = addOnRepository.getLoader()
+                if (loaderManifestEntry !is FetchResultWithValue<*>) return@withWriteLock
 
-                val loaderRelease = loaderManifestEntry.release
+                // TODO Report errors in loader manifest
+
+                val loaderRelease = loaderManifestEntry.value.release
                 if (loaderRelease.version > currentLoader.localAddOn.version || currentLoader.isBundled) {
                     downloadLoader(loaderRelease)
                 }

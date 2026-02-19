@@ -22,6 +22,7 @@ import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.addon_manifest.AddOnId
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.services.*
 import com.gw2tb.manager.ui.MasterDetailComponent
@@ -30,6 +31,8 @@ import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent
 import com.gw2tb.manager.ui.screens.confirm.impl.ConfirmComponentImpl
 import com.gw2tb.manager.ui.screens.details.AddOnDetailsComponent
 import com.gw2tb.manager.ui.screens.details.impl.AddOnDetailsComponentImpl
+import com.gw2tb.manager.ui.screens.exception.ExceptionComponent
+import com.gw2tb.manager.ui.screens.exception.impl.ExceptionComponentImpl
 import com.gw2tb.manager.ui.screens.explore.ExploreComponent
 import com.gw2tb.manager.ui.screens.explore.impl.ExploreComponentImpl
 import com.gw2tb.manager.ui.screens.manage.ManageComponent
@@ -66,6 +69,7 @@ class MasterDetailComponentImpl(
                     componentContext = componentContext,
                     output = { output ->
                         when (output) {
+                            is AddOnDetailsComponent.Output.Exit -> navigation.pop()
                             is AddOnDetailsComponent.Output.NavigateToVendor -> output(Output.OpenUrl(url = output.url))
                             is AddOnDetailsComponent.Output.RequiresConfirmation -> navigateToConfirm(plan = output.plan)
                         }
@@ -73,6 +77,7 @@ class MasterDetailComponentImpl(
                 ))
                 is Config.Confirm -> Child.Confirm(ConfirmComponentImpl(
                     addOnService = addOnService,
+                    configurationService = configurationService,
                     plan = config.plan,
                     mainContext = mainContext,
                     componentContext = componentContext,
@@ -81,6 +86,11 @@ class MasterDetailComponentImpl(
                             is ConfirmComponent.Output.Exit -> navigation.pop()
                         }
                     }
+                ))
+                is Config.Exception -> Child.Exception(ExceptionComponentImpl(
+                    exception = config.exception,
+                    mainContext = mainContext,
+                    componentContext = componentContext
                 ))
                 is Config.ExploreAddOns -> Child.ExploreAddOns(ExploreComponentImpl(
                     addOnService = addOnService,
@@ -125,6 +135,10 @@ class MasterDetailComponentImpl(
 
     override fun navigateToConfirm(plan: ActionPlan) {
         navigation.bringToFront(Config.Confirm(plan))
+    }
+
+    override fun navigateToException(exception: ManagerException) {
+        navigation.replaceAll(Config.Exception(exception))
     }
 
     override fun navigateToExploreAddOns() {

@@ -34,6 +34,7 @@ import com.gw2tb.manager.discoverer.Gw2LoadAddOnDiscoverer
 import com.gw2tb.manager.discoverer.Gw2LoadDiscoverer
 import com.gw2tb.manager.discoverer.LegacyAddOnDiscoverer
 import com.gw2tb.manager.discoverer.LegacyArcDpsDiscoverer
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.*
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.isMatching
@@ -43,6 +44,8 @@ import com.gw2tb.manager.model.inspections.migrations.MigrationContext
 import com.gw2tb.manager.model.inspections.migrations.Migrator
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.repository.AddOnRepository
+import com.gw2tb.manager.repository.FetchResultWithException
+import com.gw2tb.manager.repository.FetchResultWithValue
 import com.gw2tb.manager.util.watchDirectory
 import com.sun.nio.file.ExtendedWatchEventModifier
 import io.ktor.http.*
@@ -107,6 +110,9 @@ private class AddOnServiceImpl(
 
     private val _addOnListings = MutableStateFlow(emptyList<AddOnListing>())
     override val addOnListings: Flow<List<AddOnListing>> = _addOnListings.asStateFlow()
+
+    private val _addOnListingManifestException = MutableStateFlow<ManagerException?>(null)
+    override val addOnListingManifestException: Flow<ManagerException?> = _addOnListingManifestException.asStateFlow()
 
     init {
         coroutineScope.launch {
@@ -591,11 +597,13 @@ private class AddOnServiceImpl(
         return execute(plan)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override suspend fun refresh() {
         addOnRepository.invalidateCache()
 
-        val addOnListings = addOnRepository.getAddOnListings()
-        _addOnListings.emit(addOnListings)
+        val result = addOnRepository.getAddOnListings()
+        _addOnListingManifestException.emit((result as? FetchResultWithException)?.cause)
+        _addOnListings.emit((result as? FetchResultWithValue<List<AddOnListing>>)?.value ?: emptyList())
     }
 
     private enum class DownloadType { Archive, Dll }

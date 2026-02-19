@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024-2025 Leon Linhart
+ * Copyright (C) 2024-2026 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,16 +14,22 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model.notifications
+package com.gw2tb.manager.ui.screens.exception
 
-/** The urgency level of a notification. */
-enum class Urgency {
-    /** A critical notification that requires immediate user attention before nominal operation can continue. */
-    Critical,
-    /** An error notification that requires user attention but that does not prevent nominal operation. */
-    Error,
-    /** A warning notification that informs the user that something went wrong without blocking them from proceeding. */
-    Warning,
-    /** An informational notification that the user may act upon. */
-    Informational
+import androidx.compose.ui.platform.Clipboard
+import com.gw2tb.manager.exceptions.ManagerException
+import java.nio.file.Path
+
+interface ExceptionComponent {
+
+    val exception: ManagerException
+
+    val report: String
+
+    fun copy(clipboard: Clipboard)
+
+    fun openDirectory(path: Path)
+
+    fun openLink(url: String)
+
 }

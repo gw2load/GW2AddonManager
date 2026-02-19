@@ -15,9 +15,9 @@
   ~ along with this program. If not, see <https://www.gnu.org/licenses/>.
   -->
 <resources>
-  <string name="app_name">GW2 Add-On Manager</string>
+  <string name="app_name">GW2 Add-on Manager</string>
   <string name="app_disclaimer">This project is not affiliated with ArenaNet or NCSOFT.</string>
-  <string name="app_logo_alt">Guild Wars 2 - Add-On Manager</string>
+  <string name="app_logo_alt">Guild Wars 2 - Add-on Manager</string>
 
   <string name="social_discord_tooltip">Join the Discord</string>
   <string name="social_github_tooltip">Open on GitHub</string>
@@ -61,6 +61,20 @@
   <string name="confirm_action_description_uninstall">Uninstall %1$s</string>
   <string name="confirm_action_description_update">Update %1$s to %2$s (from %3$s)</string>
 
+  <string name="copy_report">Copy exception report</string>
+
+  <string name="exception_addon_manifest_slug">CATALOG UNAVAILABLE</string>
+  <string name="exception_addon_manifest_title">Add-on Listings Unavailable</string>
+  <string name="exception_addon_manifest_description">The application failed to retrieve the add-on manifest. This prevents the manager from checking for add-on updates and installing new add-ons.\n\nnPlease check your network connection.</string>
+
+  <string name="exception_manager_manifest_slug">UPDATE-CHECK FAILED</string>
+  <string name="exception_manager_manifest_title">Add-on Manager Update-Check Failed</string>
+  <string name="exception_manager_manifest_description">The update-check for application updates failed unexpectedly.\n\nPlease check your network connection.</string>
+
+  <string name="exception_unexpected_slug">INTERNAL ERROR</string>
+  <string name="exception_unexpected_title">Unexpected Exception</string>
+  <string name="exception_unexpected_description">The application ran into an unexpected exception. Please make sure you are using the latest version of the Guild Wars 2 Add-on Manager and report this issue to the developers, if it persists.</string>
+
   <string name="no_addons_installed">No add-ons installed</string>
 
   <string name="notification_addon_updates_available">ADD-ON UPDATES AVAILABLE</string>
@@ -69,6 +83,10 @@
   <string name="notification_migrations_possible">CLEANUP POSSIBLE</string>
   <string name="notification_missing_addon_dependencies">MISSING ADD-ON DEPENDENCIES</string>
   <string name="notification_more">+%1$s more</string>
+
+  <string name="open_logs_directory">View application logs</string>
+
+  <string name="report_issue">Browse issues</string>
 
   <string name="select_language_label">LANGUAGE</string>
 

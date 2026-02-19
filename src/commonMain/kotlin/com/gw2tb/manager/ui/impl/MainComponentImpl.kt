@@ -29,6 +29,7 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.addon_manifest.AddOnId
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.LocalConfiguration
@@ -171,6 +172,18 @@ class MainComponentImpl(
 
         navigation.bringToFront(Config.MasterDetail(
             child = MasterDetailComponent.Config.Confirm(plan)
+        ))
+    }
+
+    override fun navigateToException(exception: ManagerException) {
+        val activeChild = page.active.instance
+        if (activeChild is Child.MasterDetail) {
+            activeChild.component.navigateToException(exception)
+            return
+        }
+
+        navigation.replaceAll(Config.MasterDetail(
+            child = MasterDetailComponent.Config.Exception(exception)
         ))
     }
 

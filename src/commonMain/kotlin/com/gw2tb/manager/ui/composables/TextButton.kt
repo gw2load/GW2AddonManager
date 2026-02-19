@@ -20,6 +20,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
@@ -35,6 +37,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.skiko.Cursor
 
@@ -104,7 +107,11 @@ fun TextButton(
                 .then(if (enabled) Modifier.pointerHoverIcon(icon = PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))) else Modifier),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            leadingIcon?.invoke()
+            if (leadingIcon != null) {
+                leadingIcon()
+                Spacer(Modifier.width(2.dp))
+            }
+
             text()
         }
     }

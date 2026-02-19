@@ -21,8 +21,5 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.gw2tb.manager.AppInfo
 
 val LocalApplicationInfo: ProvidableCompositionLocal<AppInfo> = staticCompositionLocalOf {
-    AppInfo(
-        version = "Unknown",
-        applicationDir = null
-    )
+    error("Application info not initialized.")
 }

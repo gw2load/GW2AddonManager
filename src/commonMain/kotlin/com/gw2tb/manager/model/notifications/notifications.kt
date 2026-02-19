@@ -16,6 +16,7 @@
  */
 package com.gw2tb.manager.model.notifications
 
+import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.ManagerVersion
 import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
@@ -38,6 +39,15 @@ data class NotificationAddOnUpdatesAvailable(val updates: Iterable<AvailableAddO
  */
 data class NotificationDuplicateInstallation(val inspections: Iterable<InspectionDuplicateInstallations>) : Notification {
     override val urgency: Urgency get() = Urgency.Critical
+}
+
+/**
+ * Indicates that an exception occurred.
+ *
+ * @param exception the exception
+ */
+data class NotificationException(val exception: ManagerException) : Notification {
+    override val urgency: Urgency get() = exception.urgency
 }
 
 /**
