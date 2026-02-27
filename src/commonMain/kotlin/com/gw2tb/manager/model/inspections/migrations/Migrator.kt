@@ -37,7 +37,7 @@ interface MigrationContext {
     fun LocalAddOnReference.hasMigration(migrator: Migrator<*>): Boolean
 
     fun LocalAddOnReference.hasMigration(vararg migrators: Migrator<*>): Boolean =
-        migrators.any { hasMigrator(it) }
+        migrators.any { hasMigration(it) }
 
     fun hasMigrator(migrator: Migrator<*>): Boolean
 
