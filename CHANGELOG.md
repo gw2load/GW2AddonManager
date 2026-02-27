@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Legacy add-on discovery now skips over file subtrees if an error is encountered while walking the file tree.
+  - Users with protected files in their game directory should now be able to use the manager reliably.
+
 ## [0.2.0] - 2026-02-19
 
 ### Added

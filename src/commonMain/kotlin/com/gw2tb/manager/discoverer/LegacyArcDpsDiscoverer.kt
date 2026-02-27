@@ -20,8 +20,13 @@ import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
 import com.gw2tb.manager.util.fileinfo.AddOnFileInfo
+import org.apache.logging.log4j.LogManager
+import java.io.IOException
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.walk
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 
 /**
  * A discoverer for versions of ArcDps without support for GW2Load.
@@ -33,8 +38,28 @@ import kotlin.io.path.walk
  */
 class LegacyArcDpsDiscoverer : AddOnDiscoverer {
 
+    private companion object {
+
+        private val log = LogManager.getLogger(LegacyArcDpsDiscoverer::class)
+
+    }
+
     override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
-        return gameDirectory.walk()
+        return buildList {
+            Files.walkFileTree(gameDirectory, object : SimpleFileVisitor<Path>() {
+
+                override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                    add(file)
+                    return FileVisitResult.CONTINUE
+                }
+
+                override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
+                    log.warn("Skipping over subtree due to I/O exception: ${file.relativize(gameDirectory)}", exc)
+                    return FileVisitResult.SKIP_SUBTREE
+                }
+
+            })
+        }
             .filter(isDistinctFrom(discoveredAddOns))
             .mapNotNull(::discover)
             .toList()
