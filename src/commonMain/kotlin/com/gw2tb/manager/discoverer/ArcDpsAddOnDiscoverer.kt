@@ -21,7 +21,6 @@ import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.isSameFileAs
-import kotlin.io.path.listDirectoryEntries
 
 class ArcDpsAddOnDiscoverer(
     private val blacklistedFiles: Set<Path> = EXCLUDED_GAME_FILES
@@ -58,23 +57,20 @@ class ArcDpsAddOnDiscoverer(
             .flatMap { localAddOn ->
                 val installationDirectory = localAddOn.path.parent
 
-                (installationDirectory.listDirectoryEntries("*.dll") +
-                    installationDirectory.listDirectoryEntries("*.dll.disabled"))
+                installationDirectory.listDirectoryEntries(IS_POTENTIAL_ADDON_FILE)
                     .filter(blacklistFilter(gameDirectory))
                     .filter { path -> discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
                     .mapNotNull(::discover)
             }
 
-        val rootDirectoryEntries = (gameDirectory.listDirectoryEntries("*.dll") +
-            gameDirectory.listDirectoryEntries("*.dll.disabled"))
             .filter(blacklistFilter(gameDirectory))
             .filter { path -> discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
             .mapNotNull(::discover)
+        val rootDirectoryEntries = gameDirectory.listDirectoryEntries(IS_POTENTIAL_ADDON_FILE)
 
         val bin64Directory = gameDirectory.resolve("bin64")
         val bin64DirectoryEntries = if (bin64Directory.isDirectory()) {
-            (bin64Directory.listDirectoryEntries("*.dll") +
-                bin64Directory.listDirectoryEntries("*.dll.disabled"))
+            bin64Directory.listDirectoryEntries(IS_POTENTIAL_ADDON_FILE)
                 .filter(blacklistFilter(gameDirectory))
                 .filter { path -> discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
                 .mapNotNull(::discover)
