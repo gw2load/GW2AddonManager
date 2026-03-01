@@ -73,8 +73,8 @@ class ArcDpsAddOnDiscoverer(
 
         val bin64Directory = gameDirectory.resolve("bin64")
         val bin64DirectoryEntries = if (bin64Directory.isDirectory()) {
-            (gameDirectory.listDirectoryEntries("*.dll") +
-                gameDirectory.listDirectoryEntries("*.dll.disabled"))
+            (bin64Directory.listDirectoryEntries("*.dll") +
+                bin64Directory.listDirectoryEntries("*.dll.disabled"))
                 .filter(blacklistFilter(gameDirectory))
                 .filter { path -> discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
                 .mapNotNull(::discover)

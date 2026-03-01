@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Legacy add-on discovery now skips over file subtrees if an error is encountered while walking the file tree.
   - Users with protected files in their game directory should now be able to use the manager reliably.
 - Fixed a bug that caused the addonloader migration to be available even when addonloader add-ons were present.
+- ArcDPS add-ons in bin64 are now correctly discovered.
 
 ## [0.2.0] - 2026-02-19
 
