@@ -23,13 +23,11 @@ import com.gw2tb.manager.util.fileinfo.FileVersion
 import org.apache.logging.log4j.LogManager
 import java.io.IOException
 import java.nio.file.FileVisitResult
-import java.nio.file.FileVisitor
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.fileSize
-import kotlin.io.path.walk
 
 /**
  * A discoverer for the old addonloader.
@@ -83,6 +81,8 @@ class LegacyAddOnLoaderDiscoverer(
             FileHash(10_752 ,"0c86f74c260fad76d2fcfbb43ef5cfbd20e66898fcd2bdb19a7e3cbb37e3848941296ad156353bb5fab2664bf891358b3ef06e91268e1ea46c531d2ee4d5a071")
         )
 
+        private val KNOWN_SIZES = KNOWN_HASHES.map(FileHash::size).toSet()
+
     }
 
     override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
@@ -90,7 +90,7 @@ class LegacyAddOnLoaderDiscoverer(
             Files.walkFileTree(gameDirectory, object : SimpleFileVisitor<Path>() {
 
                 override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-                    add(file)
+                    if (attrs.isRegularFile && attrs.size() in KNOWN_SIZES) add(file)
                     return FileVisitResult.CONTINUE
                 }
 
