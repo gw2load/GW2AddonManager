@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The manager now correctly updates add-ons behind symbolic links. (#211)
+
 ### Changed
 
 - Introduced local add-on information caching to increase discovery performance.

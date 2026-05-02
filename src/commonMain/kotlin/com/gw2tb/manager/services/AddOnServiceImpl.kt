@@ -67,7 +67,10 @@ import kotlin.collections.flatten
 import kotlin.collections.none
 import kotlin.collections.toList
 import kotlin.coroutines.CoroutineContext
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.isSymbolicLink
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.readSymbolicLink
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.measureTimedValue
 
@@ -263,7 +266,15 @@ private class AddOnServiceImpl(
             else -> throw IllegalArgumentException("Unknown download type for URL: ${listing.download.downloadUrl}")
         }
 
-        val targetPath = targetPath ?: let {
+        val targetPath = if (targetPath != null) {
+            var res: Path = targetPath
+            while (res.isSymbolicLink()) {
+                res = res.resolve(res.readSymbolicLink())
+            }
+
+            log.info("Updating add-on '${listing.id}' at resolved link location: ${targetPath.absolutePathString()} => ${res.absolutePathString()}")
+            res
+        } else {
             val gameDirectory = configurationService.localConfiguration.firstOrNull()?.selectedGameDirectory
                 ?: throw IllegalStateException("No game directory selected")
 
@@ -348,6 +359,8 @@ private class AddOnServiceImpl(
                         Files.move(downloadTargetPath, targetPath, StandardCopyOption.REPLACE_EXISTING)
                     }
                 }
+            } catch (e: Throwable) {
+                e.printStackTrace()
             } finally {
                 Files.deleteIfExists(downloadTargetPath)
             }
