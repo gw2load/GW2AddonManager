@@ -40,16 +40,18 @@ private val log = LoggerFactory.getLogger(FileInfoReader::class.java)
 fun Path.readAddOnFileInfo(): AddOnFileInfo? {
     fun UInt.ifZero(other: () -> UInt): UInt = if (this == 0u) other() else this
 
+    val absolutePathString = absolutePathString()
+
     Arena.ofConfined().use { arena ->
         val pHandle = arena.allocate(JAVA_INT)
 
-        val size = Version.GetFileVersionInfoSizeW(absolutePathString(), pHandle)
+        val size = Version.GetFileVersionInfoSizeW(absolutePathString, pHandle)
         if (size == 0u) return null
 
         val handle = pHandle.get(JAVA_INT, 0).toUInt()
         val buffer = arena.allocate(size.toLong())
 
-        if (!Version.GetFileVersionInfoW(absolutePathString(), handle, buffer)) {
+        if (!Version.GetFileVersionInfoW(absolutePathString, handle, buffer)) {
             log.warn("Could not retrieve file version info for $this")
             return null
         }
