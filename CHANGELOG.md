@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Introduced local add-on information caching to increase discovery performance.
+
 ### Fixed
 
 - Legacy add-on discovery now skips over file subtrees if an error is encountered while walking the file tree.

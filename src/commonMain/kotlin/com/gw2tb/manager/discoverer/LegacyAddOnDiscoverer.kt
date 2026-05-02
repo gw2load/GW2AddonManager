@@ -37,7 +37,7 @@ class LegacyAddOnDiscoverer : AddOnDiscoverer {
         private val log = LogManager.getLogger(LegacyAddOnDiscoverer::class)
     }
 
-    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+    override fun AddOnDiscoveryContext.getAddOns(gameDirectory: Path): List<LocalAddOn> {
         val addOnsDirectory = gameDirectory.resolve("addons")
 
         if (!addOnsDirectory.isDirectory()) {

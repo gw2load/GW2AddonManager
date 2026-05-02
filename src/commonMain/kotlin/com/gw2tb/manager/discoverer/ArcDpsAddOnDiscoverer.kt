@@ -17,6 +17,7 @@
 package com.gw2tb.manager.discoverer
 
 import com.gw2tb.manager.model.local.LocalAddOn
+import com.gw2tb.manager.util.listDirectoryEntries
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
@@ -50,29 +51,29 @@ class ArcDpsAddOnDiscoverer(
 
     }
 
-    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
-        val arcDpsInstallations = discoveredAddOns.filter { localAddOn -> localAddOn.kind == LocalAddOn.Kind.ARC_DPS }
+    override fun AddOnDiscoveryContext.getAddOns(gameDirectory: Path): List<LocalAddOn> {
+        val arcDpsInstallations = discoveredAddOns.filter { (_, localAddOn) -> localAddOn.kind == LocalAddOn.Kind.ARC_DPS }
 
         val arcDpsDirectoryEntries = arcDpsInstallations
-            .flatMap { localAddOn ->
+            .flatMap { (_, localAddOn) ->
                 val installationDirectory = localAddOn.path.parent
 
                 installationDirectory.listDirectoryEntries(IS_POTENTIAL_ADDON_FILE)
                     .filter(blacklistFilter(gameDirectory))
-                    .filter { path -> discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
+                    .filter { path -> discoveredAddOns.none { (_, localAddOn) -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
                     .mapNotNull(::discover)
             }
 
-            .filter(blacklistFilter(gameDirectory))
-            .filter { path -> discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
-            .mapNotNull(::discover)
         val rootDirectoryEntries = gameDirectory.listDirectoryEntries(IS_POTENTIAL_ADDON_FILE)
+                .filter(blacklistFilter(gameDirectory))
+                .filter { path -> discoveredAddOns.none { (_, localAddOn) -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
+                .mapNotNull(::discover)
 
         val bin64Directory = gameDirectory.resolve("bin64")
         val bin64DirectoryEntries = if (bin64Directory.isDirectory()) {
             bin64Directory.listDirectoryEntries(IS_POTENTIAL_ADDON_FILE)
                 .filter(blacklistFilter(gameDirectory))
-                .filter { path -> discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
+                .filter { path -> discoveredAddOns.none { (_, localAddOn) -> localAddOn.path.isSameFileAs(gameDirectory.resolve(path)) } }
                 .mapNotNull(::discover)
         } else {
             emptyList()

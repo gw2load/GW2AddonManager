@@ -18,7 +18,6 @@ package com.gw2tb.manager.discoverer
 
 import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
-import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
 import com.gw2tb.manager.util.fileinfo.AddOnFileInfo
 import org.apache.logging.log4j.LogManager
 import java.io.IOException
@@ -44,7 +43,7 @@ class LegacyArcDpsDiscoverer : AddOnDiscoverer {
 
     }
 
-    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+    override fun AddOnDiscoveryContext.getAddOns(gameDirectory: Path): List<LocalAddOn> {
         return buildList {
             Files.walkFileTree(gameDirectory, object : SimpleFileVisitor<Path>() {
 
@@ -61,14 +60,14 @@ class LegacyArcDpsDiscoverer : AddOnDiscoverer {
             })
         }
             .filter(isDistinctFrom(discoveredAddOns))
-            .mapNotNull(::discover)
+            .mapNotNull { discover(it) }
             .toList()
     }
 
-    private fun discover(path: Path): LocalAddOn? {
+    private fun AddOnDiscoveryContext.discover(path: Path): LocalAddOn? {
         if (!path.toString().endsWith(".dll") && !path.toString().endsWith(".dll.disabled")) return null
 
-        val addOnFileInfo = path.readAddOnFileInfo() ?: return null
+        val addOnFileInfo = getAddOnFileInfo(path) ?: return null
         if (!addOnFileInfo.name.contentEquals("arcdps")) return null
 
         return LocalAddOn(

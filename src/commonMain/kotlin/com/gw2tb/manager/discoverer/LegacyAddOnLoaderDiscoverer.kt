@@ -85,7 +85,7 @@ class LegacyAddOnLoaderDiscoverer(
 
     }
 
-    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+    override fun AddOnDiscoveryContext.getAddOns(gameDirectory: Path): List<LocalAddOn> {
         return buildList {
             Files.walkFileTree(gameDirectory, object : SimpleFileVisitor<Path>() {
 

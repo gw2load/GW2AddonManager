@@ -32,12 +32,10 @@ interface AddOnDiscoverer {
      * Returns a list of local add-ons found in the given game directory.
      *
      * @param gameDirectory     the game directory to search for add-ons
-     * @param discoveredAddOns  the list of add-ons that has already been discovered (typically, by other discoverers
-     *                          earlier in the chain)
      *
      * @return  a list of local add-ons found in the given game directory
      */
-    fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn>
+    fun AddOnDiscoveryContext.getAddOns(gameDirectory: Path): List<LocalAddOn>
 
     /**
      * Returns a filtering function that checks whether a given path refers to the same file as a previously discovered
@@ -47,8 +45,8 @@ interface AddOnDiscoverer {
      *
      * @return  the filter function
      */
-    fun isDistinctFrom(discoveredAddOns: List<LocalAddOn>): (Path) -> Boolean = { path ->
-        discoveredAddOns.none { localAddOn -> localAddOn.path.isSameFileAs(path) }
+    fun isDistinctFrom(discoveredAddOns: Map<Path, LocalAddOn>): (Path) -> Boolean = { path ->
+        path !in discoveredAddOns
     }
 
 }

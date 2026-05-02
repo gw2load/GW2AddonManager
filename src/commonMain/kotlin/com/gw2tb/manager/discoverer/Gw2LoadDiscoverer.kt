@@ -18,7 +18,6 @@ package com.gw2tb.manager.discoverer
 
 import com.gw2tb.manager.model.local.AddOnVersion
 import com.gw2tb.manager.model.local.LocalAddOn
-import com.gw2tb.manager.util.fileinfo.readAddOnFileInfo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -38,7 +37,7 @@ class Gw2LoadDiscoverer(
         val log: Logger = LoggerFactory.getLogger(Gw2LoadDiscoverer::class.java)
     }
 
-    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+    override fun AddOnDiscoveryContext.getAddOns(gameDirectory: Path): List<LocalAddOn> {
         require(discoveredAddOns.isEmpty()) { "${this::class.simpleName} should always run first" }
         log.info("Searching directory for {} using {}: {}", addOnName, this::class.simpleName, gameDirectory)
 
@@ -49,7 +48,7 @@ class Gw2LoadDiscoverer(
             if (libraryPath.isRegularFile()) {
                 log.info("Found {} at '{}'", addOnName, libraryPath)
 
-                val addOnFileInfo = libraryPath.readAddOnFileInfo()
+                val addOnFileInfo = getAddOnFileInfo(libraryPath)
                 if (addOnFileInfo != null) {
                     add(LocalAddOn(
                         kind = LocalAddOn.Kind.GW2_LOAD_LOADER,
@@ -64,7 +63,7 @@ class Gw2LoadDiscoverer(
             if (disabledLibraryPath.isRegularFile()) {
                 log.info("Found {} at '{}'", addOnName, libraryPath)
 
-                val addOnFileInfo = libraryPath.readAddOnFileInfo()
+                val addOnFileInfo = getAddOnFileInfo(libraryPath)
                 if (addOnFileInfo != null) {
                     add(LocalAddOn(
                         kind = LocalAddOn.Kind.GW2_LOAD_LOADER,

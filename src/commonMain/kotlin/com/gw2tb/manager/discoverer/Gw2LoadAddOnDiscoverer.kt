@@ -32,7 +32,7 @@ class Gw2LoadAddOnDiscoverer(
     private val pattern: String = ".*\\.dll(\\.disabled)?"
 ) : AddOnDiscoverer {
 
-    override fun getAddOns(gameDirectory: Path, discoveredAddOns: List<LocalAddOn>): List<LocalAddOn> {
+    override fun AddOnDiscoveryContext.getAddOns(gameDirectory: Path): List<LocalAddOn> {
         // We can safely ignore add-ons that have already been discovered due to GW2Load's reliable discovery
         return loader.getAddOns(gameDirectory, pattern)
     }

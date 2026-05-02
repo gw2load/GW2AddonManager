@@ -17,6 +17,7 @@
 package com.gw2tb.manager.services
 
 import com.gw2tb.manager.AppInfo
+import com.gw2tb.manager.discoverer.EmptyAddOnDiscoveryContext
 import com.gw2tb.manager.discoverer.Gw2LoadDiscoverer
 import com.gw2tb.manager.discoverer.loader.Loader
 import com.gw2tb.manager.exceptions.ManagerException
@@ -142,11 +143,11 @@ class LoaderServiceImpl(
                         }
                     }
 
-                    var gw2LoadInstances = gw2LoadDiscoverer.getAddOns(gameDirectory, emptyList())
+                    var gw2LoadInstances = with(gw2LoadDiscoverer) { EmptyAddOnDiscoveryContext.getAddOns(gameDirectory) }
                     emit(when (gw2LoadInstances.size) {
                         0 -> {
                             val applicationDir = appInfo.applicationDir
-                            gw2LoadInstances = gw2LoadDiscoverer.getAddOns(applicationDir.resolve("loader"), emptyList())
+                            gw2LoadInstances = with(gw2LoadDiscoverer) { EmptyAddOnDiscoveryContext.getAddOns(applicationDir.resolve("loader")) }
 
                             val localLoader = gw2LoadInstances.single()
                             log.info("Using bundled instance of GW2Load at '{}'", localLoader.path)

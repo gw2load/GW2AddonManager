@@ -27,6 +27,7 @@ import com.gw2tb.manager.actions.ActionUninstallAddOn
 import com.gw2tb.manager.actions.ActionUpdateAddOn
 import com.gw2tb.manager.actions.OperationResult
 import com.gw2tb.manager.addon_manifest.AddOnId
+import com.gw2tb.manager.discoverer.AbstractAddOnDiscoveryContext
 import com.gw2tb.manager.discoverer.AddOnDiscoverer
 import com.gw2tb.manager.discoverer.LegacyAddOnLoaderDiscoverer
 import com.gw2tb.manager.discoverer.ArcDpsAddOnDiscoverer
@@ -59,6 +60,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import java.util.concurrent.ConcurrentHashMap
 import java.util.zip.ZipFile
 import kotlin.collections.any
 import kotlin.collections.flatten
@@ -67,6 +69,7 @@ import kotlin.collections.toList
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.listDirectoryEntries
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.measureTimedValue
 
 fun AddOnService(
     addOnRepository: AddOnRepository,
@@ -134,14 +137,18 @@ private class AddOnServiceImpl(
                  */
                 .debounce(10.milliseconds)
                 .map {
-                    buildList {
-                        for (discoverer in discoverers) {
-                            val localAddOns = discoverer.getAddOns(gameDirectory, toList())
-                            log.info("Found {} local add-ons using {}", localAddOns.size, discoverer::class.simpleName)
-
-                            addAll(localAddOns)
+                    buildMap discoveredAddOns@{
+                        val discoveryContext = object : AbstractAddOnDiscoveryContext() {
+                            override val discoveredAddOns: Map<Path, LocalAddOn> get() = this@discoveredAddOns.toMap()
                         }
-                    }
+
+                        for (discoverer in discoverers) {
+                            val (localAddOns, duration) = measureTimedValue { with(discoverer) { discoveryContext.getAddOns(gameDirectory) } }
+                            log.info("Found {} local add-ons using {} in {}", localAddOns.size, discoverer::class.simpleName, duration)
+
+                            putAll(localAddOns.map { it.path to it })
+                        }
+                    }.values.toList()
                 }
         }
         .onStart { emit(emptyList()) }
