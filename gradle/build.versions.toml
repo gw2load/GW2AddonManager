@@ -1,5 +1,5 @@
 [versions]
-caffeine = "3.2.3"
+caffeine = "3.2.4"
 compose = "1.10.3"
 decompose = "3.5.0"
 essenty = "2.5.0"
