@@ -24,7 +24,7 @@ import com.gw2tb.manager.repository.FetchResultWithException
 import com.gw2tb.manager.repository.FetchResultWithValue
 import com.gw2tb.manager.repository.ManagerVersionRepository
 import com.gw2tb.manager.repository.map
-import io.github.z4kn4fein.semver.Version
+import com.osmerion.kotlin.semver.Version
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
