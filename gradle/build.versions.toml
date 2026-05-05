@@ -50,7 +50,7 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 
 # io.github.z4kn4fein:semver - kotlin-semver
 # https://github.com/z4kn4fein/kotlin-semver
-semver = { module = "io.github.z4kn4fein:semver", version = "3.0.0" }
+semver = { module = "io.github.z4kn4fein:semver", version = "3.1.0" }
 
 # org.apache.logging.log4j - Log4j
 # https://github.com/apache/logging-log4j2
