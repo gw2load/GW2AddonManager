@@ -10,7 +10,7 @@ kotlinx-coroutines = "1.10.2"
 ktor = "3.4.3"
 log4j = "2.26.0"
 mockito = "5.23.0"
-slf4j = "2.0.17"
+slf4j = "2.0.18"
 turbine = "1.2.1"
 
 
