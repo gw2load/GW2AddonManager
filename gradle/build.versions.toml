@@ -90,7 +90,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # tech.annexflow.compose:constraintlayout-compose-multiplatform - ConstraintLayout for Compose Multiplatform
 # https://github.com/Lavmee/constraintlayout-compose-multiplatform
-compose-constraintlayout = { module = "tech.annexflow.compose:constraintlayout-compose-multiplatform", version = "0.7.0" }
+compose-constraintlayout = { module = "tech.annexflow.compose:constraintlayout-compose-multiplatform", version = "0.8.0" }
 
 
 [plugins]
