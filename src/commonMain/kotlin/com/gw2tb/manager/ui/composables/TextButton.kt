@@ -39,7 +39,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gw2tb.manager.ui.theme.ManagerColors
-import org.jetbrains.skiko.Cursor
+import java.awt.Cursor
 
 @Composable
 fun TextButton(
