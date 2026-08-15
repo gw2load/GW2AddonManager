@@ -237,14 +237,14 @@ tasks {
         )
     }
 
-    val generateGW2AddonManagerLauncherConfig by getting(GenerateLauncherConfig::class)
+    val generateGW2AddonManagerLauncherConfig = named<GenerateLauncherConfig>("generateGW2AddonManagerLauncherConfig")
 
-    val generateGW2AddOnManagerLauncherManifest by registering(GenerateLauncherApplicationManifest::class) {
+    val generateGW2AddOnManagerLauncherManifest = register<GenerateLauncherApplicationManifest>("generateGW2AddOnManagerLauncherManifest") {
         assemblyName = project.name
         version = jvmLauncher.launchers.named(project.name).flatMap { it.fileVersion }.map { it.toString(".") }
     }
 
-    val compileGW2AddonManagerJvmLauncher by getting(BuildJvmLauncher::class) {
+    val compileGW2AddonManagerJvmLauncher = named<BuildJvmLauncher>("compileGW2AddonManagerJvmLauncher") {
         dependsOn(generateGW2AddOnManagerLauncherManifest)
 
         resources.from(generateGW2AddOnManagerLauncherManifest.map { it.destinationDirectory.file("manifest.rc") })
@@ -279,9 +279,9 @@ tasks {
         }
 
         into(".") {
-            from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("${project.name}.exe"))
-            from(compileGW2AddonManagerJvmLauncher.destinationDirectory.file("config.toml"))
-            from(generateGW2AddonManagerLauncherConfig.outputFile)
+            from(compileGW2AddonManagerJvmLauncher.flatMap { it.destinationDirectory.file("${project.name}.exe") })
+            from(compileGW2AddonManagerJvmLauncher.flatMap { it.destinationDirectory.file("config.toml") })
+            from(generateGW2AddonManagerLauncherConfig.flatMap(GenerateLauncherConfig::outputFile))
             from(cyclonedxBom.get().jsonOutput)
         }
     }
