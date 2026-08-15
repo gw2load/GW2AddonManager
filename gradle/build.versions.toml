@@ -112,7 +112,7 @@ jvmLauncher = { id = "com.osmerion.jvm-launcher", version = "0.4.0" }
 
 # org.cyclonedx.bom - CycloneDX Gradle Plugin
 # https://github.com/CycloneDX/cyclonedx-gradle-plugin
-cyclonedx = { id = "org.cyclonedx.bom", version = "3.4.0" }
+cyclonedx = { id = "org.cyclonedx.bom", version = "3.4.1" }
 
 # org.jetbrains.compose - Compose Multiplatform
 # https://github.com/JetBrains/compose-multiplatform
