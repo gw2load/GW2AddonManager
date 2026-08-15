@@ -14,12 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model.inspections
+package com.gw2tb.manager.inspections.migrations
 
+import com.gw2tb.manager.actions.Action
 import com.gw2tb.manager.model.LocalAddOnReference
 
-sealed interface Inspection {
+interface Migration {
 
-    val affectedRefs: Iterable<LocalAddOnReference>
+    val affectedRefs: List<LocalAddOnReference>
+
+    fun migrate(): Iterable<Action>
 
 }

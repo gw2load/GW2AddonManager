@@ -22,8 +22,6 @@ import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.pushNew
-import com.arkivanov.decompose.router.stack.pushToFront
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
@@ -33,7 +31,7 @@ import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.internal.BuildConfig
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.LocalConfiguration
-import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.notifications.Urgency
 import com.gw2tb.manager.services.AddOnService
 import com.gw2tb.manager.services.ConfigurationService

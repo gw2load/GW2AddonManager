@@ -25,7 +25,7 @@ import com.gw2tb.manager.actions.ActionInstallAddOn
 import com.gw2tb.manager.actions.ActionPlan
 import com.gw2tb.manager.actions.ActionUpdateAddOn
 import com.gw2tb.manager.model.LocalConfiguration
-import com.gw2tb.manager.model.inspections.migrations.Migration
+import com.gw2tb.manager.inspections.migrations.Migration
 import com.gw2tb.manager.model.notifications.Notification
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation

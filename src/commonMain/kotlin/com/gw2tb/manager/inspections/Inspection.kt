@@ -14,19 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.services
+package com.gw2tb.manager.inspections
 
-import com.gw2tb.manager.inspections.Inspection
-import com.gw2tb.manager.inspections.Inspector
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.mapNotNull
+import com.gw2tb.manager.model.LocalAddOnReference
 
-interface InspectionService {
+sealed interface Inspection {
 
-    val inspections: Flow<Map<Inspector<*>, Iterable<Inspection>>>
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Inspection> inspectionsByType(inspector: Inspector<T>): Flow<Iterable<T>> =
-        inspections.mapNotNull { it[inspector]?.map { inspection -> inspection as T } }
+    val affectedRefs: Iterable<LocalAddOnReference>
 
 }

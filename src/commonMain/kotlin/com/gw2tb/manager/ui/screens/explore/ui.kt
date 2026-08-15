@@ -31,9 +31,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.gw2tb.manager.model.catalog.isMatching
-import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
-import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
-import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.ui.composables.AddOnList
 import com.gw2tb.manager.ui.composables.AddOnListItem
 import com.gw2tb.manager.ui.composables.AddOnListItemState

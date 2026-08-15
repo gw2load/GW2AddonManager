@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024-2025 Leon Linhart
+ * Copyright (C) 2024-2026 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,15 +14,31 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model.inspections.migrations
+package com.gw2tb.manager.inspections.migrations
 
-import com.gw2tb.manager.actions.Action
 import com.gw2tb.manager.model.LocalAddOnReference
+import com.gw2tb.manager.model.catalog.AddOnListing
+import com.gw2tb.manager.model.local.LocalAddOn
 
-interface Migration {
+sealed interface Migrator<M : Migration> {
 
-    val affectedRefs: List<LocalAddOnReference>
+    fun MigrationContext.migrate(): Iterable<M>
 
-    fun migrate(): Iterable<Action>
+}
+
+interface MigrationContext {
+
+    val addOnListings: Iterable<AddOnListing>
+
+    val allLocalAddOns: Iterable<LocalAddOn>
+
+    val localAddOns: Iterable<LocalAddOn>
+
+    fun LocalAddOnReference.hasMigration(migrator: Migrator<*>): Boolean
+
+    fun LocalAddOnReference.hasMigration(vararg migrators: Migrator<*>): Boolean =
+        migrators.any { hasMigration(it) }
+
+    fun hasMigrator(migrator: Migrator<*>): Boolean
 
 }

@@ -19,9 +19,9 @@ package com.gw2tb.manager.model.notifications
 import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.ManagerVersion
-import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
-import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
-import com.gw2tb.manager.model.inspections.migrations.Migration
+import com.gw2tb.manager.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.inspections.migrations.Migration
 
 /**
  * Indicates that add-on updates are available.

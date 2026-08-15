@@ -42,10 +42,10 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_install
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_repair
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_update
 import com.gw2tb.manager.model.AvailableAddOnUpdate
-import com.gw2tb.manager.model.inspections.Inspection
-import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
-import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
-import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.inspections.Inspection
+import com.gw2tb.manager.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.ui.theme.ManagerColors
 import org.jetbrains.compose.resources.stringResource

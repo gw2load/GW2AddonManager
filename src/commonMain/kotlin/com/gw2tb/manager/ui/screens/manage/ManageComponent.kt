@@ -21,7 +21,7 @@ import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.InstalledAddOn
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.inspections.Inspection
+import com.gw2tb.manager.inspections.Inspection
 import com.gw2tb.manager.services.Job
 import kotlinx.coroutines.flow.StateFlow
 

@@ -14,16 +14,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model.inspections
+package com.gw2tb.manager.inspections
 
-import com.gw2tb.manager.model.inspections.migrations.Migration
+import com.gw2tb.manager.inspections.migrations.Migration
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.inspections.migrations.AddOnLoaderAddOnToGw2LoadAddOnMigration
-import com.gw2tb.manager.model.inspections.migrations.AddOnLoaderMigration
-import com.gw2tb.manager.model.inspections.migrations.D3D9WrapperMigration
-import com.gw2tb.manager.model.inspections.migrations.MigrationContext
-import com.gw2tb.manager.model.inspections.migrations.Migrator
+import com.gw2tb.manager.inspections.migrations.AddOnLoaderAddOnToGw2LoadAddOnMigration
+import com.gw2tb.manager.inspections.migrations.AddOnLoaderMigration
+import com.gw2tb.manager.inspections.migrations.D3D9WrapperMigration
+import com.gw2tb.manager.inspections.migrations.MigrationContext
+import com.gw2tb.manager.inspections.migrations.Migrator
 import com.gw2tb.manager.model.local.LocalAddOn
 
 /**

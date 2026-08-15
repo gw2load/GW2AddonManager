@@ -69,8 +69,8 @@ import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_description_u
 import com.gw2tb.manager.gw2addonmanager.generated.resources.addon_vendor_unknown
 import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.inspections.Inspection
-import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.inspections.Inspection
+import com.gw2tb.manager.inspections.InspectionAddOnUpdateAvailable
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.ui.composables.OutlinedButton
 import com.gw2tb.manager.ui.composables.TextButton

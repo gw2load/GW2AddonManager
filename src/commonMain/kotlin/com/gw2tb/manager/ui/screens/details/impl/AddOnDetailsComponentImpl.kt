@@ -24,7 +24,7 @@ import com.gw2tb.manager.model.AvailableAddOnUpdate
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.isMatching
-import com.gw2tb.manager.model.inspections.Inspection
+import com.gw2tb.manager.inspections.Inspection
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.AddOnService
 import com.gw2tb.manager.services.ConfigurationService

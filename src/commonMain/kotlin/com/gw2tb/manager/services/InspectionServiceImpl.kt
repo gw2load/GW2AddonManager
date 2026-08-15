@@ -18,20 +18,19 @@ package com.gw2tb.manager.services
 
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.AddOnListing
-import com.gw2tb.manager.model.inspections.Inspection
-import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
-import com.gw2tb.manager.model.inspections.InspectionContext
-import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
-import com.gw2tb.manager.model.inspections.InspectionMigrationPossible
-import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
-import com.gw2tb.manager.model.inspections.Inspector
+import com.gw2tb.manager.inspections.Inspection
+import com.gw2tb.manager.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.inspections.InspectionContext
+import com.gw2tb.manager.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.inspections.InspectionMigrationPossible
+import com.gw2tb.manager.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.inspections.Inspector
 import com.gw2tb.manager.model.local.LocalAddOn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlin.coroutines.CoroutineContext
 

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model.inspections
+package com.gw2tb.manager.inspections
 
 import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.LocalAddOnReference

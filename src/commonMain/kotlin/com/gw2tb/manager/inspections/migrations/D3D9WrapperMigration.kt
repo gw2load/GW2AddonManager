@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model.inspections.migrations
+package com.gw2tb.manager.inspections.migrations
 
 import com.gw2tb.manager.actions.Action
 import com.gw2tb.manager.actions.ActionUninstallAddOn
@@ -22,35 +22,39 @@ import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.local.LocalAddOn
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 
-/** A migration that removes all traces of the legacy addonloader once it is no longer required. */
-class AddOnLoaderMigration(
-    override val affectedRefs: List<LocalAddOnReference>
+/**  A migration that removes d3d9_wrapper if no addonloader add-ons without migration path remain. */
+class D3D9WrapperMigration(
+    val d3d9Wrapper: LocalAddOnReference
 ) : Migration {
 
-    companion object : Migrator<AddOnLoaderMigration> {
+    companion object : Migrator<D3D9WrapperMigration> {
 
-        val log: Logger = LoggerFactory.getLogger(AddOnLoaderMigration::class.java)
+        val log: Logger = LoggerFactory.getLogger(D3D9WrapperMigration::class.java)
 
-        override fun MigrationContext.migrate(): Iterable<AddOnLoaderMigration> {
-            if (localAddOns.any { localAddOn ->
+        override fun MigrationContext.migrate(): Iterable<D3D9WrapperMigration> {
+            val d3d9WrapperAddOn = localAddOns.find { it.path.endsWith(Path.of("addons/d3d9_wrapper/gw2addon_d3d9_wrapper.dll")) }
+            if (d3d9WrapperAddOn == null) {
+                log.debug("d3d9 wrapper not found")
+                return emptyList()
+            }
+
+            if (localAddOns.count { localAddOn ->
                 localAddOn.kind == LocalAddOn.Kind.ADDONLOADER_ADDON
-                    && !localAddOn.ref.hasMigration(AddOnLoaderAddOnToGw2LoadAddOnMigration, D3D9WrapperMigration)
-            }) {
-                log.debug("Addonloader add-ons prevent addonloader removal")
+                    && !localAddOn.ref.hasMigration(AddOnLoaderAddOnToGw2LoadAddOnMigration)
+            } > 1) {
+                log.debug("Cannot remove d3d9 wrapper")
                 return emptyList()
             }
 
-            val addOnLoader = localAddOns.filter { localAddOn -> localAddOn.kind == LocalAddOn.Kind.ADDONLOADER }
-            if (addOnLoader.isEmpty()) {
-                log.debug("Found no addonloader-related installations to remove")
-                return emptyList()
-            }
-
-            return listOf(AddOnLoaderMigration(affectedRefs = addOnLoader.map { it.ref }))
+            return listOf(D3D9WrapperMigration(d3d9WrapperAddOn.ref))
         }
 
     }
+
+    override val affectedRefs: List<LocalAddOnReference>
+        get() = listOf(d3d9Wrapper)
 
     override fun migrate(): Iterable<Action> =
         affectedRefs.map(::ActionUninstallAddOn)

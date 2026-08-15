@@ -29,9 +29,9 @@ import com.gw2tb.manager.services.AddOnService
 import com.gw2tb.manager.services.Job
 import com.gw2tb.manager.services.JobService
 import com.gw2tb.manager.model.InstalledAddOn
-import com.gw2tb.manager.model.inspections.Inspection
-import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
-import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.inspections.Inspection
+import com.gw2tb.manager.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.services.InspectionService
 import com.gw2tb.manager.ui.screens.manage.ManageComponent

@@ -1,6 +1,6 @@
 /*
  * Guild Wars 2 Add-on Manager
- * Copyright (C) 2024-2025 Leon Linhart
+ * Copyright (C) 2024-2026 Leon Linhart
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU Lesser General Public License as published
@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package com.gw2tb.manager.model.inspections
+package com.gw2tb.manager.inspections
 
 import com.gw2tb.manager.addon_manifest.AddOnId
 import com.gw2tb.manager.model.LocalAddOnReference
 import com.gw2tb.manager.model.catalog.isMatching
 import com.gw2tb.manager.model.local.LocalAddOn
 import org.slf4j.LoggerFactory
+import kotlin.collections.iterator
 
 /**
  * A duplicate installation of an add-on.

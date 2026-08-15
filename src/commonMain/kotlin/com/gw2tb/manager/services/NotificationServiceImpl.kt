@@ -16,10 +16,10 @@
  */
 package com.gw2tb.manager.services
 
-import com.gw2tb.manager.model.inspections.InspectionAddOnUpdateAvailable
-import com.gw2tb.manager.model.inspections.InspectionDuplicateInstallations
-import com.gw2tb.manager.model.inspections.InspectionMigrationPossible
-import com.gw2tb.manager.model.inspections.InspectionMissingAddOnDependencies
+import com.gw2tb.manager.inspections.InspectionAddOnUpdateAvailable
+import com.gw2tb.manager.inspections.InspectionDuplicateInstallations
+import com.gw2tb.manager.inspections.InspectionMigrationPossible
+import com.gw2tb.manager.inspections.InspectionMissingAddOnDependencies
 import com.gw2tb.manager.model.notifications.NotificationAddOnUpdatesAvailable
 import com.gw2tb.manager.model.notifications.NotificationDuplicateInstallation
 import com.gw2tb.manager.model.notifications.NotificationException

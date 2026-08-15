@@ -39,10 +39,10 @@ import com.gw2tb.manager.exceptions.ManagerException
 import com.gw2tb.manager.model.*
 import com.gw2tb.manager.model.catalog.AddOnListing
 import com.gw2tb.manager.model.catalog.isMatching
-import com.gw2tb.manager.model.inspections.InspectionMigrationPossible
-import com.gw2tb.manager.model.inspections.migrations.Migration
-import com.gw2tb.manager.model.inspections.migrations.MigrationContext
-import com.gw2tb.manager.model.inspections.migrations.Migrator
+import com.gw2tb.manager.inspections.InspectionMigrationPossible
+import com.gw2tb.manager.inspections.migrations.Migration
+import com.gw2tb.manager.inspections.migrations.MigrationContext
+import com.gw2tb.manager.inspections.migrations.Migrator
 import com.gw2tb.manager.model.local.LocalAddOn
 import com.gw2tb.manager.repository.AddOnRepository
 import com.gw2tb.manager.repository.FetchResultWithException
@@ -60,7 +60,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
-import java.util.concurrent.ConcurrentHashMap
 import java.util.zip.ZipFile
 import kotlin.collections.any
 import kotlin.collections.flatten
