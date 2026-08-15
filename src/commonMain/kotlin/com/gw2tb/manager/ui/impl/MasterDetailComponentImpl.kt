@@ -17,7 +17,6 @@
 package com.gw2tb.manager.ui.impl
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import com.gw2tb.manager.actions.ActionPlan
@@ -31,7 +30,6 @@ import com.gw2tb.manager.ui.screens.confirm.ConfirmComponent
 import com.gw2tb.manager.ui.screens.confirm.impl.ConfirmComponentImpl
 import com.gw2tb.manager.ui.screens.details.AddOnDetailsComponent
 import com.gw2tb.manager.ui.screens.details.impl.AddOnDetailsComponentImpl
-import com.gw2tb.manager.ui.screens.exception.ExceptionComponent
 import com.gw2tb.manager.ui.screens.exception.impl.ExceptionComponentImpl
 import com.gw2tb.manager.ui.screens.explore.ExploreComponent
 import com.gw2tb.manager.ui.screens.explore.impl.ExploreComponentImpl
@@ -124,13 +122,11 @@ class MasterDetailComponentImpl(
     )
 
     override fun navigateToAddOnDetails(id: AddOnId) {
-        @OptIn(DelicateDecomposeApi::class)
-        navigation.push(Config.AddOnDetails(addOnId = id))
+        navigation.bringToFront(Config.AddOnDetails(addOnId = id))
     }
 
     override fun navigateToAddOnDetails(ref: LocalAddOnReference) {
-        @OptIn(DelicateDecomposeApi::class)
-        navigation.push(Config.AddOnDetails(ref = ref))
+        navigation.bringToFront(Config.AddOnDetails(ref = ref))
     }
 
     override fun navigateToConfirm(plan: ActionPlan) {

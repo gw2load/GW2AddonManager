@@ -17,13 +17,13 @@
 package com.gw2tb.manager.ui.impl
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushNew
+import com.arkivanov.decompose.router.stack.pushToFront
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
@@ -144,8 +144,7 @@ class MainComponentImpl(
             return
         }
 
-        @OptIn(DelicateDecomposeApi::class)
-        navigation.push(Config.MasterDetail(
+        navigation.bringToFront(Config.MasterDetail(
             child = MasterDetailComponent.Config.AddOnDetails(addOnId = id)
         ))
     }
@@ -157,8 +156,7 @@ class MainComponentImpl(
             return
         }
 
-        @OptIn(DelicateDecomposeApi::class)
-        navigation.push(Config.MasterDetail(
+        navigation.bringToFront(Config.MasterDetail(
             child = MasterDetailComponent.Config.AddOnDetails(ref = ref)
         ))
     }
