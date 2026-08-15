@@ -57,6 +57,10 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
 
+# org.assertj - AssertJ
+# https://github.com/assertj/assertj
+assertj-core = { module = "org.assertj:assertj-core", version = "3.27.7" }
+
 # org.jetbrains.compose - Compose Multiplatform
 # https://github.com/JetBrains/compose-multiplatform
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }

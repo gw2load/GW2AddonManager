@@ -32,7 +32,7 @@ class SetupUiTest {
 
     @Test
     fun `testConfirmSetupButton - Game Directory Selected`(@TempDir gameDirectory: Path) = runComposeUiTest {
-        val component = spy(SetupComponentDummy(initiallySelectedGameDirectory = gameDirectory))
+        val component = spy(DummySetupComponent(initiallySelectedGameDirectory = gameDirectory))
 
         setContent {
             SetupScreen(component)
@@ -47,7 +47,7 @@ class SetupUiTest {
 
     @Test
     fun `testConfirmSetupButton - No Directory Selected`() = runComposeUiTest {
-        val component = SetupComponentDummy(initiallySelectedGameDirectory = null)
+        val component = DummySetupComponent(initiallySelectedGameDirectory = null)
 
         setContent {
             SetupScreen(component)

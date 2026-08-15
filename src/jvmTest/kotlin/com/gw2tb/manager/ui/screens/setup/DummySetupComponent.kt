@@ -19,7 +19,7 @@ package com.gw2tb.manager.ui.screens.setup
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.nio.file.Path
 
-class SetupComponentDummy(
+class DummySetupComponent(
     initiallySelectedGameDirectory: Path? = null
 ) : SetupComponent {
 
