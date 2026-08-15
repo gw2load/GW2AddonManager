@@ -47,16 +47,16 @@ class LegacyAddOnDiscoverer : AddOnDiscoverer {
 
         return addOnsDirectory.listDirectoryEntries()
             .filter(Path::isDirectory)
-            .flatMap(::discover)
+            .flatMap { discover(it) }
     }
 
-    private fun discover(directory: Path): List<LocalAddOn> = buildList {
+    private fun AddOnDiscoveryContext.discover(directory: Path): List<LocalAddOn> = buildList {
         val addonFileBaseName = "gw2addon_${directory.fileName}"
 
         val enabledAddOnPath = directory.resolve("$addonFileBaseName.dll")
         val disabledAddOnPath = directory.resolve("$addonFileBaseName.dll.disabled")
 
-        if (enabledAddOnPath.isRegularFile()) {
+        if (enabledAddOnPath.isRegularFile() && isDistinctFrom(discoveredAddOns)(enabledAddOnPath)) {
             add(LocalAddOn(
                 kind = LocalAddOn.Kind.ADDONLOADER_ADDON,
                 path = enabledAddOnPath,
@@ -65,7 +65,7 @@ class LegacyAddOnDiscoverer : AddOnDiscoverer {
             ))
         }
 
-        if (disabledAddOnPath.isRegularFile()) {
+        if (disabledAddOnPath.isRegularFile() && isDistinctFrom(discoveredAddOns)(disabledAddOnPath)) {
             add(LocalAddOn(
                 kind = LocalAddOn.Kind.ADDONLOADER_ADDON,
                 path = disabledAddOnPath,
