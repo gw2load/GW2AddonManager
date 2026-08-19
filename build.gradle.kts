@@ -150,7 +150,7 @@ kotlin {
                 implementation(buildDeps.mockito.core)
 
                 implementation("com.google.jimfs:jimfs:1.3.2")
-                implementation("io.github.scordio:jimfs-junit-jupiter:0.1.0")
+                implementation("io.github.scordio:jimfs-junit-jupiter:1.0.0")
 
                 runtimeOnly(buildDeps.junit.jupiter.engine)
                 runtimeOnly(buildDeps.junit.platform.launcher)
