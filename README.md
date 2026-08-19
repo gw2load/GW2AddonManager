@@ -22,7 +22,7 @@ all responsibility. There is no warranty for using this software.
 
 ```
 GW2AddonManager
-Copyright (C) 2024 Leon Linhart
+Copyright (C) 2024-2026 Leon Linhart
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of version 3 of the GNU Lesser General Public License as published
