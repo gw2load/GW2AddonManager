@@ -43,6 +43,10 @@ import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ReportProblem
@@ -104,6 +108,14 @@ fun AddOnDetails(component: AddOnDetailsComponent) {
             val localAddOn = localAddOns.singleOrNull() ?: error("Cannot uninstall ambiguous add-on")
             component.uninstallAddOn(localAddOn.ref)
         },
+        enableAddOn = {
+            val localAddOn = localAddOns.singleOrNull() ?: error("Cannot enable ambiguous add-on")
+            component.enableAddOn(localAddOn.ref)
+        },
+        disableAddOn = {
+            val localAddOn = localAddOns.singleOrNull() ?: error("Cannot disable ambiguous add-on")
+            component.disableAddOn(localAddOn.ref)
+        },
         updateAddOn = component::updateAddOn,
         navigateToVendor = component::navigateToVendor,
         inspections = inspections
@@ -117,6 +129,8 @@ private fun AddOnDetails(
     localAddOns: List<LocalAddOn>,
     installAddOn: () -> Unit,
     uninstallAddOn: () -> Unit,
+    enableAddOn: () -> Unit,
+    disableAddOn: () -> Unit,
     updateAddOn: (AvailableAddOnUpdate) -> Unit,
     navigateToVendor: (String) -> Unit,
     inspections: Iterable<Inspection>
@@ -218,6 +232,7 @@ private fun AddOnDetails(
                     .animateContentSize()
             ) {
                 val availableUpdate = (inspections.singleOrNull() as? InspectionAddOnUpdateAvailable)?.update
+                val singleLocalAddOn = localAddOns.singleOrNull()
 
                 AnimatedVisibility(visible = availableUpdate != null) {
                     OutlinedButton(
@@ -229,6 +244,20 @@ private fun AddOnDetails(
                             contentDescription = null,
                             modifier = Modifier.size(32.dp),
                             tint = ManagerColors.PositiveHighlight
+                        )
+                    }
+                }
+
+                AnimatedVisibility(visible = singleLocalAddOn != null) {
+                    val isEnabled = singleLocalAddOn!!.isEnabled
+
+                    OutlinedButton(
+                        onClick = { if (isEnabled) disableAddOn() else enableAddOn() }
+                    ) {
+                        Icon(
+                            imageVector = if (isEnabled) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                 }

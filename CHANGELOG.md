@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add-ons can now be enabled and disabled from the add-on details screen. (#210)
 - The manager now correctly updates add-ons behind symbolic links. (#211)
 
 ### Changed
