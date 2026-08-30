@@ -1,6 +1,6 @@
 [versions]
 caffeine = "3.2.4"
-compose = "1.11.1"
+compose = "1.12.0"
 decompose = "3.5.0"
 essenty = "2.5.0"
 filekit-compose = "0.8.8"
