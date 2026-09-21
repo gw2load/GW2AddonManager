@@ -126,7 +126,7 @@ jobs:
           PORTABLE_URL: ${{ steps.extract_info.outputs.portable_url }}
         run: |
           ./gradlew updateManifest \
-            --manifest-dir=./run/site/manifests \
+            --manifest-dir=./run/site/manifest \
             --installer-path=./installer/bin/x64/Release/GW2AddonManager-${{ steps.get_version.outputs.version }}.msi \
             --installer-url=${INSTALLER_URL} \
             --portable-path=./build/bundles/GW2AddonManager-${{ steps.get_version.outputs.version }}.zip \
@@ -143,7 +143,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          git add ./manifests
+          git add ./manifest
           git commit -m "Updated manifests for version ${VERSION}"
           git push
 
