@@ -47,11 +47,8 @@ class SetupComponentImpl(
 
     }
 
-    private val coroutineContext = CoroutineScope(Dispatchers.Default)
-
-    private val _selectedGameDirectory = MutableSharedFlow<Path>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    override val selectedGameDirectory: StateFlow<Path?> = _selectedGameDirectory
-        .stateIn(coroutineContext, started = SharingStarted.Eagerly, initialValue = null)
+    private val _selectedGameDirectory = MutableStateFlow<Path?>(value = null)
+    override val selectedGameDirectory: StateFlow<Path?> = _selectedGameDirectory.asStateFlow()
 
     init {
         val suggestedGameDirectory = gw2Discoverers.firstNotNullOfOrNull { it.findGameDirectory() }
