@@ -1,0 +1,26 @@
+{
+    "format": "1",
+    "versions": [
+        {
+            "version": [
+                0,
+                3,
+                0,
+                65535
+            ],
+            "versionString": "0.3.0",
+            "artifacts": [
+                {
+                    "type": "installer",
+                    "downloadUrl": "https://github.com/gw2load/GW2AddonManager/releases/download/untagged-0994ab66b1d274ff86db/GW2AddonManager-0.3.0.msi",
+                    "downloadSha512": "9d45bc4481bbaa29e024fb6cf003da62cec30ec971a8bce71f696b5434a0ed20bb844303b4f87ef51da7ae3fd0b4ea4c868fcf0d874020683ab0785bfa0ca5f4"
+                },
+                {
+                    "type": "portable",
+                    "downloadUrl": "https://github.com/gw2load/GW2AddonManager/releases/download/untagged-0994ab66b1d274ff86db/GW2AddonManager-0.3.0.zip",
+                    "downloadSha512": "f9c8d9f62e050e1a23e70e7873299bd3dcfe5ff9ecc2a2de876dff69f7202bbedcab34b382b2fee75fc83680684c24a384e066c31a082baef4ea25fa945cac6b"
+                }
+            ]
+        }
+    ]
+}
