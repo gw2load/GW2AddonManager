@@ -21,10 +21,12 @@ import com.gw2tb.manager.manager_manifest.parseAddOnManagerManifest
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -52,9 +54,17 @@ abstract class UpdateManagerManifests : DefaultTask() {
     @get:Input
     abstract val versionString: Property<String>
 
+    @get:InputFile
+    @get:Option(option = "installer-path", description = "The path to the local installer artifact.")
+    abstract val installerPath: RegularFileProperty
+
     @get:Input
     @get:Option(option = "installer-url", description = "The URL of the installer artifact.")
     abstract val installerUrl: Property<String>
+
+    @get:InputFile
+    @get:Option(option = "portable-path", description = "The path to the local portable artifact.")
+    abstract val portablePath: RegularFileProperty
 
     @get:Input
     @get:Option(option = "portable-url", description = "The URL of the portable artifact.")
@@ -72,18 +82,20 @@ abstract class UpdateManagerManifests : DefaultTask() {
         versionString.finalizeValue()
         val versionString = versionString.get()
 
+        installerPath.finalizeValue()
+        val installerPath = installerPath.get().asFile.toPath()
+
         installerUrl.finalizeValue()
         val installerUrl = installerUrl.get()
+
+        portablePath.finalizeValue()
+        val portablePath = portablePath.get().asFile.toPath()
 
         portableUrl.finalizeValue()
         val portableUrl = portableUrl.get()
 
-        val httpClient = HttpClient.newBuilder()
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .build()
-
-        val installerSha512 = httpClient.calculateSha512Checksum(installerUrl)
-        val portalSha512 = httpClient.calculateSha512Checksum(portableUrl)
+        val installerSha512 = calculateSha512Checksum(installerPath)
+        val portalSha512 = calculateSha512Checksum(portablePath)
 
         updateManifestV1(directory, version, versionString, installerUrl, installerSha512, portableUrl, portalSha512)
     }
@@ -132,21 +144,12 @@ abstract class UpdateManagerManifests : DefaultTask() {
             prettyPrint = true
         }
 
-        manifestPath.writeText(json.encodeToString(manifest))
+        manifestPath.writeText(json.encodeToString(AddOnManagerManifest.serializer(),manifest))
     }
 
-    private fun HttpClient.calculateSha512Checksum(url: String): String {
-        val httpRequest = HttpRequest.newBuilder()
-            .GET()
-            .uri(URI.create(url))
-            .build()
-
-        val httpResponse = send(httpRequest, HttpResponse.BodyHandlers.ofInputStream())
-        if (httpResponse.statusCode() != 200) error("Unexpected HTTP status code ${httpResponse.statusCode()} for url: $url")
-
+    private fun calculateSha512Checksum(path: Path): String {
         val digest = MessageDigest.getInstance("SHA-512")
-
-        httpResponse.body().use { input ->
+        path.inputStream().use { input ->
             val buffer = ByteArray(8192)
             var bytesRead: Int
             while ((input.read(buffer).also { bytesRead = it }) != -1) {

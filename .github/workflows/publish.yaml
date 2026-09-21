@@ -127,7 +127,9 @@ jobs:
         run: |
           ./gradlew updateManifest \
             --manifest-dir=./run/site/manifests \
+            --installer-path=./installer/bin/x64/Release/GW2AddonManager-${{ steps.get_version.outputs.version }}.msi \
             --installer-url=${INSTALLER_URL} \
+            --portable-path=./build/bundles/GW2AddonManager-${{ steps.get_version.outputs.version }}.zip \
             --portable-url=${PORTABLE_URL}
 
       - name: Push Manifest
