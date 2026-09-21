@@ -148,4 +148,6 @@ jobs:
           git push
 
       - name: Publish Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh release edit ${{ steps.vcs_tag.outputs.tag_name }} --draft=false
