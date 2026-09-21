@@ -176,7 +176,7 @@ licensee {
 
     allowUrl("https://github.com/hypfvieh/dbus-java/blob/master/LICENSE") // MIT
     allowUrl("https://github.com/vinceglb/FileKit/blob/main/LICENSE") // MIT
-    allowUrl("https://raw.githubusercontent.com/z4kn4fein/kotlin-semver/main/LICENSE") // MIT
+    allowUrl("https://github.com/Osmerion/kotlin-semver/blob/master/LICENSE") // MIT
     allowUrl("https://opensource.org/license/mit") // MIT
 }
 
