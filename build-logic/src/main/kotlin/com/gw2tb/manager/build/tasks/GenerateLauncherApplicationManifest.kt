@@ -93,8 +93,8 @@ abstract class GenerateLauncherApplicationManifest @Inject constructor(
           </trustInfo>
 
           <asmv3:application>
-            <asmv3:windowsSettings xmlns:dpi1="https://schemas.microsoft.com/SMI/2005/WindowsSettings"
-                                   xmlns:dpi2="https://schemas.microsoft.com/SMI/2016/WindowsSettings">
+            <asmv3:windowsSettings xmlns:dpi1="http://schemas.microsoft.com/SMI/2005/WindowsSettings"
+                                   xmlns:dpi2="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
               <dpi1:dpiAware>true/PM</dpi1:dpiAware>
               <dpi2:dpiAwareness>PerMonitorV2, PerMonitor, system</dpi2:dpiAwareness>
             </asmv3:windowsSettings>
