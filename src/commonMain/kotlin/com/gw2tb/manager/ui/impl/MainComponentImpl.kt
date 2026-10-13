@@ -59,6 +59,7 @@ import kotlinx.serialization.Serializable
 import java.awt.Desktop
 import java.net.URI
 import kotlin.coroutines.CoroutineContext
+import kotlin.io.path.absolutePathString
 
 class MainComponentImpl(
     private val addOnService: AddOnService,
@@ -232,7 +233,10 @@ class MainComponentImpl(
                 addOnService.updateAddOns(inspections.map { it.update })
             }
 
-            Desktop.getDesktop().open(gameDirectory.resolve("Gw2-64.exe").toFile())
+            ProcessBuilder()
+                .directory(gameDirectory.toFile())
+                .command(gameDirectory.resolve("Gw2-64.exe").absolutePathString())
+                .start()
         }
     }
 
