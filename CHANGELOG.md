@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The "Play" button now once again launches the game correctly. (#305)
+- Fixed a bug that could cause the UI to freeze when uninstalling add-ons. (#306)
 
 ## [0.3.0] - 2026-09-21
 

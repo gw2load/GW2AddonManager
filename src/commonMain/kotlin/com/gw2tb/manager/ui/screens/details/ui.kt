@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
@@ -55,6 +56,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -225,7 +229,7 @@ private fun AddOnDetails(
                 }
             }
 
-            Row(
+            LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -234,55 +238,50 @@ private fun AddOnDetails(
                 val availableUpdate = (inspections.singleOrNull() as? InspectionAddOnUpdateAvailable)?.update
                 val singleLocalAddOn = localAddOns.singleOrNull()
 
-                AnimatedVisibility(visible = availableUpdate != null) {
-                    OutlinedButton(
-                        onClick = { updateAddOn(availableUpdate!!) },
-                        baseColor = ManagerColors.PositiveHighlight
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Update,
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp),
-                            tint = ManagerColors.PositiveHighlight
-                        )
+                if (availableUpdate != null) {
+                    item(key = "update") {
+                        OutlinedButton(
+                            onClick = { updateAddOn(availableUpdate) },
+                            baseColor = ManagerColors.PositiveHighlight
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Update,
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
+                                tint = ManagerColors.PositiveHighlight
+                            )
+                        }
                     }
                 }
 
-                AnimatedVisibility(visible = singleLocalAddOn != null) {
-                    val isEnabled = singleLocalAddOn!!.isEnabled
+                if (singleLocalAddOn != null) {
+                    item(key = "toggle") {
+                        val isEnabled = singleLocalAddOn.isEnabled
 
-                    OutlinedButton(
-                        onClick = { if (isEnabled) disableAddOn() else enableAddOn() }
-                    ) {
-                        Icon(
-                            imageVector = if (isEnabled) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp)
-                        )
+                        OutlinedButton(
+                            onClick = { if (isEnabled) disableAddOn() else enableAddOn() }
+                        ) {
+                            Icon(
+                                imageVector = if (isEnabled) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
                     }
                 }
 
-                if (localAddOns.isNotEmpty()) {
-                    OutlinedButton(
-                        onClick = uninstallAddOn,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                } else {
-                    OutlinedButton(
-                        onClick = installAddOn,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Download,
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
+                item(key = "manage") {
+                    val isInstalled = localAddOns.isNotEmpty()
 
+                    OutlinedButton(
+                        onClick = { if (isInstalled) uninstallAddOn() else installAddOn() },
+                    ) {
+                        Icon(
+                            imageVector = if (isInstalled) Icons.Default.Delete else Icons.Filled.Download,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
             }
         }
