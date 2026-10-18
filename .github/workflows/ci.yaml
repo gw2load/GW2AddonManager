@@ -81,3 +81,13 @@ jobs:
           name: portable
           path: "./build/bundles/GW2AddOnManager-${{ steps.get_version.outputs.version }}.zip"
           retention-days: 7
+
+  status:
+    name: Status
+    if: always()
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine overall status
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
